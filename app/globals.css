@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #F4F8F2;
+    color: #1B3A2D;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl border border-brand-border shadow-card p-6;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold text-brand-dark;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm text-brand-dark
+           placeholder:text-brand-muted
+           focus:outline-none focus:ring-2 focus:ring-brand-green focus:border-transparent
+           transition-all;
+  }
+
+  .label-base {
+    @apply block text-sm font-medium text-brand-dark mb-1.5;
+  }
+}
