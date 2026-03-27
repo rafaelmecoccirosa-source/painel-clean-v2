@@ -1,0 +1,29 @@
+import type { Metadata } from "next";
+import "./globals.css";
+
+export const metadata: Metadata = {
+  title: {
+    default: "PainelClean — Limpeza de Placas Solares",
+    template: "%s | PainelClean",
+  },
+  description:
+    "Marketplace especializado em limpeza profissional de placas solares. Conectamos clientes a técnicos certificados para maximizar a eficiência do seu sistema fotovoltaico.",
+  keywords: [
+    "limpeza de placas solares",
+    "manutenção fotovoltaica",
+    "energia solar",
+    "técnico solar",
+  ],
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="pt-BR">
+      <body>{children}</body>
+    </html>
+  );
+}
