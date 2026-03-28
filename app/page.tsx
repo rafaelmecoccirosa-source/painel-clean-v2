@@ -14,13 +14,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-brand-bg">
       {/* Header público */}
-      <header className="bg-brand-dark">
+      <header className="bg-brand-light border-b border-brand-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Logo inverted size="sm" />
+          <Logo size="sm" />
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-white/80 hover:text-white text-sm font-medium transition-colors"
+              className="text-brand-dark/70 hover:text-brand-dark text-sm font-medium transition-colors"
             >
               Entrar
             </Link>
@@ -40,7 +40,7 @@ export default function HomePage() {
             <Sun size={14} className="text-brand-green" />
             Maximize a eficiência do seu sistema solar
           </div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-6">
+          <h1 className="font-heading text-4xl sm:text-5xl font-extrabold leading-tight mb-6">
             Limpeza profissional de{" "}
             <span className="text-brand-green">placas solares</span>
             <br />
@@ -88,7 +88,7 @@ export default function HomePage() {
 
       {/* Features */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <h2 className="text-2xl font-bold text-brand-dark text-center mb-10">
+        <h2 className="font-heading text-2xl font-bold text-brand-dark text-center mb-10">
           Como funciona
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -124,7 +124,7 @@ export default function HomePage() {
                   {step}
                 </span>
               </div>
-              <h3 className="text-base font-semibold text-brand-dark mb-2">
+              <h3 className="font-heading text-base font-semibold text-brand-dark mb-2">
                 {title}
               </h3>
               <p className="text-sm text-brand-muted leading-relaxed">{desc}</p>

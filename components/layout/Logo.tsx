@@ -42,20 +42,20 @@ export default function Logo({ inverted = false, size = "md" }: LogoProps) {
         <rect x="18" y="38" width="12" height="2" rx="1" fill="white" fillOpacity="0.8" />
       </svg>
 
-      <div className="flex flex-col leading-none">
+      <div className="flex flex-col leading-none gap-0.5">
         <span
-          className={`font-bold tracking-tight ${text} ${
+          className={`font-heading font-bold tracking-tight ${text} ${
             inverted ? "text-white" : "text-brand-dark"
           }`}
         >
-          Painel<span className="text-brand-green">Clean</span>
+          Painel <span className="text-brand-green">Clean</span>
         </span>
         <span
-          className={`text-[10px] font-medium tracking-widest uppercase ${
+          className={`text-[9px] font-medium tracking-wide ${
             inverted ? "text-white/60" : "text-brand-muted"
           }`}
         >
-          Solar
+          Limpeza de Placa Solar
         </span>
       </div>
     </Link>
