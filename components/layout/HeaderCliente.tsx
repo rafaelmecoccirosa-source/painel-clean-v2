@@ -33,11 +33,11 @@ export default function HeaderCliente({
     .toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 bg-brand-dark shadow-lg">
+    <header className="sticky top-0 z-50 bg-brand-light border-b border-brand-border shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Logo inverted size="sm" />
+          <Logo size="sm" />
 
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-1">
@@ -53,7 +53,7 @@ export default function HeaderCliente({
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
+                      : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
                   {link.label}
@@ -66,7 +66,7 @@ export default function HeaderCliente({
           <div className="flex items-center gap-3">
             {/* Notifications */}
             <button
-              className="relative p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              className="relative p-2 text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 rounded-lg transition-colors"
               aria-label="Notificações"
             >
               <Bell size={20} />
@@ -81,17 +81,17 @@ export default function HeaderCliente({
             <div className="relative">
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-white/10 transition-colors"
+                className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-brand-dark/5 transition-colors"
               >
                 <div className="h-8 w-8 rounded-full bg-brand-green flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                   {initials}
                 </div>
-                <span className="hidden sm:block text-white/90 text-sm font-medium max-w-[120px] truncate">
+                <span className="hidden sm:block text-brand-dark text-sm font-medium max-w-[120px] truncate">
                   {userName}
                 </span>
                 <ChevronDown
                   size={14}
-                  className={`text-white/60 transition-transform ${
+                  className={`text-brand-dark/50 transition-transform ${
                     profileOpen ? "rotate-180" : ""
                   }`}
                 />
@@ -138,7 +138,7 @@ export default function HeaderCliente({
 
             {/* Mobile menu toggle */}
             <button
-              className="md:hidden p-2 text-white/80 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+              className="md:hidden p-2 text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 rounded-lg transition-colors"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Menu"
             >
@@ -150,7 +150,7 @@ export default function HeaderCliente({
 
       {/* Mobile nav */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/10 bg-brand-dark">
+        <div className="md:hidden border-t border-brand-border bg-brand-light">
           <nav className="px-4 py-3 flex flex-col gap-1">
             {navLinks.map((link) => {
               const isActive =
@@ -165,7 +165,7 @@ export default function HeaderCliente({
                   className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
-                      : "text-white/80 hover:text-white hover:bg-white/10"
+                      : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
                   {link.label}

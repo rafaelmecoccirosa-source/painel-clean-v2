@@ -12,15 +12,17 @@ const config: Config = {
         brand: {
           dark: "#1B3A2D",
           green: "#3DC45A",
+          light: "#EBF3E8",
           bg: "#F4F8F2",
           "dark-hover": "#142C22",
           "green-hover": "#2DAF4A",
-          muted: "#6B8F78",
-          border: "#C8DEC0",
+          muted: "#7A9A84",
+          border: "#C8DFC0",
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Open Sans", "system-ui", "sans-serif"],
+        heading: ["Montserrat", "system-ui", "sans-serif"],
       },
       backgroundImage: {
         "gradient-brand":
