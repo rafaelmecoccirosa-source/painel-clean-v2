@@ -8,7 +8,7 @@ import Logo from "./Logo";
 
 const navLinks = [
   { href: "/tecnico", label: "Dashboard" },
-  { href: "/tecnico/servicos", label: "Serviços disponíveis" },
+  { href: "/tecnico/chamados", label: "Chamados" },
   { href: "/tecnico/agenda", label: "Minha agenda" },
   { href: "/tecnico/ganhos", label: "Ganhos" },
 ];
