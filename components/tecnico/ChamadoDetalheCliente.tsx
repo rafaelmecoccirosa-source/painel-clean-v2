@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  MapPin, Calendar, Clock, Sun, AlertTriangle,
-  Fuel, Hash, ArrowRight, CheckCircle2, TrendingUp, TrendingDown,
+  MapPin, Calendar, Clock, Sun, AlertTriangle, ArrowRight,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 
@@ -43,8 +42,6 @@ export default function ChamadoDetalheCliente({ chamado }: { chamado: ChamadoDat
   const [pracas, setPracas] = useState(0);
   const [valorPraca, setValorPraca] = useState(8.0);
 
-  // Revisão confirmada
-  const [revisado, setRevisado] = useState(false);
   const [accepting, setAccepting] = useState(false);
 
   const tempo = tempoByModulos(chamado.modulos);
@@ -126,9 +123,8 @@ export default function ChamadoDetalheCliente({ chamado }: { chamado: ChamadoDat
       {/* ── Calculadora de custos ── */}
       <div className="bg-brand-dark rounded-2xl p-6 space-y-6">
         <div>
-          <h2 className="font-heading font-bold text-white text-lg flex items-center gap-2">
-            <Fuel size={18} className="text-brand-green" />
-            Calculadora de custos
+          <h2 className="font-heading font-bold text-white text-lg">
+            ⚡ Simule seu lucro real
           </h2>
           <p className="text-white/50 text-xs mt-1">
             Edite os campos para ver se o chamado compensa antes de aceitar.
@@ -264,28 +260,25 @@ export default function ChamadoDetalheCliente({ chamado }: { chamado: ChamadoDat
             <div className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
               <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
               <p className="text-red-300 text-sm font-medium">
-                Atenção: margem baixa para esse serviço. Considere recusar ou renegociar.
+                ⚠️ Margem baixa — avalie antes de aceitar.
               </p>
             </div>
           )}
         </div>
       </div>
 
-      {/* ── Confirmação ── */}
-      <div className="card space-y-4">
-        <label className="flex items-start gap-3 cursor-pointer group">
-          <div className="mt-0.5 flex-shrink-0">
-            <input
-              type="checkbox"
-              checked={revisado}
-              onChange={(e) => setRevisado(e.target.checked)}
-              className="w-4 h-4 accent-brand-green cursor-pointer"
-            />
-          </div>
-          <span className="text-sm text-brand-dark group-hover:text-brand-dark/80 transition-colors">
-            Analisei a calculadora de custos e estou ciente da margem estimada para esse chamado.
+      {/* ── Botões ── */}
+      <div className="card space-y-3">
+        {/* Lucro em destaque acima do botão */}
+        <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
+          <span className="text-sm text-brand-muted">💵 Lucro estimado se aceitar</span>
+          <span className={`font-heading font-extrabold text-xl ${
+            margem >= 30 ? "text-brand-green" : margem >= 10 ? "text-yellow-600" : "text-red-600"
+          }`}>
+            {fmt(lucroLiquido)}
+            <span className="text-xs font-normal ml-1 opacity-70">({margem.toFixed(1)}%)</span>
           </span>
-        </label>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           <Button
@@ -300,20 +293,13 @@ export default function ChamadoDetalheCliente({ chamado }: { chamado: ChamadoDat
             variant="primary"
             size="lg"
             className="w-full"
-            disabled={!revisado}
             loading={accepting}
             onClick={handleAccept}
           >
-            {accepting ? "Aceitando…" : "Aceitar chamado"}
+            {accepting ? "Aceitando…" : "✓ Aceitar chamado"}
             {!accepting && <ArrowRight size={16} />}
           </Button>
         </div>
-
-        {!revisado && (
-          <p className="text-xs text-brand-muted text-center">
-            Confirme que analisou os custos para habilitar o botão.
-          </p>
-        )}
       </div>
     </div>
   );
