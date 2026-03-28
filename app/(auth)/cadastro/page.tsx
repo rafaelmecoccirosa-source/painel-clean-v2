@@ -32,7 +32,7 @@ export default function CadastroPage() {
       email,
       password,
       options: {
-        data: { nome, role },
+        data: { full_name: nome, role },
       },
     });
 

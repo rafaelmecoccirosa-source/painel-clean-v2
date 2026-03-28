@@ -24,14 +24,25 @@ create table profiles (
 
 -- Auto-create profile on signup
 create or replace function handle_new_user()
-returns trigger language plpgsql security definer as $$
+returns trigger language plpgsql security definer set search_path = public as $$
 begin
   insert into public.profiles (user_id, full_name, role)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', new.email),
-    coalesce((new.raw_user_meta_data->>'role')::user_role, 'cliente')
+    coalesce(
+      new.raw_user_meta_data->>'full_name',
+      new.raw_user_meta_data->>'nome',
+      new.email
+    ),
+    coalesce(
+      (new.raw_user_meta_data->>'role')::user_role,
+      'cliente'
+    )
   );
+  return new;
+exception when others then
+  -- Log error but don't block auth user creation
+  raise warning 'handle_new_user error: %', sqlerrm;
   return new;
 end;
 $$;
@@ -101,6 +112,9 @@ alter table reviews enable row level security;
 -- Profiles: users see/edit only their own
 create policy "Users can view own profile"
   on profiles for select using (auth.uid() = user_id);
+
+create policy "Users can insert own profile"
+  on profiles for insert with check (auth.uid() = user_id);
 
 create policy "Users can update own profile"
   on profiles for update using (auth.uid() = user_id);
