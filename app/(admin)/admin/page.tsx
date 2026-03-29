@@ -1,262 +1,384 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import AdminReceitaChart from "@/components/admin/AdminReceitaChart";
+import AdminDonut from "@/components/admin/AdminDonut";
+import AdminTecnicosAba from "@/components/admin/AdminTecnicosAba";
 
-export const metadata: Metadata = { title: "Dashboard — Admin" };
-
-// ── Mock data ──────────────────────────────────────────────────────────────
-
-const stats = [
-  { emoji: "💰", label: "Receita do mês",     value: "R$ 3.066", sub: "comissão 15%"        },
-  { emoji: "🔧", label: "Serviços realizados", value: "87",       sub: "este mês"             },
-  { emoji: "👥", label: "Técnicos ativos",     value: "28",       sub: "online esta semana"   },
-  { emoji: "⭐", label: "Avaliação média",     value: "4.8",      sub: "últimos 30 dias"      },
-];
-
-const semanas = [
-  { label: "Sem 1", receita: 3420 },
-  { label: "Sem 2", receita: 5680 },
-  { label: "Sem 3", receita: 4200 },
-  { label: "Sem 4", receita: 7140 },
-];
-
-const cidades = [
-  { nome: "Jaraguá do Sul", servicos: 33, pct: 38 },
-  { nome: "Florianópolis",  servicos: 30, pct: 35 },
-  { nome: "Pomerode",       servicos: 24, pct: 27 },
-];
-
-const ultimosServicos = [
-  { id: 1, cliente: "João Silva",       cidade: "Jaraguá do Sul", modulos: 24, valor: 300, status: "pago"        },
-  { id: 2, cliente: "Empresa Solar",    cidade: "Pomerode",       modulos: 48, valor: 520, status: "andamento"   },
-  { id: 3, cliente: "Maria Oliveira",   cidade: "Jaraguá do Sul", modulos: 8,  valor: 180, status: "pago"        },
-  { id: 4, cliente: "Fazenda Verde",    cidade: "Florianópolis",  modulos: 52, valor: 520, status: "pendente"    },
-  { id: 5, cliente: "Residência Costa", cidade: "Pomerode",       modulos: 15, valor: 300, status: "pago"        },
-];
-
-const tecnicosPendentes = [
-  { nome: "Carlos Mendes",  cidade: "Jaraguá do Sul", treinamento: 100 },
-  { nome: "Ana Rodrigues",  cidade: "Pomerode",       treinamento: 75  },
-  { nome: "Pedro Santos",   cidade: "Florianópolis",  treinamento: 40  },
-];
-
-const tecnicosInfo = { total: 31, ativosHoje: 12, aguardando: 3 };
-
-const maxReceita = Math.max(...semanas.map((s) => s.receita));
-const totalServicos = semanas.reduce((a, s) => a + s.receita / (s.receita / 87 * 87), 0);
-const totalReceita = semanas.reduce((a, s) => a + s.receita, 0);
-const valorMedio = Math.round(totalReceita / 87);
+export const metadata: Metadata = { title: "Painel Admin | Painel Clean" };
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+// ── Mock data ──────────────────────────────────────────────────────────────
+
+const kpis = [
+  {
+    emoji: "💰",
+    label: "Receita do mês",
+    value: "R$ 1.497",
+    trend: "+18%",
+    up: true,
+    sub: "vs fevereiro · comissão 15%",
+  },
+  {
+    emoji: "📋",
+    label: "Serviços concluídos",
+    value: "38",
+    trend: "+6",
+    up: true,
+    sub: "vs mês anterior",
+  },
+  {
+    emoji: "👥",
+    label: "Técnicos ativos",
+    value: "9",
+    trend: null,
+    up: true,
+    sub: "≥1 serviço em 30 dias",
+  },
+  {
+    emoji: "👤",
+    label: "Clientes cadastrados",
+    value: "75",
+    trend: "+12",
+    up: true,
+    sub: "novos este mês",
+  },
+  {
+    emoji: "⭐",
+    label: "Satisfação média",
+    value: "4.85",
+    trend: null,
+    up: true,
+    sub: "últimos 30 dias",
+  },
+];
+
+const alertas = [
+  {
+    icon: "🔔",
+    texto: "2 técnicos aguardando aprovação",
+    href: "#tecnicos",
+    cor: "text-yellow-700",
+  },
+  {
+    icon: "⚠️",
+    texto: "Florianópolis sem técnico online agora",
+    href: "#cidades",
+    cor: "text-orange-700",
+  },
+  {
+    icon: "📈",
+    texto: "Receita 15% acima da meta esta semana",
+    href: "#receita",
+    cor: "text-emerald-700",
+  },
+];
+
+const cidades = [
+  {
+    nome: "Jaraguá do Sul",
+    servicos: 18,
+    receita: 4860,
+    ticket: 270,
+    tecnicos: 4,
+    clientes: 32,
+    destaque: true,
+  },
+  {
+    nome: "Florianópolis",
+    servicos: 12,
+    receita: 4200,
+    ticket: 350,
+    tecnicos: 3,
+    clientes: 28,
+    destaque: false,
+  },
+  {
+    nome: "Pomerode",
+    servicos: 8,
+    receita: 1920,
+    ticket: 240,
+    tecnicos: 2,
+    clientes: 15,
+    destaque: false,
+  },
+];
+
+const maxServicos = Math.max(...cidades.map((c) => c.servicos));
+
+const ultimosServicos = [
+  { id: 1,  data: "28/03", cidade: "Jaraguá do Sul", cliente: "João",    tecnico: "Carlos",  modulos: 22, valor: 300, comissao: 45,  status: "concluido",   nota: 5.0 },
+  { id: 2,  data: "27/03", cidade: "Pomerode",       cliente: "Empresa", tecnico: "Marcos",  modulos: 48, valor: 520, comissao: 78,  status: "concluido",   nota: 4.5 },
+  { id: 3,  data: "27/03", cidade: "Florianópolis",  cliente: "Maria",   tecnico: "Rafael",  modulos: 8,  valor: 180, comissao: 27,  status: "concluido",   nota: 5.0 },
+  { id: 4,  data: "26/03", cidade: "Jaraguá do Sul", cliente: "Fazenda", tecnico: "Luiz",    modulos: 52, valor: 520, comissao: 78,  status: "andamento",   nota: null },
+  { id: 5,  data: "25/03", cidade: "Pomerode",       cliente: "Ana",     tecnico: "Marcos",  modulos: 15, valor: 300, comissao: 45,  status: "concluido",   nota: 4.8 },
+  { id: 6,  data: "24/03", cidade: "Florianópolis",  cliente: "Roberto", tecnico: "Rafael",  modulos: 35, valor: 520, comissao: 78,  status: "concluido",   nota: 5.0 },
+  { id: 7,  data: "22/03", cidade: "Jaraguá do Sul", cliente: "Cláudia", tecnico: "Carlos",  modulos: 10, valor: 180, comissao: 27,  status: "agendado",    nota: null },
+  { id: 8,  data: "21/03", cidade: "Pomerode",       cliente: "Pedro",   tecnico: "Marcos",  modulos: 28, valor: 300, comissao: 45,  status: "concluido",   nota: 5.0 },
+  { id: 9,  data: "20/03", cidade: "Florianópolis",  cliente: "Usina",   tecnico: "Rafael",  modulos: 80, valor: 0,   comissao: 0,   status: "cancelado",   nota: null },
+  { id: 10, data: "18/03", cidade: "Jaraguá do Sul", cliente: "Sônia",   tecnico: "Luiz",    modulos: 18, valor: 300, comissao: 45,  status: "concluido",   nota: 4.5 },
+];
+
 function StatusBadge({ status }: { status: string }) {
-  if (status === "pago")
-    return <span className="text-xs font-semibold text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-full">✅ Pago</span>;
-  if (status === "pendente")
-    return <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2.5 py-1 rounded-full">⏳ Pendente</span>;
-  return <span className="text-xs font-semibold text-blue-700 bg-blue-100 px-2.5 py-1 rounded-full">🔄 Em andamento</span>;
+  const map: Record<string, { label: string; cls: string }> = {
+    concluido:  { label: "✅ Concluído",     cls: "bg-emerald-100 text-emerald-700" },
+    andamento:  { label: "🔄 Em andamento",  cls: "bg-blue-100 text-blue-700"       },
+    agendado:   { label: "📅 Agendado",      cls: "bg-indigo-100 text-indigo-700"   },
+    cancelado:  { label: "❌ Cancelado",     cls: "bg-red-100 text-red-600"         },
+  };
+  const s = map[status] ?? { label: status, cls: "bg-gray-100 text-gray-600" };
+  return (
+    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${s.cls}`}>
+      {s.label}
+    </span>
+  );
 }
 
 export default function AdminDashboardPage() {
   return (
-    <div className="page-container space-y-8">
+    <div className="page-container space-y-6">
 
       {/* ── Header ── */}
       <div>
         <h1 className="font-heading text-2xl font-bold text-brand-dark">
           🛠️ Painel Administrativo
         </h1>
-        <p className="text-brand-muted text-sm mt-1">Visão geral da plataforma Painel Clean — março 2026</p>
+        <p className="text-brand-muted text-sm mt-1">
+          Painel Clean · visão geral da plataforma — março 2026
+        </p>
       </div>
 
-      {/* ── Métricas ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map(({ emoji, label, value, sub }) => (
-          <div key={label} className="card flex flex-col gap-2">
-            <span className="text-2xl">{emoji}</span>
-            <div>
-              <p className="font-heading text-xl font-bold text-brand-dark">{value}</p>
+      {/* ── Seção 7: Alertas ── */}
+      <div
+        id="alertas"
+        className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 space-y-2"
+      >
+        <p className="text-xs font-bold text-amber-700 uppercase tracking-widest mb-3">
+          🔔 Alertas
+        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
+          {alertas.map(({ icon, texto, href, cor }) => (
+            <a
+              key={texto}
+              href={href}
+              className={`flex items-center gap-2 text-sm font-medium ${cor} bg-white border border-amber-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow`}
+            >
+              <span>{icon}</span>
+              <span>{texto}</span>
+              <ArrowRight size={12} className="opacity-50 ml-auto" />
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Seção 1: KPIs ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {kpis.map(({ emoji, label, value, trend, up, sub }) => (
+          <div
+            key={label}
+            className="bg-white border border-brand-border rounded-2xl p-4 flex flex-col gap-2 shadow-sm"
+          >
+            <span className="text-2xl leading-none">{emoji}</span>
+            <div className="mt-1">
+              <p className="font-heading text-[22px] font-bold text-brand-dark leading-tight">
+                {value}
+              </p>
               <p className="text-xs text-brand-muted mt-0.5">{label}</p>
-              <p className="text-[10px] text-brand-green font-semibold mt-1">{sub}</p>
             </div>
+            {trend ? (
+              <div className="flex items-center gap-1 flex-wrap">
+                <span
+                  className={`text-[11px] font-bold ${up ? "text-emerald-600" : "text-red-500"}`}
+                >
+                  {up ? "↑" : "↓"} {trend}
+                </span>
+                <span className="text-[10px] text-brand-muted">{sub}</span>
+              </div>
+            ) : (
+              <p className="text-[10px] text-brand-muted">{sub}</p>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* ── Seção 2: Gráfico de receita ── */}
+      <div id="receita">
+        <AdminReceitaChart />
+      </div>
 
-        {/* ── Gráfico receita ── */}
-        <div className="card">
-          <h2 className="font-heading font-bold text-brand-dark text-base mb-6">
-            📊 Receita por semana (comissão 15%)
-          </h2>
-          <div className="flex items-end gap-3 h-36">
-            {semanas.map((s) => {
-              const pct = Math.round((s.receita / maxReceita) * 100);
-              return (
-                <div key={s.label} className="flex-1 flex flex-col items-center gap-2">
-                  <p className="text-[10px] font-bold text-brand-dark text-center">
-                    {fmt(s.receita)}
+      {/* ── Seção 3: Métricas por cidade ── */}
+      <div id="cidades">
+        <h2 className="font-heading font-bold text-brand-dark text-base mb-4">
+          🗺️ Métricas por cidade
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {cidades.map((c) => {
+            const barPct = Math.round((c.servicos / maxServicos) * 100);
+            return (
+              <div
+                key={c.nome}
+                className={`bg-white rounded-2xl p-5 shadow-sm space-y-4 border-2 ${
+                  c.destaque ? "border-brand-green" : "border-brand-border"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-heading font-bold text-brand-dark text-sm">
+                    📍 {c.nome}
                   </p>
-                  <div className="w-full flex items-end" style={{ height: "72px" }}>
+                  {c.destaque && (
+                    <span className="text-[10px] bg-brand-green text-white font-bold px-2 py-0.5 rounded-full">
+                      Líder
+                    </span>
+                  )}
+                </div>
+
+                {/* Progress bar for serviços */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-brand-muted">Serviços</span>
+                    <span className="text-xs font-bold text-brand-dark">{c.servicos}</span>
+                  </div>
+                  <div className="h-2 bg-brand-light rounded-full overflow-hidden">
                     <div
-                      className="w-full rounded-t-lg bg-brand-green transition-all"
-                      style={{ height: `${pct}%`, minHeight: "6px" }}
+                      className="h-full bg-brand-green rounded-full"
+                      style={{ width: `${barPct}%` }}
                     />
                   </div>
-                  <p className="text-xs font-semibold text-brand-dark">{s.label}</p>
                 </div>
-              );
-            })}
-          </div>
-          <div className="mt-4 pt-4 border-t border-brand-border flex items-center justify-between text-xs text-brand-muted">
-            <span>💵 Valor médio por serviço: <strong className="text-brand-dark">{fmt(valorMedio)}</strong></span>
-            <span>Total: <strong className="text-brand-dark">{fmt(totalReceita)}</strong></span>
-          </div>
-        </div>
 
-        {/* ── Área de maior demanda ── */}
-        <div className="card space-y-5">
-          <h2 className="font-heading font-bold text-brand-dark text-base">
-            🗺️ Área de maior demanda
-          </h2>
-          <div className="space-y-4">
-            {cidades.map(({ nome, servicos, pct }) => (
-              <div key={nome}>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-medium text-brand-dark">📍 {nome}</span>
-                  <span className="text-xs text-brand-muted">{servicos} serviços · {pct}%</span>
+                {/* 2x2 metrics grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-brand-bg rounded-xl p-2.5">
+                    <p className="text-[10px] text-brand-muted">Receita total</p>
+                    <p className="font-heading font-bold text-brand-dark text-sm mt-0.5">
+                      {fmt(c.receita)}
+                    </p>
+                  </div>
+                  <div className="bg-brand-bg rounded-xl p-2.5">
+                    <p className="text-[10px] text-brand-muted">Ticket médio</p>
+                    <p className="font-heading font-bold text-brand-dark text-sm mt-0.5">
+                      {fmt(c.ticket)}
+                    </p>
+                  </div>
+                  <div className="bg-brand-bg rounded-xl p-2.5">
+                    <p className="text-[10px] text-brand-muted">Técnicos ativos</p>
+                    <p className="font-heading font-bold text-brand-green text-sm mt-0.5">
+                      {c.tecnicos}
+                    </p>
+                  </div>
+                  <div className="bg-brand-bg rounded-xl p-2.5">
+                    <p className="text-[10px] text-brand-muted">Clientes</p>
+                    <p className="font-heading font-bold text-brand-dark text-sm mt-0.5">
+                      {c.clientes}
+                    </p>
+                  </div>
                 </div>
-                <div className="h-2.5 bg-brand-bg rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-brand-green rounded-full transition-all"
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
               </div>
-            ))}
-          </div>
-
-          {/* Card técnicos */}
-          <div className="bg-brand-bg rounded-xl border border-brand-border p-4 mt-2">
-            <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-3">
-              🧑‍🔧 Técnicos na base
-            </p>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div>
-                <p className="font-heading font-bold text-brand-dark text-xl">{tecnicosInfo.total}</p>
-                <p className="text-[10px] text-brand-muted">total</p>
-              </div>
-              <div>
-                <p className="font-heading font-bold text-brand-green text-xl">{tecnicosInfo.ativosHoje}</p>
-                <p className="text-[10px] text-brand-muted">ativos hoje</p>
-              </div>
-              <div>
-                <p className="font-heading font-bold text-yellow-600 text-xl">{tecnicosInfo.aguardando}</p>
-                <p className="text-[10px] text-brand-muted">aguardando</p>
-              </div>
-            </div>
-          </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* ── Últimos serviços ── */}
+      {/* ── Seção 4: Donut distribuição por faixa ── */}
+      <AdminDonut />
+
+      {/* ── Seção 6: Últimos serviços ── */}
       <div className="card !p-0 overflow-hidden">
-        <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between flex-wrap gap-2">
           <h2 className="font-heading font-bold text-brand-dark text-base">
             🕐 Últimos serviços
           </h2>
-          <Link
-            href="/admin/servicos"
-            className="text-xs text-brand-green font-semibold hover:underline flex items-center gap-1"
-          >
-            Ver todos <ArrowRight size={12} />
-          </Link>
+          <div className="flex items-center gap-3">
+            <button className="text-xs text-brand-muted hover:text-brand-dark flex items-center gap-1 transition-colors">
+              Exportar CSV <ArrowRight size={11} />
+            </button>
+            <Link
+              href="/admin/servicos"
+              className="text-xs text-brand-green font-semibold hover:underline flex items-center gap-1"
+            >
+              Ver todos <ArrowRight size={12} />
+            </Link>
+          </div>
         </div>
 
-        {/* Desktop */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full text-sm">
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-xs">
             <thead className="bg-brand-bg">
               <tr>
-                {["Cliente", "Cidade", "Módulos", "Valor", "Status"].map((h) => (
-                  <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">
-                    {h}
-                  </th>
-                ))}
+                {["Data", "Cidade", "Cliente", "Técnico", "Módulos", "Valor", "Comissão", "Status", "Nota"].map(
+                  (h) => (
+                    <th
+                      key={h}
+                      className="text-left px-4 py-3 font-semibold text-brand-muted uppercase tracking-wide"
+                    >
+                      {h}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border">
               {ultimosServicos.map((s) => (
                 <tr key={s.id} className="hover:bg-brand-bg/50 transition-colors">
-                  <td className="px-6 py-3 font-medium text-brand-dark">{s.cliente}</td>
-                  <td className="px-6 py-3 text-brand-muted">📍 {s.cidade}</td>
-                  <td className="px-6 py-3 text-brand-muted">☀️ {s.modulos}</td>
-                  <td className="px-6 py-3 font-semibold text-brand-dark">{fmt(s.valor)}</td>
-                  <td className="px-6 py-3"><StatusBadge status={s.status} /></td>
+                  <td className="px-4 py-3 text-brand-muted">{s.data}</td>
+                  <td className="px-4 py-3 text-brand-dark font-medium">📍 {s.cidade}</td>
+                  <td className="px-4 py-3 text-brand-dark">{s.cliente}</td>
+                  <td className="px-4 py-3 text-brand-dark">{s.tecnico}</td>
+                  <td className="px-4 py-3 text-brand-muted text-center">{s.modulos}</td>
+                  <td className="px-4 py-3 font-semibold text-brand-dark">
+                    {s.valor > 0 ? fmt(s.valor) : "—"}
+                  </td>
+                  <td className="px-4 py-3 font-semibold text-brand-green">
+                    {s.comissao > 0 ? fmt(s.comissao) : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <StatusBadge status={s.status} />
+                  </td>
+                  <td className="px-4 py-3 text-amber-500 font-bold">
+                    {s.nota !== null ? `⭐ ${s.nota.toFixed(1)}` : "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        {/* Mobile */}
-        <div className="sm:hidden divide-y divide-brand-border">
+        {/* Mobile cards */}
+        <div className="md:hidden divide-y divide-brand-border">
           {ultimosServicos.map((s) => (
-            <div key={s.id} className="px-4 py-3 flex items-center justify-between gap-3">
-              <div>
-                <p className="font-medium text-brand-dark text-sm">{s.cliente}</p>
-                <p className="text-xs text-brand-muted mt-0.5">📍 {s.cidade} · ☀️ {s.modulos} módulos</p>
-              </div>
-              <div className="text-right flex-shrink-0 space-y-1">
-                <p className="font-bold text-brand-dark text-sm">{fmt(s.valor)}</p>
+            <div key={s.id} className="px-4 py-3 space-y-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold text-brand-dark text-sm">
+                  {s.cliente} → {s.tecnico}
+                </p>
                 <StatusBadge status={s.status} />
+              </div>
+              <p className="text-xs text-brand-muted">
+                📍 {s.cidade} · {s.data} · ☀️ {s.modulos} módulos
+              </p>
+              <div className="flex items-center gap-3 text-xs">
+                <span className="font-bold text-brand-dark">
+                  {s.valor > 0 ? fmt(s.valor) : "—"}
+                </span>
+                <span className="text-brand-green font-semibold">
+                  comissão: {s.comissao > 0 ? fmt(s.comissao) : "—"}
+                </span>
+                {s.nota !== null && (
+                  <span className="text-amber-500 font-bold">⭐ {s.nota.toFixed(1)}</span>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ── Técnicos aguardando aprovação ── */}
-      <div className="card space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="font-heading font-bold text-brand-dark text-base">
-            ⏳ Técnicos aguardando aprovação
-          </h2>
-          <Link
-            href="/admin/usuarios"
-            className="text-xs text-brand-green font-semibold hover:underline flex items-center gap-1"
-          >
-            Gerenciar <ArrowRight size={12} />
-          </Link>
-        </div>
-
-        <div className="space-y-3">
-          {tecnicosPendentes.map(({ nome, cidade, treinamento }) => (
-            <div
-              key={nome}
-              className="flex items-center justify-between gap-3 bg-brand-bg rounded-xl border border-brand-border px-4 py-3"
-            >
-              <div>
-                <p className="font-medium text-brand-dark text-sm">🧑‍🔧 {nome}</p>
-                <p className="text-xs text-brand-muted mt-0.5">📍 {cidade}</p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                {treinamento === 100 ? (
-                  <span className="text-xs font-semibold text-brand-green bg-brand-green/10 border border-brand-green/20 px-2.5 py-1 rounded-full">
-                    ✅ Treinamento 100%
-                  </span>
-                ) : (
-                  <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 border border-yellow-200 px-2.5 py-1 rounded-full">
-                    ⏳ {treinamento}% concluído
-                  </span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* ── Seção 5: Aprovação de técnicos ── */}
+      <div id="tecnicos">
+        <AdminTecnicosAba />
       </div>
 
     </div>
