@@ -31,17 +31,47 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Public routes
+  // Public routes — always allow
   const publicRoutes = ["/", "/login", "/cadastro"];
   if (publicRoutes.includes(pathname)) {
     return supabaseResponse;
   }
 
-  // Protected routes — redirect to login if unauthenticated
+  // Unauthenticated — redirect to login
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
+  }
+
+  // Role-based protection: fetch role from profiles
+  const isAdminRoute  = pathname.startsWith("/admin");
+  const isClienteRoute = pathname.startsWith("/cliente");
+  const isTecnicoRoute = pathname.startsWith("/tecnico");
+
+  if (isAdminRoute || isClienteRoute || isTecnicoRoute) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("user_id", user.id)
+      .single();
+
+    const role = profile?.role ?? "cliente";
+
+    const correctRoot: Record<string, string> = {
+      admin:   "/admin",
+      tecnico: "/tecnico",
+      cliente: "/cliente",
+    };
+
+    const expectedPrefix = correctRoot[role] ?? "/cliente";
+    const currentPrefix  = isAdminRoute ? "/admin" : isClienteRoute ? "/cliente" : "/tecnico";
+
+    if (currentPrefix !== expectedPrefix) {
+      const url = request.nextUrl.clone();
+      url.pathname = expectedPrefix;
+      return NextResponse.redirect(url);
+    }
   }
 
   return supabaseResponse;

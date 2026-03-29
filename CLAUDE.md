@@ -270,3 +270,87 @@ Componentes-chave a replicar:
 - Badges: sistema de cores (green=concluído, warn=pendente, blue=agendado)
 - Tabela de preços: linha highlight em `green-light` para faixa mais comum
 - Repasse box: fundo `green-dark`, valor final em `green-vibe`
+
+---
+
+## Usuário Admin de Teste
+
+Para criar um admin de teste no Supabase, execute os passos abaixo:
+
+### Via Supabase Dashboard (Authentication → Users)
+
+1. Acesse o projeto no [Supabase Dashboard](https://app.supabase.com)
+2. Vá em **Authentication → Users → Invite user**
+3. Preencha:
+   - Email: `admin@painelclean.com.br`
+   - Senha: `PainelClean2025!`
+4. Após o usuário ser criado, anote o `uuid` gerado
+
+### Via SQL Editor (atualizar o role para admin)
+
+```sql
+-- Substitua <uuid-do-usuario> pelo ID gerado no passo 4
+UPDATE public.profiles
+SET role = 'admin'
+WHERE user_id = '<uuid-do-usuario>';
+```
+
+### Via Script Supabase (seed completo)
+
+```sql
+-- Inserir direto com role admin (requer service_role key)
+INSERT INTO auth.users (id, email, encrypted_password, email_confirmed_at, role)
+VALUES (
+  gen_random_uuid(),
+  'admin@painelclean.com.br',
+  crypt('PainelClean2025!', gen_salt('bf')),
+  now(),
+  'authenticated'
+);
+
+-- Atualizar role na tabela profiles (o trigger já cria o registro)
+UPDATE public.profiles
+SET role = 'admin'
+WHERE user_id = (
+  SELECT id FROM auth.users WHERE email = 'admin@painelclean.com.br'
+);
+```
+
+### Criar novos admins
+
+Para promover qualquer usuário existente a admin, execute no Supabase SQL Editor:
+
+```sql
+UPDATE public.profiles
+SET role = 'admin'
+WHERE user_id = (
+  SELECT id FROM auth.users WHERE email = 'email@dominio.com'
+);
+```
+
+### Permissões RLS necessárias para o admin
+
+Execute no SQL Editor para garantir que admins possam ler todos os dados:
+
+```sql
+-- Admin pode ler todos os profiles
+CREATE POLICY "Admin can read all profiles"
+  ON profiles FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.user_id = auth.uid() AND p.role = 'admin'
+    )
+  );
+
+-- Admin pode ler todos os serviços
+CREATE POLICY "Admin can read all servicos"
+  ON servicos FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles p
+      WHERE p.user_id = auth.uid() AND p.role = 'admin'
+    )
+  );
+```
+- Repasse box: fundo `green-dark`, valor final em `green-vibe`
