@@ -8,10 +8,11 @@ import Logo from "./Logo";
 import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
-  { href: "/tecnico", label: "Dashboard" },
-  { href: "/tecnico/chamados", label: "Chamados" },
-  { href: "/tecnico/agenda", label: "Minha agenda" },
-  { href: "/tecnico/ganhos", label: "Ganhos" },
+  { href: "/tecnico",          label: "Início",    emoji: "🏠" },
+  { href: "/tecnico/chamados", label: "Chamados",  emoji: "📋" },
+  { href: "/tecnico/ganhos",   label: "Ganhos",    emoji: "💰" },
+  { href: "/tecnico/agenda",   label: "Agenda",    emoji: "📅" },
+  { href: "/tecnico/perfil",   label: "Perfil",    emoji: "👤" },
 ];
 
 const NOTIFICACOES = [
@@ -71,20 +72,19 @@ export default function HeaderTecnico({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
                       : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
-                  {link.href === "/tecnico/chamados" && notificationCount > 0 ? (
-                    <span className="flex items-center gap-1.5">
-                      {link.label}
-                      <span className="h-4 w-4 rounded-full bg-brand-green text-white text-[10px] font-bold flex items-center justify-center">
-                        {notificationCount}
-                      </span>
+                  <span>{link.emoji}</span>
+                  {link.label}
+                  {link.href === "/tecnico/chamados" && notificationCount > 0 && (
+                    <span className="h-4 w-4 rounded-full bg-brand-green text-white text-[10px] font-bold flex items-center justify-center">
+                      {notificationCount}
                     </span>
-                  ) : link.label}
+                  )}
                 </Link>
               );
             })}
@@ -197,12 +197,13 @@ export default function HeaderTecnico({
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
                       : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
+                  <span>{link.emoji}</span>
                   {link.label}
                 </Link>
               );

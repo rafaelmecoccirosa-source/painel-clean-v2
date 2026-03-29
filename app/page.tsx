@@ -1,130 +1,211 @@
 import Link from "next/link";
-import Image from "next/image";
 import Logo from "@/components/layout/Logo";
-import Button from "@/components/ui/Button";
-import { ArrowRight, Zap, UserCheck, CalendarCheck, BadgeCheck, Users, TrendingUp } from "lucide-react";
+import HeroSection from "@/components/home/HeroSection";
+import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 
-const HERO_IMG = "https://painelclean.com.br/wp-content/uploads/2025/03/painel-clean-carrossel-trabalhador-2.png";
-const USINA_IMG = "https://painelclean.com.br/wp-content/uploads/2025/03/Mask-group-2-1024x898.png";
-const TECNICO_IMG = "https://painelclean.com.br/wp-content/uploads/2025/03/Mask-group-4.png";
+// ── Seção 2 — Por que limpar? ──────────────────────────────────────────────
 
-const diferenciais = [
+const motivoCards = [
   {
-    icon: Zap,
-    title: "Eficiência e segurança",
-    desc: "Utilizamos escovas projetadas para máxima eficiência sem danificar as placas.",
+    emoji: "⚡",
+    titulo: "Mais energia, mais economia",
+    texto:
+      "Painéis limpos produzem até 30% mais energia. Isso significa menos conta de luz e retorno mais rápido do seu investimento.",
   },
   {
-    icon: UserCheck,
-    title: "Profissionais qualificados",
-    desc: "Todos os serviços são realizados por especialistas cadastrados e treinados pela Painel Clean.",
+    emoji: "🛡️",
+    titulo: "Proteção do equipamento",
+    texto:
+      "Sujeira acumulada causa pontos quentes (hotspots) que podem danificar permanentemente seus módulos.",
   },
   {
-    icon: CalendarCheck,
-    title: "Agilidade e facilidade",
-    desc: "Agende sua limpeza sem complicação e mantenha sua geração de energia no máximo.",
+    emoji: "📊",
+    titulo: "Relatório técnico incluso",
+    texto:
+      "Cada limpeza inclui inspeção visual, verificação de conexões e relatório fotográfico com o estado das suas placas.",
   },
 ];
 
-const beneficiosTecnico = [
-  { icon: Users, text: "Agenda sempre cheia com clientes da plataforma" },
-  { icon: BadgeCheck, text: "Treinamento e suporte completo da Painel Clean" },
-  { icon: TrendingUp, text: "Previsibilidade de receita e pagamento garantido" },
+// ── Seção 4 — Como funciona ───────────────────────────────────────────────
+
+const passos = [
+  {
+    num: "1",
+    emoji: "📱",
+    titulo: "Solicite pelo app",
+    texto: "Informe sua cidade, quantidade de módulos e escolha a melhor data.",
+  },
+  {
+    num: "2",
+    emoji: "🔍",
+    titulo: "Técnico certificado aceita",
+    texto: "Profissionais aprovados pela Painel Clean recebem seu pedido e aceitam em minutos.",
+  },
+  {
+    num: "3",
+    emoji: "🧹",
+    titulo: "Limpeza profissional",
+    texto: "O técnico realiza a limpeza com equipamentos especializados e faz a inspeção completa.",
+  },
+  {
+    num: "4",
+    emoji: "📋",
+    titulo: "Receba o relatório",
+    texto: "Relatório fotográfico com antes/depois e diagnóstico técnico das suas placas.",
+  },
 ];
+
+// ── Seção 5 — Por que a Painel Clean? ────────────────────────────────────
+
+const beneficios = [
+  { emoji: "✅", titulo: "Técnicos certificados",      texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
+  { emoji: "⚡", titulo: "Agendamento dinâmico",       texto: "Sem espera. Você escolhe a data e o técnico mais próximo aceita rapidamente." },
+  { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada módulo." },
+  { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de módulos. Sem surpresas na hora de pagar." },
+  { emoji: "🔒", titulo: "Pagamento seguro",           texto: "PIX, cartão ou boleto. Pagamento só após o serviço concluído." },
+  { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
+];
+
+// ── Seção 6 — Faixas de preço ─────────────────────────────────────────────
+
+const faixas = [
+  {
+    faixa: "Até 10 módulos",
+    preco: "A partir de R$ 180*",
+    tempo: "1–2 horas",
+    destaque: false,
+  },
+  {
+    faixa: "11 a 30 módulos",
+    preco: "A partir de R$ 300*",
+    tempo: "2–3 horas",
+    destaque: true,
+    tag: "Mais popular",
+  },
+  {
+    faixa: "31 a 60 módulos",
+    preco: "A partir de R$ 520*",
+    tempo: "3–4 horas",
+    destaque: false,
+  },
+  {
+    faixa: "61+ módulos",
+    preco: "Sob consulta",
+    tempo: "4h+",
+    destaque: false,
+  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-brand-bg">
+    <div className="min-h-screen bg-white">
 
-      {/* ── Header ── */}
-      <header className="sticky top-0 z-50 bg-brand-light border-b border-brand-border">
+      {/* ── Header fixo ─────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 bg-brand-light border-b border-brand-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <Logo size="sm" />
           <div className="flex items-center gap-3">
             <Link
               href="/login"
-              className="text-brand-dark/70 hover:text-brand-dark text-sm font-medium transition-colors"
+              className="text-brand-dark/70 hover:text-brand-dark text-sm font-medium transition-colors px-3 py-1.5"
             >
               Entrar
             </Link>
-            <Link href="/cadastro">
-              <Button size="sm" variant="primary">Cadastrar-se</Button>
+            <Link
+              href="/cadastro"
+              className="bg-brand-green text-white font-heading font-bold text-sm px-5 py-2 rounded-xl hover:bg-brand-green/90 transition-colors"
+            >
+              Cadastrar-se
             </Link>
           </div>
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="relative min-h-[580px] flex items-center">
-        {/* background image */}
-        <Image
-          src={HERO_IMG}
-          alt="Técnico realizando limpeza de placas solares"
-          fill
-          className="object-cover object-center"
-          priority
-        />
-        {/* dark overlay */}
-        <div className="absolute inset-0 bg-brand-dark/75" />
+      {/* ── Seção 1: Hero ───────────────────────────────────────────────── */}
+      <HeroSection />
 
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-white">
-          <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-4">
-            Plataforma de limpeza solar
-          </p>
-          <h1 className="font-heading text-4xl sm:text-5xl font-extrabold leading-tight mb-6 max-w-2xl">
-            Serviço profissional de limpeza de placas solares
-          </h1>
-          <p className="text-white/75 text-lg mb-10 max-w-xl leading-relaxed">
-            A energia solar é um investimento valioso, e a sujeira acumulada nas
-            placas pode reduzir sua eficiência em até{" "}
-            <span className="text-brand-green font-semibold">30%</span>.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/cadastro">
-              <Button size="lg" variant="primary" className="w-full sm:w-auto">
-                Solicitar limpeza
-                <ArrowRight size={18} />
-              </Button>
-            </Link>
-            <Link href="/cadastro?role=tecnico">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="w-full sm:w-auto border-white/30 bg-white/10 text-white hover:bg-white/20"
+      {/* ── Seção 2: Por que limpar? ─────────────────────────────────────── */}
+      <section className="bg-brand-bg py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+              ☀️ Importância da manutenção
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+              Por que a limpeza é essencial?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {motivoCards.map(({ emoji, titulo, texto }) => (
+              <div
+                key={titulo}
+                className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col gap-4 hover:shadow-card-hover transition-shadow"
               >
-                Quero ser técnico
-              </Button>
-            </Link>
+                <span className="text-4xl">{emoji}</span>
+                <h3 className="font-heading text-lg font-bold text-brand-dark">{titulo}</h3>
+                <p className="text-brand-muted text-sm leading-relaxed">{texto}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Diferenciais ── */}
+      {/* ── Seção 3: Calculadora ─────────────────────────────────────────── */}
+      <CalculadoraEconomia />
+
+      {/* ── Seção 4: Como funciona ──────────────────────────────────────── */}
       <section className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              Por que escolher a Painel Clean?
+              🚀 Processo simples
             </p>
-            <h2 className="font-heading text-3xl font-bold text-brand-dark">
-              Nossos diferenciais
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+              Simples, rápido e sem dor de cabeça
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {diferenciais.map(({ icon: Icon, title, desc }) => (
-              <div
-                key={title}
-                className="flex flex-col items-start gap-4 bg-brand-bg rounded-2xl border border-brand-border p-8 hover:shadow-card-hover transition-shadow"
-              >
-                <div className="h-12 w-12 rounded-xl bg-brand-green/10 flex items-center justify-center flex-shrink-0">
-                  <Icon size={24} className="text-brand-green" />
+          {/* Desktop: horizontal timeline */}
+          <div className="hidden md:flex items-start gap-0">
+            {passos.map((passo, idx) => (
+              <div key={passo.num} className="flex-1 flex flex-col items-center relative">
+                {/* Connector line */}
+                {idx < passos.length - 1 && (
+                  <div className="absolute top-8 left-1/2 w-full h-0.5 bg-brand-border" />
+                )}
+
+                {/* Circle */}
+                <div className="relative z-10 h-16 w-16 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-2xl shadow-lg mb-4">
+                  {passo.num}
+                </div>
+
+                <span className="text-3xl mb-3">{passo.emoji}</span>
+                <h3 className="font-heading font-bold text-brand-dark text-center text-sm mb-2 px-4">
+                  {passo.titulo}
+                </h3>
+                <p className="text-brand-muted text-xs text-center leading-relaxed px-4">
+                  {passo.texto}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: vertical list */}
+          <div className="md:hidden space-y-6">
+            {passos.map((passo) => (
+              <div key={passo.num} className="flex items-start gap-5">
+                <div className="h-12 w-12 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-xl flex-shrink-0">
+                  {passo.num}
                 </div>
                 <div>
-                  <h3 className="font-heading text-lg font-bold text-brand-dark mb-2">
-                    {title}
+                  <p className="text-xl mb-1">{passo.emoji}</p>
+                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">
+                    {passo.titulo}
                   </h3>
-                  <p className="text-brand-muted text-sm leading-relaxed">{desc}</p>
+                  <p className="text-brand-muted text-xs leading-relaxed">{passo.texto}</p>
                 </div>
               </div>
             ))}
@@ -132,111 +213,198 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Não importa o tamanho da sua usina ── */}
-      <section className="bg-brand-light py-20">
+      {/* ── Seção 5: Por que a Painel Clean? ───────────────────────────── */}
+      <section className="bg-brand-bg py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-4">
-                Para qualquer instalação
-              </p>
-              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark leading-tight mb-6">
-                Não importa o tamanho da sua usina!
-              </h2>
-              <p className="text-brand-muted text-base leading-relaxed mb-8">
-                Atendemos desde residências com poucos módulos até grandes usinas
-                industriais. Nossos técnicos são treinados para trabalhar com
-                segurança e eficiência em qualquer escala.
-              </p>
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {[
-                  { range: "Até 10 módulos", price: "R$ 180" },
-                  { range: "11 a 30 módulos", price: "R$ 300" },
-                  { range: "31 a 60 módulos", price: "R$ 520" },
-                  { range: "61+ módulos", price: "Sob consulta" },
-                ].map(({ range, price }) => (
-                  <div
-                    key={range}
-                    className="bg-white rounded-xl border border-brand-border p-4"
-                  >
-                    <p className="text-xs text-brand-muted mb-1">{range}</p>
-                    <p className="font-heading font-bold text-brand-dark text-lg">{price}</p>
-                  </div>
-                ))}
+          <div className="text-center mb-12">
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+              🏆 Nossos diferenciais
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+              Por que escolher a Painel Clean?
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {beneficios.map(({ emoji, titulo, texto }) => (
+              <div
+                key={titulo}
+                className="bg-white rounded-2xl border border-brand-light p-6 flex gap-4 hover:shadow-card-hover transition-shadow"
+              >
+                <span className="text-3xl flex-shrink-0">{emoji}</span>
+                <div>
+                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">
+                    {titulo}
+                  </h3>
+                  <p className="text-brand-muted text-xs leading-relaxed">{texto}</p>
+                </div>
               </div>
-              <Link href="/cadastro">
-                <Button size="lg" variant="primary">
-                  Solicitar limpeza
-                  <ArrowRight size={18} />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="relative h-80 lg:h-[460px] rounded-2xl overflow-hidden shadow-card-hover">
-              <Image
-                src={USINA_IMG}
-                alt="Usinas de diferentes tamanhos atendidas pela Painel Clean"
-                fill
-                className="object-cover object-center"
-              />
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Para técnicos ── */}
-      <section className="bg-brand-dark py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="relative h-80 lg:h-[460px] rounded-2xl overflow-hidden shadow-card-hover order-2 lg:order-1">
-              <Image
-                src={TECNICO_IMG}
-                alt="Técnico parceiro Painel Clean"
-                fill
-                className="object-cover object-center"
-              />
-            </div>
-
-            <div className="order-1 lg:order-2">
-              <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-4">
-                Para profissionais
-              </p>
-              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white leading-tight mb-4">
-                Deseja ter sua agenda lotada?
-              </h2>
-              <p className="text-white/70 text-lg mb-8">
-                Seja um parceiro oficial Painel Clean!
-              </p>
-              <ul className="space-y-4 mb-10">
-                {beneficiosTecnico.map(({ icon: Icon, text }) => (
-                  <li key={text} className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-brand-green/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon size={20} className="text-brand-green" />
-                    </div>
-                    <p className="text-white/85 text-base leading-snug pt-2">{text}</p>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/cadastro?role=tecnico">
-                <Button size="lg" variant="primary">
-                  Quero ser técnico
-                  <ArrowRight size={18} />
-                </Button>
-              </Link>
-            </div>
+      {/* ── Seção 6: Faixas de preço ─────────────────────────────────────── */}
+      <section className="bg-white py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+              💰 Investimento acessível
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-3">
+              Investimento que se paga em semanas
+            </h2>
+            <p className="text-brand-muted text-base">Valores estimados por faixa de módulos</p>
           </div>
-        </div>
-      </section>
 
-      {/* ── Footer ── */}
-      <footer className="bg-brand-dark border-t border-white/10 text-white/50 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <Logo inverted size="sm" />
-          <p className="text-xs">
-            © {new Date().getFullYear()} Painel Clean. Todos os direitos reservados.
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {faixas.map(({ faixa, preco, tempo, destaque, tag }) => (
+              <div
+                key={faixa}
+                className={`rounded-2xl p-6 flex flex-col gap-4 border-2 relative ${
+                  destaque
+                    ? "border-brand-green bg-brand-light"
+                    : "border-brand-border bg-white"
+                }`}
+              >
+                {tag && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
+                    {tag}
+                  </span>
+                )}
+
+                <div>
+                  <p className="text-xs text-brand-muted mb-1">☀️ {faixa}</p>
+                  <p className="font-heading text-xl font-extrabold text-brand-dark">{preco}</p>
+                </div>
+
+                <div className="space-y-1.5 text-xs text-brand-muted">
+                  <p>⏱️ Duração: {tempo}</p>
+                  <p>✅ Limpeza + inspeção + relatório</p>
+                </div>
+
+                <Link
+                  href="/cadastro"
+                  className={`mt-auto block text-center font-heading font-bold text-sm py-2.5 rounded-xl transition-colors ${
+                    destaque
+                      ? "bg-brand-green text-white hover:bg-brand-green/90"
+                      : "border border-brand-dark text-brand-dark hover:bg-brand-bg"
+                  }`}
+                >
+                  Agendar
+                </Link>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-center text-[11px] text-brand-muted mt-6">
+            *Valores aproximados para referência. O preço final pode variar conforme localização,
+            acesso ao telhado e condições do local.
           </p>
         </div>
+      </section>
+
+      {/* ── Seção 7: CTA Final ───────────────────────────────────────────── */}
+      <section className="bg-brand-dark py-20">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
+            Suas placas merecem render 100%
+          </h2>
+          <p className="text-white/70 text-lg mb-10">
+            Agende agora e receba seu relatório técnico após a limpeza
+          </p>
+          <Link
+            href="/cadastro"
+            className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-lg px-10 py-5 rounded-2xl hover:bg-brand-green/90 transition-colors shadow-lg"
+          >
+            Quero agendar minha limpeza →
+          </Link>
+          <p className="text-white/40 text-sm mt-5">
+            Sem compromisso. Cancele a qualquer momento.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Seção 8: Footer ─────────────────────────────────────────────── */}
+      <footer className="bg-brand-dark border-t border-white/10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <Logo inverted size="sm" />
+              <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-xs">
+                Plataforma de limpeza profissional de placas solares. Conectando donos de usinas a
+                técnicos certificados.
+              </p>
+            </div>
+
+            {/* Links */}
+            <div>
+              <p className="text-white/80 font-semibold text-sm mb-4">Links</p>
+              <div className="space-y-2 text-white/50 text-sm">
+                <p>
+                  <a href="#hero" className="hover:text-white/80 transition-colors">
+                    Início
+                  </a>
+                </p>
+                <p>
+                  <a href="#calculadora" className="hover:text-white/80 transition-colors">
+                    Calculadora
+                  </a>
+                </p>
+                <p>
+                  <Link href="/login" className="hover:text-white/80 transition-colors">
+                    Entrar
+                  </Link>
+                </p>
+                <p>
+                  <Link href="/cadastro" className="hover:text-white/80 transition-colors">
+                    Cadastrar-se
+                  </Link>
+                </p>
+              </div>
+            </div>
+
+            {/* Cidades */}
+            <div>
+              <p className="text-white/80 font-semibold text-sm mb-4">Cidades atendidas</p>
+              <div className="space-y-1.5 text-white/50 text-sm">
+                <p>📍 Jaraguá do Sul, SC</p>
+                <p>📍 Pomerode, SC</p>
+                <p>📍 Florianópolis, SC</p>
+              </div>
+              <p className="text-white/30 text-xs mt-4">
+                Expansão para novas cidades em breve
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-white/40 text-xs">
+              © {new Date().getFullYear()} Painel Clean. Todos os direitos reservados.
+            </p>
+            <a
+              href="https://painelclean.com.br"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/40 text-xs hover:text-white/60 transition-colors"
+            >
+              painelclean.com.br ↗
+            </a>
+          </div>
+        </div>
       </footer>
+
+      {/* ── Botão flutuante mobile ───────────────────────────────────────── */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
+        <Link
+          href="/cadastro"
+          className="flex items-center justify-center gap-2 w-full bg-brand-green text-white font-heading font-bold text-base py-4 rounded-2xl shadow-lg hover:bg-brand-green/90 transition-colors"
+        >
+          ☀️ Agendar limpeza
+        </Link>
+      </div>
     </div>
   );
 }
