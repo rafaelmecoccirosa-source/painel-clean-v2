@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Bell, Menu, X, ChevronDown, ShieldCheck } from "lucide-react";
 import Logo from "./Logo";
+import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
   { href: "/admin", label: "Dashboard" },
@@ -21,6 +22,14 @@ export default function HeaderAdmin({ userName = "Admin" }: HeaderAdminProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
 
   const initials = userName
     .split(" ")
@@ -101,7 +110,10 @@ export default function HeaderAdmin({ userName = "Admin" }: HeaderAdminProps) {
                       </p>
                     </div>
                     <div className="border-t border-brand-border py-1">
-                      <button className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      >
                         Sair
                       </button>
                     </div>
