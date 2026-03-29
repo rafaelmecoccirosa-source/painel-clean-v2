@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import TecnicosRegiao from "@/components/cliente/TecnicosRegiao";
 
 // Tabela de preços por faixa de módulos
 function calcPreco(n: number): string {
@@ -171,6 +172,13 @@ export default function SolicitarPage() {
               </select>
             </div>
           </div>
+
+        </div>
+
+        {/* ── Técnicos na região ── */}
+        <TecnicosRegiao cidade={cidade} modulos={numModulos} />
+
+        <div className="card space-y-5">
 
           <div>
             <label className="label-base">📅 Data preferida</label>
