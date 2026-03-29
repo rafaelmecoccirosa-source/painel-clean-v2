@@ -14,6 +14,12 @@ const navLinks = [
   { href: "/admin/relatorios", label: "Relatórios" },
 ];
 
+const NOTIFICACOES = [
+  { id: 1, texto: "2 técnicos aguardando aprovação",       tempo: "há 10 min",  lida: false },
+  { id: 2, texto: "Novo serviço concluído em Pomerode",    tempo: "há 1 hora",  lida: false },
+  { id: 3, texto: "Florianópolis sem técnico online",      tempo: "há 2 horas", lida: true  },
+];
+
 interface HeaderAdminProps {
   userName?: string;
 }
@@ -21,6 +27,7 @@ interface HeaderAdminProps {
 export default function HeaderAdmin({ userName = "Admin" }: HeaderAdminProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [bellOpen, setBellOpen]       = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -73,16 +80,45 @@ export default function HeaderAdmin({ userName = "Admin" }: HeaderAdminProps) {
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              className="relative p-2 text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 rounded-lg transition-colors"
-              aria-label="Notificações"
-            >
-              <Bell size={20} />
-            </button>
+            {/* Bell */}
+            <div className="relative">
+              <button
+                onClick={() => { setBellOpen(!bellOpen); setProfileOpen(false); }}
+                className="relative p-2 text-brand-dark/60 hover:text-brand-dark hover:bg-brand-dark/5 rounded-lg transition-colors"
+                aria-label="Notificações"
+              >
+                <Bell size={20} />
+                <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand-green text-[10px] font-bold text-white">
+                  2
+                </span>
+              </button>
+
+              {bellOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={() => setBellOpen(false)} />
+                  <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-card-hover border border-brand-border z-20 overflow-hidden">
+                    <div className="px-4 py-3 border-b border-brand-border">
+                      <p className="text-xs font-bold text-brand-dark uppercase tracking-wide">Notificações</p>
+                    </div>
+                    <div className="divide-y divide-brand-border">
+                      {NOTIFICACOES.map((n) => (
+                        <div key={n.id} className={`px-4 py-3 flex gap-3 ${n.lida ? "opacity-60" : ""}`}>
+                          <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${n.lida ? "bg-brand-border" : "bg-brand-green"}`} />
+                          <div>
+                            <p className="text-sm text-brand-dark leading-snug">{n.texto}</p>
+                            <p className="text-[10px] text-brand-muted mt-0.5">{n.tempo}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="relative">
               <button
-                onClick={() => setProfileOpen(!profileOpen)}
+                onClick={() => { setProfileOpen(!profileOpen); setBellOpen(false); }}
                 className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-lg hover:bg-brand-dark/5 transition-colors"
               >
                 <div className="h-8 w-8 rounded-full bg-brand-green flex items-center justify-center text-white text-xs font-bold">

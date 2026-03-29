@@ -75,6 +75,12 @@ export default function AdminTecnicosAba() {
   const [recusados_, setRecusados_] = useState<string[]>([]);
   const [motivoAberto, setMotivoAberto] = useState<string | null>(null);
   const [motivoTexto, setMotivoTexto] = useState<Record<string, string>>({});
+  const [toast, setToast] = useState<{ msg: string; tipo: "ok" | "err" } | null>(null);
+
+  function showToast(msg: string, tipo: "ok" | "err") {
+    setToast({ msg, tipo });
+    setTimeout(() => setToast(null), 3500);
+  }
 
   const pendentesVisiveis = pendentes.filter(
     (p) => !aprovados_.includes(p.id) && !recusados_.includes(p.id)
@@ -82,13 +88,17 @@ export default function AdminTecnicosAba() {
   const pendentesCount = pendentesVisiveis.length;
 
   function aprovar(id: string) {
+    const nome = pendentes.find((p) => p.id === id)?.nome ?? "Técnico";
     setAprovados_((prev) => [...prev, id]);
     setMotivoAberto(null);
+    showToast(`✅ ${nome} aprovado com sucesso!`, "ok");
   }
 
   function confirmarRecusa(id: string) {
+    const nome = pendentes.find((p) => p.id === id)?.nome ?? "Técnico";
     setRecusados_((prev) => [...prev, id]);
     setMotivoAberto(null);
+    showToast(`❌ ${nome} recusado.`, "err");
   }
 
   const abas: { key: Aba; label: string; count?: number }[] = [
@@ -102,6 +112,25 @@ export default function AdminTecnicosAba() {
       <h2 className="font-heading font-bold text-brand-dark text-base">
         🧑‍🔧 Gestão de técnicos
       </h2>
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
+            toast.tipo === "ok"
+              ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+              : "bg-red-50 text-red-700 border border-red-200"
+          }`}
+        >
+          {toast.msg}
+          <button
+            onClick={() => setToast(null)}
+            className="ml-auto text-xs opacity-60 hover:opacity-100"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex bg-brand-light rounded-xl p-1 gap-1">

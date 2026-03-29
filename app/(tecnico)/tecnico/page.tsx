@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import DisponibilidadeToggle from "@/components/tecnico/DisponibilidadeToggle";
 import GanhosChart from "@/components/tecnico/GanhosChart";
+import { MOCK_TECNICO } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Dashboard — Técnico | Painel Clean" };
 
@@ -10,91 +12,62 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────
+export default async function TecnicoDashboardPage() {
+  let userName = "Técnico";
+  try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+      userName = profile?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "Técnico";
+    }
+  } catch { /* fallback */ }
 
-const resumo = [
-  {
-    emoji: "💰",
-    label: "Ganhos do mês",
-    value: "R$ 3.825",
-    trend: "+12%",
-    up: true,
-    sub: "vs fevereiro",
-  },
-  {
-    emoji: "📋",
-    label: "Serviços realizados",
-    value: "14",
-    trend: "+3",
-    up: true,
-    sub: "vs mês anterior",
-  },
-  {
-    emoji: "⭐",
-    label: "Avaliação média",
-    value: "4.8",
-    trend: null,
-    up: true,
-    sub: "últimos 30 dias",
-  },
-  {
-    emoji: "⏱️",
-    label: "Tempo médio",
-    value: "2.3h",
-    trend: null,
-    up: true,
-    sub: "por serviço",
-  },
-];
+  const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
+  const mesCapitalized = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+  const anoAtual = new Date().getFullYear();
 
-const performance = [
-  { label: "Pontualidade",    pct: 92, meta: 90 },
-  { label: "Qualidade",       pct: 96, meta: 90 },
-  { label: "Velocidade",      pct: 78, meta: 80 },
-  { label: "Volume",          pct: 65, meta: 100 },
-  { label: "Taxa de aceite",  pct: 85, meta: 80 },
-];
+  const resumo = [
+    {
+      emoji: "💰",
+      label: "Ganhos do mês",
+      value: fmt(MOCK_TECNICO.ganhosMes),
+      trend: `+${MOCK_TECNICO.tendencia.ganhos}%`,
+      up: true,
+      sub: "vs mês anterior",
+    },
+    {
+      emoji: "📋",
+      label: "Serviços realizados",
+      value: String(MOCK_TECNICO.servicosMes),
+      trend: `+${MOCK_TECNICO.tendencia.servicos}`,
+      up: true,
+      sub: "vs mês anterior",
+    },
+    {
+      emoji: "⭐",
+      label: "Avaliação média",
+      value: MOCK_TECNICO.avaliacaoMedia.toFixed(1),
+      trend: null,
+      up: true,
+      sub: "últimos 30 dias",
+    },
+    {
+      emoji: "⏱️",
+      label: "Tempo médio",
+      value: `${MOCK_TECNICO.tempoMedio}h`,
+      trend: null,
+      up: true,
+      sub: "por serviço",
+    },
+  ];
 
-const proximosChamados = [
-  {
-    id: "cham-001",
-    cidade: "Jaraguá do Sul, SC",
-    data: "30/03",
-    hora: "08:00",
-    modulos: 24,
-    valorServico: 300,
-    repasse: 255,
-  },
-  {
-    id: "cham-002",
-    cidade: "Pomerode, SC",
-    data: "31/03",
-    hora: "08:00",
-    modulos: 48,
-    valorServico: 520,
-    repasse: 442,
-    urgente: true,
-  },
-  {
-    id: "cham-003",
-    cidade: "Jaraguá do Sul, SC",
-    data: "01/04",
-    hora: "13:00",
-    modulos: 8,
-    valorServico: 180,
-    repasse: 153,
-  },
-];
+  const { performance, proximosChamados, ultimosServicos: historico } = MOCK_TECNICO;
 
-const historico = [
-  { data: "25/03", cidade: "Jaraguá do Sul", modulos: 22, recebido: 255, nota: 5.0 },
-  { data: "21/03", cidade: "Pomerode",        modulos: 8,  recebido: 153, nota: 4.5 },
-  { data: "18/03", cidade: "Florianópolis",   modulos: 35, recebido: 442, nota: 5.0 },
-  { data: "14/03", cidade: "Jaraguá do Sul",  modulos: 15, recebido: 255, nota: 4.8 },
-  { data: "10/03", cidade: "Pomerode",        modulos: 28, recebido: 255, nota: 5.0 },
-];
-
-export default function TecnicoDashboardPage() {
   return (
     <div className="page-container space-y-6">
 
@@ -102,9 +75,9 @@ export default function TecnicoDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="font-heading text-2xl font-bold text-brand-dark">
-            Olá, Carlos! 👋
+            Olá, {userName}! 👋
           </h1>
-          <p className="text-brand-muted text-sm mt-0.5">Março 2026 · veja seus números</p>
+          <p className="text-brand-muted text-sm mt-0.5">{mesCapitalized} {anoAtual} · veja seus números</p>
         </div>
         <DisponibilidadeToggle cidade="Jaraguá do Sul, SC" />
       </div>

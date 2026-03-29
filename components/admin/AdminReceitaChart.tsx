@@ -1,17 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { MOCK_ADMIN } from "@/lib/mock-data";
 
-const semanas = [
-  { label: "10/02", valor: 405 },
-  { label: "17/02", valor: 540 },
-  { label: "24/02", valor: 378 },
-  { label: "03/03", valor: 621 },
-  { label: "10/03", valor: 486 },
-  { label: "17/03", valor: 567 },
-  { label: "24/03", valor: 702 },
-  { label: "31/03", valor: 648 },
-];
+const semanas = MOCK_ADMIN.receitaSemanal;
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
