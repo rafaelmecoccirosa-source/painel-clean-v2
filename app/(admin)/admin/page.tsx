@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import AdminReceitaChart from "@/components/admin/AdminReceitaChart";
 import AdminDonut from "@/components/admin/AdminDonut";
 import AdminTecnicosAba from "@/components/admin/AdminTecnicosAba";
+import { MOCK_ADMIN } from "@/lib/mock-data";
 
 export const metadata: Metadata = { title: "Painel Admin | Painel Clean" };
 
@@ -11,29 +12,29 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-// ── Mock data ──────────────────────────────────────────────────────────────
+// ── Derived from centralized mock data ────────────────────────────────────
 
 const kpis = [
   {
     emoji: "💰",
     label: "Receita do mês",
-    value: "R$ 1.497",
-    trend: "+18%",
+    value: fmt(MOCK_ADMIN.receitaMes),
+    trend: `+${MOCK_ADMIN.tendencia.receita}%`,
     up: true,
-    sub: "vs fevereiro · comissão 15%",
+    sub: "vs mês anterior · comissão 15%",
   },
   {
     emoji: "📋",
     label: "Serviços concluídos",
-    value: "38",
-    trend: "+6",
+    value: String(MOCK_ADMIN.totalServicos),
+    trend: `+${MOCK_ADMIN.tendencia.servicos}`,
     up: true,
     sub: "vs mês anterior",
   },
   {
     emoji: "👥",
     label: "Técnicos ativos",
-    value: "9",
+    value: String(MOCK_ADMIN.tecnicosAtivos),
     trend: null,
     up: true,
     sub: "≥1 serviço em 30 dias",
@@ -41,15 +42,15 @@ const kpis = [
   {
     emoji: "👤",
     label: "Clientes cadastrados",
-    value: "75",
-    trend: "+12",
+    value: String(MOCK_ADMIN.clientesCadastrados),
+    trend: `+${MOCK_ADMIN.clientesNovosMes}`,
     up: true,
     sub: "novos este mês",
   },
   {
     emoji: "⭐",
     label: "Satisfação média",
-    value: "4.85",
+    value: MOCK_ADMIN.satisfacaoMedia.toFixed(2),
     trend: null,
     up: true,
     sub: "últimos 30 dias",
@@ -77,50 +78,9 @@ const alertas = [
   },
 ];
 
-const cidades = [
-  {
-    nome: "Jaraguá do Sul",
-    servicos: 18,
-    receita: 4860,
-    ticket: 270,
-    tecnicos: 4,
-    clientes: 32,
-    destaque: true,
-  },
-  {
-    nome: "Florianópolis",
-    servicos: 12,
-    receita: 4200,
-    ticket: 350,
-    tecnicos: 3,
-    clientes: 28,
-    destaque: false,
-  },
-  {
-    nome: "Pomerode",
-    servicos: 8,
-    receita: 1920,
-    ticket: 240,
-    tecnicos: 2,
-    clientes: 15,
-    destaque: false,
-  },
-];
-
+const cidades = MOCK_ADMIN.porCidade;
 const maxServicos = Math.max(...cidades.map((c) => c.servicos));
-
-const ultimosServicos = [
-  { id: 1,  data: "28/03", cidade: "Jaraguá do Sul", cliente: "João",    tecnico: "Carlos",  modulos: 22, valor: 300, comissao: 45,  status: "concluido",   nota: 5.0 },
-  { id: 2,  data: "27/03", cidade: "Pomerode",       cliente: "Empresa", tecnico: "Marcos",  modulos: 48, valor: 520, comissao: 78,  status: "concluido",   nota: 4.5 },
-  { id: 3,  data: "27/03", cidade: "Florianópolis",  cliente: "Maria",   tecnico: "Rafael",  modulos: 8,  valor: 180, comissao: 27,  status: "concluido",   nota: 5.0 },
-  { id: 4,  data: "26/03", cidade: "Jaraguá do Sul", cliente: "Fazenda", tecnico: "Luiz",    modulos: 52, valor: 520, comissao: 78,  status: "andamento",   nota: null },
-  { id: 5,  data: "25/03", cidade: "Pomerode",       cliente: "Ana",     tecnico: "Marcos",  modulos: 15, valor: 300, comissao: 45,  status: "concluido",   nota: 4.8 },
-  { id: 6,  data: "24/03", cidade: "Florianópolis",  cliente: "Roberto", tecnico: "Rafael",  modulos: 35, valor: 520, comissao: 78,  status: "concluido",   nota: 5.0 },
-  { id: 7,  data: "22/03", cidade: "Jaraguá do Sul", cliente: "Cláudia", tecnico: "Carlos",  modulos: 10, valor: 180, comissao: 27,  status: "agendado",    nota: null },
-  { id: 8,  data: "21/03", cidade: "Pomerode",       cliente: "Pedro",   tecnico: "Marcos",  modulos: 28, valor: 300, comissao: 45,  status: "concluido",   nota: 5.0 },
-  { id: 9,  data: "20/03", cidade: "Florianópolis",  cliente: "Usina",   tecnico: "Rafael",  modulos: 80, valor: 0,   comissao: 0,   status: "cancelado",   nota: null },
-  { id: 10, data: "18/03", cidade: "Jaraguá do Sul", cliente: "Sônia",   tecnico: "Luiz",    modulos: 18, valor: 300, comissao: 45,  status: "concluido",   nota: 4.5 },
-];
+const ultimosServicos = MOCK_ADMIN.ultimosServicos;
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
@@ -138,6 +98,9 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function AdminDashboardPage() {
+  const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
+  const anoAtual = new Date().getFullYear();
+
   return (
     <div className="page-container space-y-6">
 
@@ -147,7 +110,7 @@ export default function AdminDashboardPage() {
           🛠️ Painel Administrativo
         </h1>
         <p className="text-brand-muted text-sm mt-1">
-          Painel Clean · visão geral da plataforma — março 2026
+          Painel Clean · visão geral da plataforma — {mesAtual} {anoAtual}
         </p>
       </div>
 

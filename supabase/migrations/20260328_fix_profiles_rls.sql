@@ -1,5 +1,6 @@
 -- Fix 1: Add INSERT policy so authenticated users can create their own profile
 -- (also covers direct inserts from the client as a fallback)
+drop policy if exists "Users can insert own profile" on profiles;
 create policy "Users can insert own profile"
   on profiles for insert with check (auth.uid() = user_id);
 

@@ -1,91 +1,8 @@
 import type { Metadata } from "next";
 import { DollarSign, Star, CheckCircle2, Smartphone, TrendingUp } from "lucide-react";
+import { MOCK_TECNICO } from "@/lib/mock-data";
 
 export const metadata: Metadata = { title: "Ganhos — Técnico" };
-
-// ── Mock data (substituir por query Supabase) ──────────────────────────────
-
-const resumo = {
-  totalBruto: 2600.0,
-  comissao: 390.0,       // 15%
-  totalRepasse: 2210.0,  // 85%
-  servicos: 8,
-  avaliacaoMedia: 4.9,
-};
-
-const semanas = [
-  { label: "Sem 1", dias: "01–07 mar", repasse: 595 },
-  { label: "Sem 2", dias: "08–14 mar", repasse: 510 },
-  { label: "Sem 3", dias: "15–21 mar", repasse: 408 },
-  { label: "Sem 4", dias: "22–28 mar", repasse: 697 },
-];
-
-const pagamentos = [
-  {
-    id: 1,
-    data: "28/03/2026",
-    endereco: "Residência — Jaraguá do Sul",
-    modulos: 12,
-    bruto: 300.0,
-    repasse: 255.0,
-  },
-  {
-    id: 2,
-    data: "25/03/2026",
-    endereco: "Comércio — Pomerode",
-    modulos: 22,
-    bruto: 300.0,
-    repasse: 255.0,
-  },
-  {
-    id: 3,
-    data: "21/03/2026",
-    endereco: "Residência — Florianópolis",
-    modulos: 48,
-    bruto: 520.0,
-    repasse: 442.0,
-  },
-  {
-    id: 4,
-    data: "18/03/2026",
-    endereco: "Sítio — Jaraguá do Sul",
-    modulos: 8,
-    bruto: 180.0,
-    repasse: 153.0,
-  },
-  {
-    id: 5,
-    data: "14/03/2026",
-    endereco: "Residência — Pomerode",
-    modulos: 15,
-    bruto: 300.0,
-    repasse: 255.0,
-  },
-  {
-    id: 6,
-    data: "10/03/2026",
-    endereco: "Empresa — Florianópolis",
-    modulos: 28,
-    bruto: 300.0,
-    repasse: 255.0,
-  },
-  {
-    id: 7,
-    data: "06/03/2026",
-    endereco: "Residência — Jaraguá do Sul",
-    modulos: 9,
-    bruto: 180.0,
-    repasse: 153.0,
-  },
-  {
-    id: 8,
-    data: "03/03/2026",
-    endereco: "Usina Solar — Pomerode",
-    modulos: 52,
-    bruto: 520.0,
-    repasse: 442.0,
-  },
-];
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -96,7 +13,15 @@ function fmt(value: number) {
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export default function GanhosPage() {
-  const maxRepasse = Math.max(...semanas.map((s) => s.repasse));
+  const resumo = MOCK_TECNICO.resumoMes;
+  const semanas = MOCK_TECNICO.ganhosSemanal;
+  const pagamentos = MOCK_TECNICO.pagamentos;
+
+  const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
+  const mesCapitalized = mesAtual.charAt(0).toUpperCase() + mesAtual.slice(1);
+  const anoAtual = new Date().getFullYear();
+
+  const maxValor = Math.max(...semanas.map((s) => s.valor));
 
   return (
     <div className="page-container space-y-8">
@@ -104,7 +29,9 @@ export default function GanhosPage() {
       {/* Header */}
       <div>
         <h1 className="font-heading text-2xl font-bold text-brand-dark">Meus ganhos</h1>
-        <p className="text-brand-muted text-sm mt-1">Março 2026 · 8 serviços concluídos</p>
+        <p className="text-brand-muted text-sm mt-1">
+          {mesCapitalized} {anoAtual} · {resumo.servicos} serviços concluídos
+        </p>
       </div>
 
       {/* ── Resumo do mês ── */}
@@ -161,7 +88,9 @@ export default function GanhosPage() {
           <div className="flex items-center justify-between py-3 border-b border-white/10">
             <div>
               <p className="text-sm font-medium text-white">Valor bruto dos serviços</p>
-              <p className="text-xs text-white/50 mt-0.5">8 serviços × valor cobrado ao cliente</p>
+              <p className="text-xs text-white/50 mt-0.5">
+                {resumo.servicos} serviços × valor cobrado ao cliente
+              </p>
             </div>
             <p className="font-heading font-bold text-white text-lg">{fmt(resumo.totalBruto)}</p>
           </div>
@@ -193,16 +122,16 @@ export default function GanhosPage() {
       {/* ── Gráfico semanal ── */}
       <div className="card">
         <h2 className="font-heading text-base font-bold text-brand-dark mb-6">
-          Ganhos por semana — março 2026
+          Ganhos por semana — {mesCapitalized} {anoAtual}
         </h2>
 
         <div className="flex items-end gap-3 sm:gap-5 h-40">
           {semanas.map((semana) => {
-            const pct = Math.round((semana.repasse / maxRepasse) * 100);
+            const pct = maxValor > 0 ? Math.round((semana.valor / maxValor) * 100) : 0;
             return (
               <div key={semana.label} className="flex-1 flex flex-col items-center gap-2">
                 <p className="text-xs font-semibold text-brand-dark">
-                  {fmt(semana.repasse).replace("R$\u00a0", "R$ ")}
+                  {fmt(semana.valor).replace("R$\u00a0", "R$ ")}
                 </p>
                 <div className="w-full flex items-end" style={{ height: "80px" }}>
                   <div
@@ -212,7 +141,7 @@ export default function GanhosPage() {
                 </div>
                 <p className="text-xs font-semibold text-brand-dark">{semana.label}</p>
                 <p className="text-[10px] text-brand-muted text-center leading-tight">
-                  {semana.dias}
+                  {semana.sub}
                 </p>
               </div>
             );

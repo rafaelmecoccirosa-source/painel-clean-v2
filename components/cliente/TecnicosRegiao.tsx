@@ -135,6 +135,7 @@ export default function TecnicosRegiao({ cidade, modulos }: Props) {
         const supabase = createClient();
 
         // 1) Busca técnicos na cidade exata
+        // TODO: adicionar filtro .eq("status_aprovacao", "aprovado") quando a tabela tecnicos estiver conectada
         const { data: exact } = await supabase
           .from("profiles")
           .select("id, full_name, city")

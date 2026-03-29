@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { MOCK_TECNICO } from "@/lib/mock-data";
 
 type Modo = "semanal" | "mensal";
 
@@ -16,21 +17,8 @@ const META_MENSAL = 5000;
 const META_SEMANAL = META_MENSAL / 4; // ~1250
 
 const DADOS: Record<Modo, Barra[]> = {
-  semanal: [
-    { label: "Seg", sub: "30/03", valor: 420 },
-    { label: "Ter", sub: "25/03", valor: 510 },
-    { label: "Qua", sub: "26/03", valor: 300 },
-    { label: "Qui", sub: "27/03", valor: 595 },
-    { label: "Sex", sub: "28/03", valor: 520 },
-    { label: "Sáb", sub: "29/03", valor: 255 },
-    { label: "Dom", sub: "30/03", valor: 0 },
-  ],
-  mensal: [
-    { label: "Sem 1", sub: "01–07", valor: 1020 },
-    { label: "Sem 2", sub: "08–14", valor: 850 },
-    { label: "Sem 3", sub: "15–21", valor: 1105 },
-    { label: "Sem 4", sub: "22–28", valor: 850 },
-  ],
+  semanal: MOCK_TECNICO.ganhosDiario,
+  mensal:  MOCK_TECNICO.ganhosSemanal,
 };
 
 function fmt(v: number) {
@@ -131,20 +119,27 @@ export default function GanhosChart() {
       </div>
 
       {/* Total / progresso */}
-      <div className="mt-4 pt-4 border-t border-brand-border flex items-center justify-between text-xs">
-        <span className="text-brand-muted">
-          Total: <span className="font-bold text-brand-dark">R$ 3.825</span>
-        </span>
-        <span className="text-brand-muted">
-          Meta: <span className="font-semibold text-brand-dark">{Math.round((3825 / META_MENSAL) * 100)}%</span> concluída
-        </span>
-        {/* Progress bar */}
-        <div className="hidden sm:flex items-center gap-2 flex-1 max-w-[120px] ml-4">
-          <div className="flex-1 h-1.5 bg-brand-light rounded-full overflow-hidden">
-            <div className="h-full bg-brand-green rounded-full" style={{ width: "76.5%" }} />
+      {(() => {
+        const total = MOCK_TECNICO.ganhosMes;
+        const pctMeta = Math.round((total / META_MENSAL) * 100);
+        return (
+          <div className="mt-4 pt-4 border-t border-brand-border flex items-center justify-between text-xs">
+            <span className="text-brand-muted">
+              Total: <span className="font-bold text-brand-dark">
+                {total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+              </span>
+            </span>
+            <span className="text-brand-muted">
+              Meta: <span className="font-semibold text-brand-dark">{pctMeta}%</span> concluída
+            </span>
+            <div className="hidden sm:flex items-center gap-2 flex-1 max-w-[120px] ml-4">
+              <div className="flex-1 h-1.5 bg-brand-light rounded-full overflow-hidden">
+                <div className="h-full bg-brand-green rounded-full" style={{ width: `${Math.min(pctMeta, 100)}%` }} />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        );
+      })()}
     </div>
   );
 }
