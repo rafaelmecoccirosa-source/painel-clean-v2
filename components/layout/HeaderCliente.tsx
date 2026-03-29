@@ -8,9 +8,10 @@ import Logo from "./Logo";
 import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
-  { href: "/cliente", label: "Início" },
-  { href: "/cliente/solicitar", label: "Solicitar limpeza" },
-  { href: "/cliente/historico", label: "Histórico" },
+  { href: "/cliente",            label: "Início",           emoji: "🏠" },
+  { href: "/cliente/solicitar",  label: "Solicitar Serviço", emoji: "➕" },
+  { href: "/cliente/historico",  label: "Histórico",        emoji: "📋" },
+  { href: "/cliente/perfil",     label: "Perfil",           emoji: "👤" },
 ];
 
 const NOTIFICACOES = [
@@ -64,12 +65,13 @@ export default function HeaderCliente({
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
                       : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
+                  <span>{link.emoji}</span>
                   {link.label}
                 </Link>
               );
@@ -194,12 +196,13 @@ export default function HeaderCliente({
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileOpen(false)}
-                  className={`px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? "bg-brand-green text-white"
                       : "text-brand-dark/70 hover:text-brand-dark hover:bg-brand-dark/5"
                   }`}
                 >
+                  <span>{link.emoji}</span>
                   {link.label}
                 </Link>
               );
