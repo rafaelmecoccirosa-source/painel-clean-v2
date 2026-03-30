@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Camera, CheckCircle2, TrendingUp, TrendingDown, Minus, AlertTriangle } from "lucide-react";
 import Button from "@/components/ui/Button";
+import Toast, { useToast } from "@/components/ui/Toast";
+import { createClient } from "@/lib/supabase/client";
 
 export interface PrevistoData {
   valorServico: number;
@@ -59,6 +61,7 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
 
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const { toast, show: showToast, hide: hideToast } = useToast();
 
   // Cálculo realizado
   const realTotalCustos = realCombustivel + realPedagio;
@@ -74,10 +77,39 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
-    // TODO: Supabase insert em relatorios + update servico status = 'completed'
-    await new Promise((r) => setTimeout(r, 1200));
-    setDone(true);
-    setTimeout(() => router.push("/tecnico/ganhos"), 2000);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        showToast("Sessão expirada. Faça login novamente.", "error");
+        setSubmitting(false);
+        return;
+      }
+
+      const { error } = await supabase
+        .from("service_requests")
+        .update({
+          status: "completed",
+          completed_at: new Date().toISOString(),
+        })
+        .eq("id", servicoId)
+        .eq("technician_id", user.id);
+
+      if (error) {
+        console.error("Complete service error:", error);
+        showToast("Erro ao concluir serviço. Tente novamente.", "error");
+        setSubmitting(false);
+        return;
+      }
+
+      setDone(true);
+      showToast("Serviço concluído! Aguardando avaliação do cliente.", "success");
+      setTimeout(() => router.push("/tecnico"), 2000);
+    } catch (err) {
+      console.error(err);
+      showToast("Erro inesperado. Tente novamente.", "error");
+      setSubmitting(false);
+    }
   }
 
   if (done) {
@@ -100,6 +132,7 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={hideToast} />}
 
       {/* ── Relatório fotográfico ── */}
       <div className="card space-y-5">
