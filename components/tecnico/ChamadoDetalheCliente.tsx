@@ -1,30 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { MapPin, Calendar, Clock, Sun, AlertTriangle, ArrowRight, Play, CheckCircle2 } from "lucide-react";
+import {
+  MapPin, Calendar, Clock, Sun, AlertTriangle,
+  ArrowRight, Play, CheckCircle2,
+} from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB } from "@/lib/types";
 
-// ── Legacy interface kept for mock fallback ───────────────────────────────
-export interface ChamadoData {
-  id: string;
-  cliente: string;
-  endereco: string;
-  cidade: string;
-  modulos: number;
-  valorServico: number;
-  dataAgendada: string;
-  periodo: "manhã" | "tarde" | string;
-  distanciaKm: number;
-  tempoEstimadoHoras: number;
-  observacoes?: string;
-}
-
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+function fmtDate(iso: string) {
+  return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", {
+    day: "2-digit", month: "short", year: "numeric",
+  });
 }
 
 function tempoByModulos(n: number): number {
@@ -34,83 +28,279 @@ function tempoByModulos(n: number): number {
   return 5;
 }
 
-function fmtDate(iso: string) {
-  return new Date(iso + "T00:00:00").toLocaleDateString("pt-BR", {
-    day: "2-digit", month: "short", year: "numeric",
-  });
+// ── Skeleton ──────────────────────────────────────────────────────────────────
+
+function Skeleton() {
+  return (
+    <div className="space-y-6 animate-pulse">
+      <div className="card space-y-4">
+        <div className="h-5 bg-brand-bg rounded-full w-1/3" />
+        <div className="h-4 bg-brand-bg rounded-full w-2/3" />
+        <div className="h-4 bg-brand-bg rounded-full w-1/2" />
+      </div>
+      <div className="bg-brand-dark rounded-2xl p-6 space-y-4">
+        <div className="h-5 bg-white/10 rounded-full w-1/3" />
+        <div className="h-4 bg-white/10 rounded-full w-full" />
+        <div className="h-4 bg-white/10 rounded-full w-3/4" />
+      </div>
+    </div>
+  );
 }
 
-// ── Props: either a real DB record OR the legacy mock shape ───────────────
+// ── Service info card (for accepted / in_progress) ────────────────────────────
+
+function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
+  const tempo = tempoByModulos(service.module_count);
+  const repasse = service.price_estimate * 0.85;
+
+  const statusLabel: Record<string, string> = {
+    accepted:    "🔵 Técnico confirmado",
+    in_progress: "🟠 Em andamento",
+    completed:   "🟢 Concluído",
+  };
+
+  const statusBg: Record<string, string> = {
+    accepted:    "bg-blue-100 text-blue-700",
+    in_progress: "bg-orange-100 text-orange-700",
+    completed:   "bg-emerald-100 text-emerald-700",
+  };
+
+  return (
+    <div className="card space-y-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs text-brand-muted mb-1">
+            Serviço #{service.id.slice(0, 8).toUpperCase()}
+          </p>
+          <p className="font-heading font-bold text-brand-dark text-lg">{service.city}</p>
+        </div>
+        <span className={`flex-shrink-0 text-xs font-bold px-3 py-1.5 rounded-full ${statusBg[service.status] ?? "bg-brand-bg text-brand-dark"}`}>
+          {statusLabel[service.status] ?? service.status}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+        <div className="flex items-start gap-2.5">
+          <MapPin size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-brand-dark">{service.address}</p>
+            <p className="text-xs text-brand-muted">{service.city}</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-2.5">
+          <Calendar size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
+          <div>
+            <p className="text-sm font-medium text-brand-dark">{fmtDate(service.preferred_date)}</p>
+            <p className="text-xs text-brand-muted">{service.preferred_time}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Sun size={16} className="text-brand-muted flex-shrink-0" />
+          <p className="text-sm text-brand-dark">
+            <span className="font-semibold">{service.module_count}</span> módulos
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Clock size={16} className="text-brand-muted flex-shrink-0" />
+          <p className="text-sm text-brand-dark">
+            ~<span className="font-semibold">{tempo}h</span> estimadas
+          </p>
+        </div>
+      </div>
+
+      {service.notes && (
+        <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
+          <span className="font-semibold text-brand-dark">Obs: </span>
+          {service.notes}
+        </div>
+      )}
+
+      {/* Repasse highlight */}
+      <div className="bg-brand-dark rounded-xl px-5 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/50 mb-0.5">Seu repasse (85%)</p>
+          <p className="font-heading font-extrabold text-2xl text-brand-green">{fmt(repasse)}</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-white/50 mb-0.5">Valor total</p>
+          <p className="text-white font-semibold">{fmt(service.price_estimate)}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Calculator (only shown for pending chamados) ───────────────────────────────
+
+function Calculator({
+  valorServico,
+  modulos,
+  distanciaKm,
+}: {
+  valorServico: number;
+  modulos: number;
+  distanciaKm: number;
+}) {
+  const repasse  = valorServico * 0.85;
+  const comissao = valorServico * 0.15;
+  const tempo    = tempoByModulos(modulos);
+
+  const [distancia, setDistancia]       = useState(distanciaKm);
+  const [consumo, setConsumo]           = useState(10);
+  const [precoComb, setPrecoComb]       = useState(6.0);
+  const [pracas, setPracas]             = useState(0);
+  const [valorPraca, setValorPraca]     = useState(8.0);
+
+  const custoCombustivel = ((distancia * 2) / consumo) * precoComb;
+  const custoPedagio     = pracas * valorPraca * 2;
+  const totalCustos      = custoCombustivel + custoPedagio;
+  const lucroLiquido     = repasse - totalCustos;
+  const margem           = (lucroLiquido / (valorServico || 1)) * 100;
+
+  const margemColor      = margem >= 30 ? "text-brand-green" : margem >= 10 ? "text-yellow-400" : "text-red-400";
+  const margemRingColor  = margem >= 30 ? "ring-brand-green/40" : margem >= 10 ? "ring-yellow-400/40" : "ring-red-400/40";
+
+  const numInput =
+    "w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm " +
+    "focus:outline-none focus:ring-2 focus:ring-brand-green placeholder:text-white/40";
+
+  return (
+    <div className="bg-brand-dark rounded-2xl p-6 space-y-6">
+      <div>
+        <h2 className="font-heading font-bold text-white text-lg">⚡ Simule seu lucro real</h2>
+        <p className="text-white/50 text-xs mt-1">
+          Edite os campos para ver se o chamado compensa antes de aceitar.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {[
+          { label: "Distância estimada (km)",    value: distancia,  setter: setDistancia, step: 0.5  },
+          { label: "Consumo do veículo (km/l)",  value: consumo,    setter: setConsumo,   step: 0.5  },
+          { label: "Preço do combustível (R$/l)", value: precoComb, setter: setPrecoComb, step: 0.01 },
+          { label: "Praças de pedágio (qtd)",    value: pracas,     setter: setPracas,    step: 1    },
+        ].map(({ label, value, setter, step }) => (
+          <div key={label}>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">{label}</label>
+            <input
+              type="number" min={0} step={step} value={value}
+              onChange={(e) => setter(parseFloat(e.target.value) || 0)}
+              className={numInput}
+            />
+          </div>
+        ))}
+        {pracas > 0 && (
+          <div>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Valor por praça (R$)</label>
+            <input
+              type="number" min={0} step={0.5} value={valorPraca}
+              onChange={(e) => setValorPraca(parseFloat(e.target.value) || 0)}
+              className={numInput}
+            />
+          </div>
+        )}
+        <div>
+          <label className="block text-xs font-medium text-white/70 mb-1.5">Tempo estimado</label>
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
+            <Clock size={14} className="text-white/40" />
+            <span className="text-white text-sm font-medium">{tempo}h</span>
+            <span className="text-white/40 text-xs">({modulos} módulos)</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-white/10 pt-5 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-white/70">Combustível (ida + volta)</span>
+          <span className="text-white font-medium">{fmt(custoCombustivel)}</span>
+        </div>
+        {custoPedagio > 0 && (
+          <div className="flex justify-between text-sm">
+            <span className="text-white/70">Pedágio (ida + volta)</span>
+            <span className="text-white font-medium">{fmt(custoPedagio)}</span>
+          </div>
+        )}
+        <div className="flex justify-between text-sm border-t border-white/10 pt-3">
+          <span className="text-white/70">Total de custos</span>
+          <span className="text-red-400 font-semibold">− {fmt(totalCustos)}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-white/70">Repasse bruto (85%)</span>
+          <span className="text-white font-medium">{fmt(repasse)}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-white/70">Comissão plataforma (15%)</span>
+          <span className="text-red-400 font-medium">− {fmt(comissao)}</span>
+        </div>
+
+        <div className={`flex items-center justify-between bg-white/5 ring-1 ${margemRingColor} rounded-xl px-4 py-4 mt-2`}>
+          <div>
+            <p className="text-xs text-white/50 mb-0.5">Lucro líquido estimado</p>
+            <p className={`font-heading font-extrabold text-2xl ${margemColor}`}>{fmt(lucroLiquido)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-white/50 mb-0.5">Margem</p>
+            <p className={`font-heading font-extrabold text-2xl ${margemColor}`}>{margem.toFixed(1)}%</p>
+          </div>
+        </div>
+
+        {margem < 10 && (
+          <div className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
+            <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+            <p className="text-red-300 text-sm font-medium">⚠️ Margem baixa — avalie antes de aceitar.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
 interface Props {
-  /** Real Supabase record — takes priority if provided */
-  service?: ServiceRequestDB;
-  /** Legacy mock fallback */
-  chamado?: ChamadoData;
+  id: string;
 }
 
-export default function ChamadoDetalheCliente({ service, chamado }: Props) {
+export default function ChamadoDetalheCliente({ id }: Props) {
   const router = useRouter();
   const { toast, show: showToast, hide: hideToast } = useToast();
 
-  // Derive display values from whichever source is available
-  const id            = service?.id ?? chamado?.id ?? "";
-  const endereco      = service?.address ?? chamado?.endereco ?? "";
-  const cidade        = service?.city ?? chamado?.cidade ?? "";
-  const modulos       = service?.module_count ?? chamado?.modulos ?? 0;
-  const valorServico  = service?.price_estimate ?? chamado?.valorServico ?? 0;
-  const observacoes   = service?.notes ?? chamado?.observacoes ?? "";
-  const status        = service?.status ?? "pending";
-  const dataAgendada  = service
-    ? fmtDate(service.preferred_date)
-    : (chamado?.dataAgendada ?? "");
-  const periodo       = service?.preferred_time ?? chamado?.periodo ?? "";
-  const distanciaKm   = chamado?.distanciaKm ?? 10; // default when unknown
+  const [service, setService] = useState<ServiceRequestDB | null>(null);
+  const [userId,  setUserId]  = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [busy,    setBusy]    = useState(false);
 
-  const repasse   = valorServico * 0.85;
-  const comissao  = valorServico * 0.15;
-  const tempo     = service ? tempoByModulos(modulos) : (chamado?.tempoEstimadoHoras ?? tempoByModulos(modulos));
+  const fetchService = useCallback(async () => {
+    try {
+      const supabase = createClient();
+      const [{ data: { user } }, { data }] = await Promise.all([
+        supabase.auth.getUser(),
+        supabase.from("service_requests").select("*").eq("id", id).single(),
+      ]);
+      setUserId(user?.id ?? null);
+      setService(data as ServiceRequestDB | null);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
 
-  // Calculadora state
-  const [distancia, setDistancia]           = useState(distanciaKm);
-  const [consumo, setConsumo]               = useState(10);
-  const [precoCombustivel, setPrecoComb]    = useState(6.0);
-  const [pracas, setPracas]                 = useState(0);
-  const [valorPraca, setValorPraca]         = useState(8.0);
-  const [busy, setBusy]                     = useState(false);
+  useEffect(() => { fetchService(); }, [fetchService]);
 
-  const custoCombustivel  = ((distancia * 2) / consumo) * precoCombustivel;
-  const custoPedagio      = pracas * valorPraca * 2;
-  const totalCustos       = custoCombustivel + custoPedagio;
-  const lucroLiquido      = repasse - totalCustos;
-  const margem            = (lucroLiquido / (valorServico || 1)) * 100;
-
-  const margemColor =
-    margem >= 30 ? "text-brand-green" : margem >= 10 ? "text-yellow-400" : "text-red-400";
-  const margemRingColor =
-    margem >= 30 ? "ring-brand-green/40" : margem >= 10 ? "ring-yellow-400/40" : "ring-red-400/40";
-
-  // ── Supabase actions ──────────────────────────────────────────────────
+  // ── Mutations ──────────────────────────────────────────────────────────────
 
   async function handleAccept() {
-    if (!service) {
-      // Legacy mock fallback
-      setBusy(true);
-      await new Promise((r) => setTimeout(r, 1000));
-      router.push("/tecnico/chamados");
-      return;
-    }
+    if (!userId) { showToast("Sessão expirada. Faça login novamente.", "error"); return; }
     setBusy(true);
     try {
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { showToast("Sessão expirada. Faça login novamente.", "error"); setBusy(false); return; }
-
       const { error } = await supabase
         .from("service_requests")
         .update({
-          technician_id: user.id,
-          status: "accepted",
-          accepted_at: new Date().toISOString(),
+          technician_id: userId,
+          status:        "accepted",
+          accepted_at:   new Date().toISOString(),
         })
         .eq("id", id)
         .eq("status", "pending"); // race-condition guard
@@ -129,7 +319,7 @@ export default function ChamadoDetalheCliente({ service, chamado }: Props) {
     }
   }
 
-  async function handleStartService() {
+  async function handleStart() {
     setBusy(true);
     try {
       const supabase = createClient();
@@ -142,8 +332,9 @@ export default function ChamadoDetalheCliente({ service, chamado }: Props) {
       if (error) {
         showToast("Erro ao iniciar serviço.", "error");
       } else {
+        // Update local state so the UI transitions immediately
+        setService((prev) => prev ? { ...prev, status: "in_progress" } : prev);
         showToast("Serviço iniciado!", "success");
-        setTimeout(() => router.refresh(), 800);
       }
     } catch {
       showToast("Erro inesperado.", "error");
@@ -152,211 +343,155 @@ export default function ChamadoDetalheCliente({ service, chamado }: Props) {
     }
   }
 
-  const numInput =
-    "w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2.5 text-white text-sm " +
-    "focus:outline-none focus:ring-2 focus:ring-brand-green placeholder:text-white/40";
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  if (loading) return <Skeleton />;
+
+  if (!service) {
+    return (
+      <div className="card text-center py-16">
+        <p className="text-brand-muted">Chamado não encontrado.</p>
+      </div>
+    );
+  }
+
+  const { status, module_count, price_estimate, city } = service;
+  const isMyService = service.technician_id === userId;
 
   return (
     <div className="space-y-6">
       {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={hideToast} />}
 
-      {/* ── Info do chamado ── */}
-      <div className="card space-y-4">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs text-brand-muted mb-1">Serviço #{id.slice(0, 8).toUpperCase()}</p>
-            <p className="font-heading font-bold text-brand-dark text-lg">{cidade}</p>
-          </div>
-          <span className="flex-shrink-0 bg-brand-green/10 text-brand-green text-xs font-semibold px-3 py-1.5 rounded-full">
-            {fmt(valorServico)}
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-          <div className="flex items-start gap-2.5">
-            <MapPin size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-brand-dark">{endereco}</p>
-              <p className="text-xs text-brand-muted">{cidade}</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-2.5">
-            <Calendar size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-brand-dark">{dataAgendada}</p>
-              <p className="text-xs text-brand-muted capitalize">{periodo}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <Sun size={16} className="text-brand-muted flex-shrink-0" />
-            <p className="text-sm text-brand-dark">
-              <span className="font-semibold">{modulos}</span> módulos
-            </p>
-          </div>
-          <div className="flex items-center gap-2.5">
-            <Clock size={16} className="text-brand-muted flex-shrink-0" />
-            <p className="text-sm text-brand-dark">
-              ~<span className="font-semibold">{tempo}h</span> estimadas
-            </p>
-          </div>
-        </div>
-
-        {observacoes && (
-          <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
-            <span className="font-semibold text-brand-dark">Obs: </span>
-            {observacoes}
-          </div>
-        )}
+      <div className="mb-2">
+        <h1 className="font-heading text-2xl font-bold text-brand-dark">Detalhe do chamado</h1>
+        <p className="text-brand-muted text-sm mt-1">
+          {city} · {module_count} módulos · #{id.slice(0, 8).toUpperCase()}
+        </p>
       </div>
 
-      {/* ── Calculadora de custos ── */}
-      <div className="bg-brand-dark rounded-2xl p-6 space-y-6">
-        <div>
-          <h2 className="font-heading font-bold text-white text-lg">⚡ Simule seu lucro real</h2>
-          <p className="text-white/50 text-xs mt-1">
-            Edite os campos para ver se o chamado compensa antes de aceitar.
-          </p>
-        </div>
+      {/* ── PENDING: show service info + calculator + accept/decline ── */}
+      {status === "pending" && (
+        <>
+          {/* Basic info card */}
+          <div className="card space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs text-brand-muted mb-1">Serviço #{id.slice(0, 8).toUpperCase()}</p>
+                <p className="font-heading font-bold text-brand-dark text-lg">{city}</p>
+              </div>
+              <span className="flex-shrink-0 bg-brand-green/10 text-brand-green text-xs font-semibold px-3 py-1.5 rounded-full">
+                {fmt(price_estimate)}
+              </span>
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {[
-            { label: "Distância estimada (km)",   value: distancia,        setter: setDistancia,    step: 0.5  },
-            { label: "Consumo do veículo (km/l)", value: consumo,          setter: setConsumo,      step: 0.5  },
-            { label: "Preço do combustível (R$/l)",value: precoCombustivel, setter: setPrecoComb,   step: 0.01 },
-            { label: "Praças de pedágio (qtd)",   value: pracas,           setter: setPracas,       step: 1    },
-          ].map(({ label, value, setter, step }) => (
-            <div key={label}>
-              <label className="block text-xs font-medium text-white/70 mb-1.5">{label}</label>
-              <input
-                type="number"
-                min={0}
-                step={step}
-                value={value}
-                onChange={(e) => setter(parseFloat(e.target.value) || 0)}
-                className={numInput}
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="flex items-start gap-2.5">
+                <MapPin size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
+                <div>
+                  {/* For privacy, show only partial address until accepted */}
+                  <p className="text-sm font-medium text-brand-dark">
+                    {service.address.split(",")[0]} (endereço completo após aceitar)
+                  </p>
+                  <p className="text-xs text-brand-muted">{city}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5">
+                <Calendar size={16} className="text-brand-muted mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-brand-dark">{fmtDate(service.preferred_date)}</p>
+                  <p className="text-xs text-brand-muted">{service.preferred_time}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Sun size={16} className="text-brand-muted flex-shrink-0" />
+                <p className="text-sm text-brand-dark">
+                  <span className="font-semibold">{module_count}</span> módulos
+                </p>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <Clock size={16} className="text-brand-muted flex-shrink-0" />
+                <p className="text-sm text-brand-dark">
+                  ~<span className="font-semibold">{tempoByModulos(module_count)}h</span> estimadas
+                </p>
+              </div>
             </div>
-          ))}
-          {pracas > 0 && (
-            <div>
-              <label className="block text-xs font-medium text-white/70 mb-1.5">Valor por praça (R$)</label>
-              <input
-                type="number"
-                min={0}
-                step={0.5}
-                value={valorPraca}
-                onChange={(e) => setValorPraca(parseFloat(e.target.value) || 0)}
-                className={numInput}
-              />
-            </div>
-          )}
-          <div>
-            <label className="block text-xs font-medium text-white/70 mb-1.5">Tempo estimado</label>
-            <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
-              <Clock size={14} className="text-white/40" />
-              <span className="text-white text-sm font-medium">{tempo}h</span>
-              <span className="text-white/40 text-xs">({modulos} módulos)</span>
-            </div>
-          </div>
-        </div>
 
-        <div className="border-t border-white/10 pt-5 space-y-3">
-          <div className="flex justify-between text-sm">
-            <span className="text-white/70">Combustível (ida + volta)</span>
-            <span className="text-white font-medium">{fmt(custoCombustivel)}</span>
-          </div>
-          {custoPedagio > 0 && (
-            <div className="flex justify-between text-sm">
-              <span className="text-white/70">Pedágio (ida + volta)</span>
-              <span className="text-white font-medium">{fmt(custoPedagio)}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm border-t border-white/10 pt-3">
-            <span className="text-white/70">Total de custos</span>
-            <span className="text-red-400 font-semibold">− {fmt(totalCustos)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/70">Repasse bruto (85%)</span>
-            <span className="text-white font-medium">{fmt(repasse)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/70">Comissão plataforma (15%)</span>
-            <span className="text-red-400 font-medium">− {fmt(comissao)}</span>
+            {service.notes && (
+              <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
+                <span className="font-semibold text-brand-dark">Obs: </span>
+                {service.notes}
+              </div>
+            )}
           </div>
 
-          <div className={`flex items-center justify-between bg-white/5 ring-1 ${margemRingColor} rounded-xl px-4 py-4 mt-2`}>
-            <div>
-              <p className="text-xs text-white/50 mb-0.5">Lucro líquido estimado</p>
-              <p className={`font-heading font-extrabold text-2xl ${margemColor}`}>{fmt(lucroLiquido)}</p>
+          <Calculator valorServico={price_estimate} modulos={module_count} distanciaKm={10} />
+
+          <div className="card space-y-3">
+            <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
+              <span className="text-sm text-brand-muted">💵 Lucro estimado se aceitar</span>
+              <span className="font-heading font-extrabold text-xl text-brand-green">
+                {fmt(price_estimate * 0.85)}
+              </span>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-white/50 mb-0.5">Margem</p>
-              <p className={`font-heading font-extrabold text-2xl ${margemColor}`}>{margem.toFixed(1)}%</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="secondary" size="lg" className="w-full" onClick={() => router.back()} disabled={busy}>
+                Recusar
+              </Button>
+              <Button variant="primary" size="lg" className="w-full" loading={busy} onClick={handleAccept}>
+                {busy ? "Aceitando…" : "✓ Aceitar chamado"}
+                {!busy && <ArrowRight size={16} />}
+              </Button>
             </div>
           </div>
+        </>
+      )}
 
-          {margem < 10 && (
-            <div className="flex items-start gap-2.5 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">
-              <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
-              <p className="text-red-300 text-sm font-medium">⚠️ Margem baixa — avalie antes de aceitar.</p>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* ── Action buttons ── */}
-      <div className="card space-y-3">
-        <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
-          <span className="text-sm text-brand-muted">💵 Lucro estimado se aceitar</span>
-          <span className={`font-heading font-extrabold text-xl ${
-            margem >= 30 ? "text-brand-green" : margem >= 10 ? "text-yellow-600" : "text-red-600"
-          }`}>
-            {fmt(lucroLiquido)}
-            <span className="text-xs font-normal ml-1 opacity-70">({margem.toFixed(1)}%)</span>
-          </span>
-        </div>
-
-        {/* Available — show Accept/Decline */}
-        {status === "pending" && (
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" size="lg" className="w-full" onClick={() => router.back()} disabled={busy}>
-              Recusar
-            </Button>
-            <Button variant="primary" size="lg" className="w-full" loading={busy} onClick={handleAccept}>
-              {busy ? "Aceitando…" : "✓ Aceitar chamado"}
-              {!busy && <ArrowRight size={16} />}
+      {/* ── ACCEPTED (my service): show full info + Start button ── */}
+      {status === "accepted" && isMyService && (
+        <>
+          <ServiceInfoCard service={service} />
+          <div className="card">
+            <Button variant="primary" size="lg" className="w-full" loading={busy} onClick={handleStart}>
+              <Play size={16} />
+              {busy ? "Iniciando…" : "Iniciar Serviço"}
             </Button>
           </div>
-        )}
+        </>
+      )}
 
-        {/* Accepted — show Start Service */}
-        {status === "accepted" && (
-          <Button variant="primary" size="lg" className="w-full" loading={busy} onClick={handleStartService}>
-            <Play size={16} />
-            {busy ? "Iniciando…" : "Iniciar Serviço"}
-          </Button>
-        )}
-
-        {/* In progress — show Complete Service */}
-        {status === "in_progress" && (
-          <Button
-            variant="primary"
-            size="lg"
-            className="w-full"
-            onClick={() => router.push(`/tecnico/conclusao/${id}`)}
-          >
-            <CheckCircle2 size={16} />
-            Concluir Serviço →
-          </Button>
-        )}
-
-        {/* Completed */}
-        {status === "completed" && (
-          <div className="text-center py-2">
-            <p className="text-emerald-600 font-semibold text-sm">✅ Serviço concluído</p>
+      {/* ── IN PROGRESS (my service): show full info + Complete button ── */}
+      {status === "in_progress" && isMyService && (
+        <>
+          <ServiceInfoCard service={service} />
+          <div className="card">
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full"
+              onClick={() => router.push(`/tecnico/conclusao/${id}`)}
+            >
+              <CheckCircle2 size={16} />
+              Concluir Serviço →
+            </Button>
           </div>
-        )}
-      </div>
+        </>
+      )}
+
+      {/* ── COMPLETED ── */}
+      {status === "completed" && (
+        <div className="card text-center py-8 space-y-2">
+          <CheckCircle2 size={36} className="text-brand-green mx-auto" />
+          <p className="font-semibold text-brand-dark">Serviço concluído</p>
+          <p className="text-xs text-brand-muted">Obrigado pelo excelente trabalho!</p>
+        </div>
+      )}
+
+      {/* ── ACCEPTED/IN_PROGRESS but not this technician's service ── */}
+      {(status === "accepted" || status === "in_progress") && !isMyService && (
+        <div className="card text-center py-8">
+          <p className="text-brand-muted text-sm">Este chamado foi aceito por outro técnico.</p>
+        </div>
+      )}
     </div>
   );
 }

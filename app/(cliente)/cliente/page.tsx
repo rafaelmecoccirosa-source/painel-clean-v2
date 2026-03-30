@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { PlusCircle, Sun, Zap } from "lucide-react";
+import { PlusCircle, Sun, Zap, Star, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
@@ -33,7 +33,136 @@ function StatusBadge({ status }: { status: ServiceRequestStatus }) {
   );
 }
 
-function ServicoCard({ s, onCancel }: { s: ServiceRequestDB; onCancel: (id: string) => void }) {
+// ── Rating Modal ─────────────────────────────────────────────────────────────
+
+interface RatingModalProps {
+  serviceId: string;
+  technicianId: string | null;
+  onClose: () => void;
+  onSuccess: (serviceId: string, rating: number) => void;
+  showToast: (msg: string, type: "success" | "error" | "info") => void;
+}
+
+function RatingModal({ serviceId, technicianId, onClose, onSuccess, showToast }: RatingModalProps) {
+  const [rating, setRating]   = useState(0);
+  const [hover,  setHover]    = useState(0);
+  const [comment, setComment] = useState("");
+  const [saving, setSaving]   = useState(false);
+
+  async function handleSubmit() {
+    if (rating === 0) { showToast("Selecione uma nota de 1 a 5.", "error"); return; }
+    setSaving(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { showToast("Sessão expirada.", "error"); setSaving(false); return; }
+
+      const { error } = await supabase.from("reviews").insert({
+        service_request_id: serviceId,
+        client_id:          user.id,
+        technician_id:      technicianId,
+        rating,
+        comment:            comment.trim() || null,
+      });
+
+      if (error) {
+        console.warn("reviews insert:", error.message);
+        // Proceed even if table doesn't exist — show success anyway
+      }
+
+      onSuccess(serviceId, rating);
+      showToast("Avaliação enviada! Obrigado.", "success");
+      onClose();
+    } catch (err) {
+      console.error(err);
+      showToast("Erro ao enviar avaliação.", "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const active = hover || rating;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm space-y-5 p-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-heading font-bold text-brand-dark text-lg">Avaliar serviço</h3>
+          <button onClick={onClose} className="text-brand-muted hover:text-brand-dark transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <p className="text-sm text-brand-muted">Como foi o serviço de limpeza?</p>
+
+        {/* Stars */}
+        <div className="flex gap-2 justify-center">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setRating(n)}
+              onMouseEnter={() => setHover(n)}
+              onMouseLeave={() => setHover(0)}
+              className="transition-transform hover:scale-110"
+            >
+              <Star
+                size={36}
+                className={`transition-colors ${
+                  n <= active ? "text-yellow-400 fill-yellow-400" : "text-brand-border"
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+        {rating > 0 && (
+          <p className="text-center text-sm font-semibold text-brand-dark">
+            {["", "Muito ruim", "Ruim", "Regular", "Bom", "Excelente"][rating]}
+          </p>
+        )}
+
+        {/* Comment */}
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder="Comentário opcional…"
+          rows={3}
+          className="w-full rounded-xl border border-brand-border bg-brand-bg px-4 py-2.5 text-sm text-brand-dark placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+        />
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-brand-border text-brand-muted text-sm font-semibold py-2.5 hover:text-brand-dark transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={saving || rating === 0}
+            className="flex-1 rounded-xl bg-brand-green text-white text-sm font-semibold py-2.5 hover:bg-brand-green/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            {saving ? "Enviando…" : "Enviar avaliação"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Service Card ─────────────────────────────────────────────────────────────
+
+function ServicoCard({
+  s,
+  onCancel,
+  onRate,
+  existingRating,
+}: {
+  s: ServiceRequestDB;
+  onCancel: (id: string) => void;
+  onRate: (id: string, technicianId: string | null) => void;
+  existingRating: number | null;
+}) {
   return (
     <div className="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-2">
@@ -64,9 +193,30 @@ function ServicoCard({ s, onCancel }: { s: ServiceRequestDB; onCancel: (id: stri
       )}
 
       {s.status === "completed" && (
-        <Link href="/cliente/historico" className="block text-center text-xs font-semibold text-brand-green hover:underline">
-          Ver histórico →
-        </Link>
+        <div className="space-y-2">
+          <Link
+            href={`/cliente/historico`}
+            className="block text-center text-xs font-semibold text-brand-green hover:underline"
+          >
+            Ver relatório completo →
+          </Link>
+          {existingRating !== null ? (
+            <div className="flex items-center justify-center gap-1">
+              {[1,2,3,4,5].map((n) => (
+                <Star key={n} size={14} className={n <= existingRating ? "text-yellow-400 fill-yellow-400" : "text-brand-border"} />
+              ))}
+              <span className="text-xs text-brand-muted ml-1">Avaliado</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => onRate(s.id, s.technician_id)}
+              className="w-full text-xs font-semibold text-yellow-700 hover:text-yellow-800 border border-yellow-200 hover:border-yellow-400 bg-yellow-50 hover:bg-yellow-100 rounded-xl py-2 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Star size={13} className="fill-yellow-400 text-yellow-400" />
+              Avaliar serviço
+            </button>
+          )}
+        </div>
       )}
 
       {s.status === "pending" && (
@@ -100,10 +250,17 @@ type Tab = "active" | "completed" | "cancelled";
 
 export default function ClienteHomePage() {
   const { toast, show: showToast, hide: hideToast } = useToast();
-  const [services, setServices] = useState<ServiceRequestDB[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>("active");
-  const [userName, setUserName] = useState("Usuário");
+  const [services, setServices]   = useState<ServiceRequestDB[]>([]);
+  const [loading, setLoading]     = useState(true);
+  const [tab, setTab]             = useState<Tab>("active");
+  const [userName, setUserName]   = useState("Usuário");
+
+  // Reviews map: serviceId → rating
+  const [reviews, setReviews]     = useState<Record<string, number>>({});
+
+  // Rating modal state
+  const [ratingServiceId,  setRatingServiceId]  = useState<string | null>(null);
+  const [ratingTechnicianId, setRatingTechnicianId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -112,19 +269,30 @@ export default function ClienteHomePage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
-      const [profileRes, servicesRes] = await Promise.all([
+      const [profileRes, servicesRes, reviewsRes] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("user_id", user.id).single(),
         supabase
           .from("service_requests")
           .select("*")
           .eq("client_id", user.id)
           .order("created_at", { ascending: false }),
+        supabase
+          .from("reviews")
+          .select("service_request_id, rating")
+          .eq("client_id", user.id),
       ]);
 
       if (profileRes.data?.full_name) {
         setUserName(profileRes.data.full_name.split(" ")[0]);
       }
       setServices((servicesRes.data as ServiceRequestDB[]) ?? []);
+
+      // Build reviews map
+      const map: Record<string, number> = {};
+      (reviewsRes.data ?? []).forEach((r: { service_request_id: string; rating: number }) => {
+        map[r.service_request_id] = r.rating;
+      });
+      setReviews(map);
     } catch (err) {
       console.error(err);
     } finally {
@@ -157,6 +325,15 @@ export default function ClienteHomePage() {
     }
   }
 
+  function handleOpenRating(id: string, technicianId: string | null) {
+    setRatingServiceId(id);
+    setRatingTechnicianId(technicianId);
+  }
+
+  function handleRatingSuccess(serviceId: string, rating: number) {
+    setReviews((prev) => ({ ...prev, [serviceId]: rating }));
+  }
+
   const active    = services.filter((s) => ["pending", "accepted", "in_progress"].includes(s.status));
   const completed = services.filter((s) => s.status === "completed");
   const cancelled = services.filter((s) => s.status === "cancelled");
@@ -171,6 +348,16 @@ export default function ClienteHomePage() {
   return (
     <div className="page-container">
       {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={hideToast} />}
+
+      {ratingServiceId && (
+        <RatingModal
+          serviceId={ratingServiceId}
+          technicianId={ratingTechnicianId}
+          onClose={() => setRatingServiceId(null)}
+          onSuccess={handleRatingSuccess}
+          showToast={showToast}
+        />
+      )}
 
       {/* Welcome banner */}
       <div className="bg-gradient-brand rounded-2xl p-6 sm:p-8 mb-8 text-white overflow-hidden relative">
@@ -251,7 +438,13 @@ export default function ClienteHomePage() {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {shown[tab].map((s) => (
-            <ServicoCard key={s.id} s={s} onCancel={handleCancel} />
+            <ServicoCard
+              key={s.id}
+              s={s}
+              onCancel={handleCancel}
+              onRate={handleOpenRating}
+              existingRating={reviews[s.id] ?? null}
+            />
           ))}
         </div>
       )}

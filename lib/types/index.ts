@@ -69,6 +69,31 @@ export function estimateHours(moduleCount: number): number {
   return 5;
 }
 
+// ── service_reports table (Supabase) ────────────────────────────────────
+
+export interface ServiceReport {
+  id: string;
+  service_request_id: string;
+  photos_before: string[];  // public storage URLs
+  photos_after: string[];   // public storage URLs
+  checklist: Record<string, boolean>;
+  observations: string | null;
+  general_condition: "bom" | "regular" | "necessita_atencao";
+  created_at: string;
+}
+
+// ── reviews table (Supabase) ─────────────────────────────────────────────
+
+export interface Review {
+  id: string;
+  service_request_id: string;
+  client_id: string;
+  technician_id: string | null;
+  rating: number;  // 1–5
+  comment: string | null;
+  created_at: string;
+}
+
 // Legacy — kept for backward compat with components/cliente/ServicoCard.tsx
 export interface ServiceRequest {
   id: string;
