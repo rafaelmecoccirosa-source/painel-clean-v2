@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { MapPin, Sun, Clock, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { type ServiceRequestDB, type ServiceRequestStatus, STATUS_BADGE, estimateHours } from "@/lib/types";
+import { type ServiceRequestDB, type ServiceRequestStatus, type PaymentStatus, STATUS_BADGE, estimateHours } from "@/lib/types";
+import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
 
 type Tab = "available" | "mine" | "done";
 
@@ -99,44 +100,77 @@ export default function ChamadosPage() {
 
   const shown: Record<Tab, ServiceRequestDB[]> = { available, mine, done };
 
+  function renderPaymentBadge(payStatus: PaymentStatus | undefined) {
+    const map: Record<string, { label: string; cls: string }> = {
+      pending:               { label: "💰 Aguardando pagamento do cliente",      cls: "bg-gray-100 text-gray-600"       },
+      awaiting_confirmation: { label: "⏳ Cliente pagou, aguardando confirmação", cls: "bg-amber-100 text-amber-700"     },
+      confirmed:             { label: "✅ Pagamento confirmado — repasse em breve", cls: "bg-emerald-100 text-emerald-700" },
+      released:              { label: "💸 Repasse realizado!",                    cls: "bg-brand-light text-brand-dark"  },
+    };
+    const s = map[payStatus ?? "pending"] ?? map["pending"];
+    return (
+      <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full ${s.cls}`}>
+        {s.label}
+      </span>
+    );
+  }
+
   function renderCard(c: ServiceRequestDB, isAvailable: boolean) {
     const repasse = c.price_estimate * 0.85;
     const horas = estimateHours(c.module_count);
     const displayAddress = isAvailable
       ? c.address.split(",")[0] + " (endereço completo após aceitar)"
       : c.address;
+    const isDone = c.status === "completed";
 
     return (
       <Link
         key={c.id}
         href={`/tecnico/chamados/${c.id}`}
-        className="card hover:shadow-card-hover transition-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+        className="card hover:shadow-card-hover transition-shadow flex flex-col gap-3 group"
       >
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <StatusBadge status={c.status} />
-            <span className="text-xs font-mono text-brand-muted">#{c.id.slice(0, 8).toUpperCase()}</span>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex-1 min-w-0 space-y-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <StatusBadge status={c.status} />
+              <span className="text-xs font-mono text-brand-muted">#{c.id.slice(0, 8).toUpperCase()}</span>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-brand-muted">
+              <span className="flex items-center gap-1.5">
+                <MapPin size={13} /> {displayAddress} — {c.city}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Sun size={13} /> {c.module_count} módulos
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Clock size={13} /> {fmtDate(c.preferred_date)}, {c.preferred_time}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-brand-muted">
-            <span className="flex items-center gap-1.5">
-              <MapPin size={13} /> {displayAddress} — {c.city}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Sun size={13} /> {c.module_count} módulos
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock size={13} /> {fmtDate(c.preferred_date)}, {c.preferred_time}
-            </span>
+          <div className="flex sm:flex-col items-center sm:items-end gap-4 sm:gap-1 flex-shrink-0">
+            <div className="text-right">
+              <p className="text-xs text-brand-muted">Repasse</p>
+              <p className="font-heading font-bold text-brand-dark text-lg">{fmt(repasse)}</p>
+              <p className="text-xs text-brand-muted">~{horas}h estimadas</p>
+            </div>
+            <ArrowRight size={18} className="text-brand-muted group-hover:text-brand-green transition-colors" />
           </div>
         </div>
-        <div className="flex sm:flex-col items-center sm:items-end gap-4 sm:gap-1 flex-shrink-0">
-          <div className="text-right">
-            <p className="text-xs text-brand-muted">Repasse</p>
-            <p className="font-heading font-bold text-brand-dark text-lg">{fmt(repasse)}</p>
-            <p className="text-xs text-brand-muted">~{horas}h estimadas</p>
-          </div>
-          <ArrowRight size={18} className="text-brand-muted group-hover:text-brand-green transition-colors" />
-        </div>
+
+        {/* Progress bar for all non-pending statuses */}
+        {!isAvailable && (
+          <ServiceProgressBar status={c.status} paymentStatus={c.payment_status ?? "pending"} />
+        )}
+
+        {/* Payment status badge for completed chamados */}
+        {isDone && renderPaymentBadge(c.payment_status)}
+
+        {/* Repasse detail when confirmed */}
+        {isDone && c.payment_status === "confirmed" && (
+          <p className="text-xs text-brand-muted">
+            O repasse de <strong className="text-brand-green">{fmt(repasse)}</strong> será feito via PIX em até 48h
+          </p>
+        )}
       </Link>
     );
   }

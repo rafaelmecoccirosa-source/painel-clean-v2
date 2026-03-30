@@ -19,6 +19,12 @@ export type ServiceRequestStatus =
   | "completed"     // técnico concluiu
   | "cancelled";    // cancelado
 
+export type PaymentStatus =
+  | "pending"                 // aguardando pagamento do cliente
+  | "awaiting_confirmation"   // cliente informou que pagou, aguardando admin confirmar
+  | "confirmed"               // admin confirmou o pagamento
+  | "released";               // repasse ao técnico foi liberado
+
 export interface ServiceRequestDB {
   id: string;
   client_id: string;
@@ -37,6 +43,12 @@ export interface ServiceRequestDB {
   completed_at: string | null;
   cancelled_at: string | null;
   cancellation_reason: string | null;
+  // Payment columns (added via migration 20260330_payment_columns.sql)
+  payment_status?: PaymentStatus;
+  payment_method?: string | null;
+  payment_proof_url?: string | null;
+  paid_at?: string | null;
+  released_at?: string | null;
 }
 
 export const STATUS_LABELS: Record<ServiceRequestStatus, string> = {

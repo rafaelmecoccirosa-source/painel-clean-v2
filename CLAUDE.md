@@ -317,6 +317,42 @@ CREATE TABLE IF NOT EXISTS service_requests (
 - Técnico: SELECT pendentes + os seus; UPDATE para aceitar e atualizar status
 - Admin: acesso total via policy que verifica `profiles.role = 'admin'`
 
+### Colunas de Pagamento: `service_requests` (migration `20260330_payment_columns.sql`)
+
+Execute no Supabase SQL Editor para adicionar o fluxo de pagamento PIX manual:
+
+```sql
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS payment_status VARCHAR(30)
+    DEFAULT 'pending'
+    CHECK (payment_status IN (
+      'pending',                -- aguardando pagamento do cliente
+      'awaiting_confirmation',  -- cliente informou que pagou, aguardando admin confirmar
+      'confirmed',              -- admin confirmou, pagamento OK
+      'released'                -- repasse ao técnico liberado
+    ));
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS payment_method VARCHAR(20) DEFAULT 'pix';
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS payment_proof_url TEXT;
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ;
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS released_at TIMESTAMPTZ;
+```
+
+**Fluxo de pagamento:**
+1. Serviço concluído → `payment_status = 'pending'`
+2. Cliente faz PIX e clica "Já paguei" → `payment_status = 'awaiting_confirmation'` + `paid_at`
+3. Admin confirma no `/admin/pagamentos` → `payment_status = 'confirmed'`
+4. Admin marca repasse como realizado → `payment_status = 'released'` + `released_at`
+
+**Chave PIX placeholder:** `pix@painelclean.com.br` — alterar em `components/cliente/PaymentCard.tsx`
+
 ### Comportamento com tabela inexistente
 
 O app funciona **sem a tabela criada** — todas as páginas usam dados mockados como fallback.

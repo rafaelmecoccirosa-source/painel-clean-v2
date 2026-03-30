@@ -9,9 +9,12 @@ import { createClient } from "@/lib/supabase/client";
 import {
   type ServiceRequestDB,
   type ServiceRequestStatus,
+  type PaymentStatus,
   STATUS_LABELS,
   STATUS_BADGE,
 } from "@/lib/types";
+import PaymentCard from "@/components/cliente/PaymentCard";
+import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -163,8 +166,10 @@ function ServicoCard({
   onRate: (id: string, technicianId: string | null) => void;
   existingRating: number | null;
 }) {
+  const [payStatus, setPayStatus] = useState<PaymentStatus>(s.payment_status ?? "pending");
+
   return (
-    <div className="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-3">
+    <div className="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="text-xs text-brand-muted font-medium uppercase tracking-wide mb-1">
@@ -176,6 +181,11 @@ function ServicoCard({
         </div>
         <StatusBadge status={s.status} />
       </div>
+
+      {/* Progress bar */}
+      {s.status !== "cancelled" && (
+        <ServiceProgressBar status={s.status} paymentStatus={payStatus} />
+      )}
 
       <div className="space-y-1 text-xs text-brand-muted">
         <p>📍 {s.address}</p>
@@ -193,13 +203,22 @@ function ServicoCard({
       )}
 
       {s.status === "completed" && (
-        <div className="space-y-2">
+        <div className="space-y-3">
+          {/* Payment card */}
+          <PaymentCard
+            serviceId={s.id}
+            amount={s.price_estimate}
+            initialPaymentStatus={s.payment_status ?? "pending"}
+            onStatusChange={(next) => setPayStatus(next)}
+          />
+
           <Link
             href={`/cliente/historico`}
             className="block text-center text-xs font-semibold text-brand-green hover:underline"
           >
             Ver relatório completo →
           </Link>
+
           {existingRating !== null ? (
             <div className="flex items-center justify-center gap-1">
               {[1,2,3,4,5].map((n) => (
