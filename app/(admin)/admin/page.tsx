@@ -14,7 +14,7 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-const alertas = [
+const STATIC_ALERTAS = [
   {
     icon: "🔔",
     texto: "2 técnicos aguardando aprovação",
@@ -56,6 +56,7 @@ export default async function AdminDashboardPage() {
 
   // ── Try real Supabase data; fall back to mock if table not ready ──────
   let realServices: ServiceRequestDB[] = [];
+  let awaitingPaymentCount = 0;
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -63,7 +64,12 @@ export default async function AdminDashboardPage() {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(50);
-    if (data && data.length > 0) realServices = data as ServiceRequestDB[];
+    if (data && data.length > 0) {
+      realServices = data as ServiceRequestDB[];
+      awaitingPaymentCount = realServices.filter(
+        (s) => s.payment_status === "awaiting_confirmation"
+      ).length;
+    }
   } catch { /* table not yet created — use mock */ }
 
   const hasReal = realServices.length > 0;
@@ -172,7 +178,20 @@ export default async function AdminDashboardPage() {
           🔔 Alertas
         </p>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
-          {alertas.map(({ icon, texto, href, cor }) => (
+          {/* Dynamic payment alert */}
+          {awaitingPaymentCount > 0 && (
+            <Link
+              href="/admin/pagamentos"
+              className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-white border border-amber-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
+            >
+              <span>💰</span>
+              <span>
+                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação
+              </span>
+              <ArrowRight size={12} className="opacity-50 ml-auto" />
+            </Link>
+          )}
+          {STATIC_ALERTAS.map(({ icon, texto, href, cor }) => (
             <a
               key={texto}
               href={href}

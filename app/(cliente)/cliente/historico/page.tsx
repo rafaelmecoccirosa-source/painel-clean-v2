@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Sun, Star, Camera, ChevronDown, ChevronUp, CheckCircle2, Clock, MapPin, Hash } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB, ServiceReport, Review } from "@/lib/types";
+import PaymentCard from "@/components/cliente/PaymentCard";
+import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -213,7 +215,7 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
 
   return (
     <div className="bg-white border border-brand-border rounded-2xl shadow-sm overflow-hidden">
-      <div className="p-5 space-y-3">
+      <div className="p-5 space-y-4">
         <div className="flex items-start justify-between gap-2">
           <div>
             <div className="flex items-center gap-1.5 text-xs text-brand-muted mb-1">
@@ -229,6 +231,9 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
           </span>
         </div>
 
+        {/* Progress bar */}
+        <ServiceProgressBar status={item.status} paymentStatus={item.payment_status ?? "pending"} />
+
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-brand-muted">
           <span className="flex items-center gap-1">
             <MapPin size={11} /> {item.address.split(",")[0]}
@@ -239,6 +244,13 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
           <span className="font-semibold text-brand-dark">{fmt(item.price_estimate)}</span>
           <span>{item.preferred_time}</span>
         </div>
+
+        {/* Payment card */}
+        <PaymentCard
+          serviceId={item.id}
+          amount={item.price_estimate}
+          initialPaymentStatus={item.payment_status ?? "pending"}
+        />
 
         {item.review ? (
           <div className="flex items-center gap-1.5 flex-wrap">
