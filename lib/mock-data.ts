@@ -129,3 +129,43 @@ export const MOCK_ADMIN = {
     { id: 10, data: "18/03", cidade: "Jaraguá do Sul", cliente: "Sônia",   tecnico: "Luiz",    modulos: 18, valor: 300, comissao: 45,  status: "concluido",   nota: 4.5  },
   ],
 };
+
+// ── Usuários ──────────────────────────────────────────────────────────────
+
+export const MOCK_USUARIOS = [
+  { id: 1,  nome: 'Ana Silva',        email: 'ana@email.com',       tipo: 'cliente' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-01-15', status: 'ativo' },
+  { id: 2,  nome: 'Carlos Souza',     email: 'carlos@email.com',    tipo: 'tecnico' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-01-20', status: 'ativo',    aprovacao: 'aprovado' as const, avaliacao: 4.9, servicos: 22, ganhosMes: 5610 },
+  { id: 3,  nome: 'Maria Oliveira',   email: 'maria@email.com',     tipo: 'cliente' as const, cidade: 'Florianópolis',  cadastro: '2026-02-03', status: 'ativo' },
+  { id: 4,  nome: 'Pedro Santos',     email: 'pedro@email.com',     tipo: 'tecnico' as const, cidade: 'Pomerode',       cadastro: '2026-02-10', status: 'ativo',    aprovacao: 'aprovado' as const, avaliacao: 4.7, servicos: 15, ganhosMes: 3825 },
+  { id: 5,  nome: 'Juliana Costa',    email: 'juliana@email.com',   tipo: 'cliente' as const, cidade: 'Florianópolis',  cadastro: '2026-02-15', status: 'ativo' },
+  { id: 6,  nome: 'Roberto Lima',     email: 'roberto@email.com',   tipo: 'tecnico' as const, cidade: 'Florianópolis',  cadastro: '2026-02-28', status: 'ativo',    aprovacao: 'aprovado' as const, avaliacao: 4.5, servicos: 8,  ganhosMes: 2040 },
+  { id: 7,  nome: 'Fernanda Alves',   email: 'fernanda@email.com',  tipo: 'cliente' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-03-01', status: 'ativo' },
+  { id: 8,  nome: 'Lucas Martins',    email: 'lucas@email.com',     tipo: 'tecnico' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-03-05', status: 'pendente', aprovacao: 'pendente' as const, avaliacao: 0, servicos: 0, ganhosMes: 0 },
+  { id: 9,  nome: 'Camila Rocha',     email: 'camila@email.com',    tipo: 'cliente' as const, cidade: 'Pomerode',       cadastro: '2026-03-10', status: 'ativo' },
+  { id: 10, nome: 'Diego Ferreira',   email: 'diego@email.com',     tipo: 'tecnico' as const, cidade: 'Pomerode',       cadastro: '2026-03-12', status: 'pendente', aprovacao: 'pendente' as const, avaliacao: 0, servicos: 0, ganhosMes: 0 },
+  { id: 11, nome: 'Patricia Mendes',  email: 'patricia@email.com',  tipo: 'cliente' as const, cidade: 'Florianópolis',  cadastro: '2026-03-15', status: 'ativo' },
+  { id: 12, nome: 'Thiago Barbosa',   email: 'thiago@email.com',    tipo: 'cliente' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-03-18', status: 'ativo' },
+  { id: 13, nome: 'Amanda Reis',      email: 'amanda@email.com',    tipo: 'tecnico' as const, cidade: 'Florianópolis',  cadastro: '2026-03-20', status: 'inativo',  aprovacao: 'recusado' as const, avaliacao: 0, servicos: 0, ganhosMes: 0 },
+  { id: 14, nome: 'Bruno Cardoso',    email: 'bruno@email.com',     tipo: 'cliente' as const, cidade: 'Pomerode',       cadastro: '2026-03-22', status: 'ativo' },
+  { id: 15, nome: 'Larissa Nunes',    email: 'larissa@email.com',   tipo: 'cliente' as const, cidade: 'Jaraguá do Sul', cadastro: '2026-03-25', status: 'ativo' },
+];
+
+// ── Agenda Técnico ────────────────────────────────────────────────────────
+
+export const MOCK_AGENDA_TECNICO = [
+  { id: '1',  data: '2026-03-03', horario: '08:00', duracao: 2,   cidade: 'Jaraguá do Sul', endereco: 'Rua das Palmeiras, 120',      modulos: 18, valor: 300, status: 'concluido' as const },
+  { id: '2',  data: '2026-03-05', horario: '09:00', duracao: 3,   cidade: 'Pomerode',       endereco: 'Rua XV de Novembro, 450',     modulos: 28, valor: 300, status: 'concluido' as const },
+  { id: '3',  data: '2026-03-05', horario: '14:00', duracao: 2,   cidade: 'Pomerode',       endereco: 'Rua Hermann Weege, 80',       modulos: 12, valor: 300, status: 'concluido' as const },
+  { id: '4',  data: '2026-03-10', horario: '07:30', duracao: 2,   cidade: 'Jaraguá do Sul', endereco: 'Rua Marechal Deodoro, 300',   modulos: 8,  valor: 180, status: 'concluido' as const },
+  { id: '5',  data: '2026-03-14', horario: '09:00', duracao: 3,   cidade: 'Florianópolis',  endereco: 'Rod. SC-401, km 5',           modulos: 35, valor: 520, status: 'concluido' as const },
+  { id: '6',  data: '2026-03-14', horario: '14:00', duracao: 2,   cidade: 'Florianópolis',  endereco: 'Rua Lauro Linhares, 700',     modulos: 15, valor: 300, status: 'concluido' as const },
+  { id: '7',  data: '2026-03-14', horario: '17:00', duracao: 1.5, cidade: 'Florianópolis',  endereco: 'Rua Bocaiúva, 200',           modulos: 6,  valor: 180, status: 'concluido' as const },
+  { id: '8',  data: '2026-03-21', horario: '08:00', duracao: 2.5, cidade: 'Jaraguá do Sul', endereco: 'Rua Otto Marquardt, 55',      modulos: 22, valor: 300, status: 'concluido' as const },
+  { id: '9',  data: '2026-03-25', horario: '09:00', duracao: 2,   cidade: 'Pomerode',       endereco: 'Rua Georg Osterroht, 180',    modulos: 14, valor: 300, status: 'concluido' as const },
+  { id: '10', data: '2026-03-28', horario: '08:30', duracao: 3,   cidade: 'Jaraguá do Sul', endereco: 'Rua Walter Marquardt, 90',    modulos: 30, valor: 300, status: 'agendado'  as const },
+  { id: '11', data: '2026-03-29', horario: '09:00', duracao: 4,   cidade: 'Florianópolis',  endereco: 'Av. Beira Mar Norte, 1500',   modulos: 55, valor: 520, status: 'agendado'  as const },
+  { id: '12', data: '2026-03-31', horario: '08:00', duracao: 2,   cidade: 'Pomerode',       endereco: 'Rua Joinville, 300',          modulos: 10, valor: 180, status: 'agendado'  as const },
+  { id: '13', data: '2026-03-31', horario: '13:00', duracao: 2.5, cidade: 'Jaraguá do Sul', endereco: 'Rua Expedicionário, 400',     modulos: 20, valor: 300, status: 'agendado'  as const },
+  { id: '14', data: '2026-04-02', horario: '09:00', duracao: 2,   cidade: 'Jaraguá do Sul', endereco: 'Rua Bernardo Dornbusch, 150', modulos: 16, valor: 300, status: 'agendado'  as const },
+  { id: '15', data: '2026-04-05', horario: '08:00', duracao: 3,   cidade: 'Florianópolis',  endereco: 'Rod. Admar Gonzaga, 800',     modulos: 40, valor: 520, status: 'agendado'  as const },
+];
