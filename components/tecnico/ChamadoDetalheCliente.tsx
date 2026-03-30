@@ -451,7 +451,13 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         <>
           <ServiceInfoCard service={service} />
           <div className="card">
-            <Button variant="primary" size="lg" className="w-full" loading={busy} onClick={handleStart}>
+            <Button
+              variant="primary"
+              size="lg"
+              className="w-full bg-blue-600 hover:bg-blue-700"
+              loading={busy}
+              onClick={handleStart}
+            >
               <Play size={16} />
               {busy ? "Iniciando…" : "Iniciar Serviço"}
             </Button>
