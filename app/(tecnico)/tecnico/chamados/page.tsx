@@ -6,6 +6,7 @@ import { MapPin, Sun, Clock, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { type ServiceRequestDB, type ServiceRequestStatus, type PaymentStatus, STATUS_BADGE, estimateHours } from "@/lib/types";
 import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
+import { countUnreadMessages } from "@/components/shared/ChatBox";
 
 type Tab = "available" | "mine" | "done";
 
@@ -46,11 +47,12 @@ function Skeleton() {
 }
 
 export default function ChamadosPage() {
-  const [tab, setTab] = useState<Tab>("available");
+  const [tab, setTab]           = useState<Tab>("available");
   const [available, setAvailable] = useState<ServiceRequestDB[]>([]);
-  const [mine, setMine] = useState<ServiceRequestDB[]>([]);
-  const [done, setDone] = useState<ServiceRequestDB[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [mine, setMine]         = useState<ServiceRequestDB[]>([]);
+  const [done, setDone]         = useState<ServiceRequestDB[]>([]);
+  const [loading, setLoading]   = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -80,9 +82,15 @@ export default function ChamadosPage() {
           .limit(20),
       ]);
 
+      const mineData = (mineRes.data as ServiceRequestDB[]) ?? [];
+      const doneData = (doneRes.data as ServiceRequestDB[]) ?? [];
       setAvailable((availRes.data as ServiceRequestDB[]) ?? []);
-      setMine((mineRes.data as ServiceRequestDB[]) ?? []);
-      setDone((doneRes.data as ServiceRequestDB[]) ?? []);
+      setMine(mineData);
+      setDone(doneData);
+
+      const allMineIds = [...mineData, ...doneData].map((s) => s.id);
+      const unread = await countUnreadMessages(allMineIds, user.id);
+      setUnreadCount(unread);
     } catch (err) {
       console.error(err);
     } finally {
@@ -92,9 +100,9 @@ export default function ChamadosPage() {
 
   useEffect(() => { load(); }, [load]);
 
-  const tabs: { key: Tab; label: string; emoji: string; count: number }[] = [
+  const tabs: { key: Tab; label: string; emoji: string; count: number; unread?: boolean }[] = [
     { key: "available", label: "Disponíveis", emoji: "🔔", count: available.length },
-    { key: "mine",      label: "Meus",        emoji: "📋", count: mine.length      },
+    { key: "mine",      label: "Meus",        emoji: "📋", count: mine.length, unread: unreadCount > 0 },
     { key: "done",      label: "Concluídos",  emoji: "✅", count: done.length      },
   ];
 
@@ -187,7 +195,7 @@ export default function ChamadosPage() {
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+            className={`relative flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
               tab === t.key
                 ? "bg-brand-dark text-white"
                 : "bg-white border border-brand-border text-brand-muted hover:text-brand-dark"
@@ -197,6 +205,9 @@ export default function ChamadosPage() {
             <span className={`text-xs px-1.5 py-0.5 rounded-full ${tab === t.key ? "bg-white/20" : "bg-brand-bg"}`}>
               {t.count}
             </span>
+            {t.unread && (
+              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+            )}
           </button>
         ))}
       </div>

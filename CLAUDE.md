@@ -353,6 +353,31 @@ ALTER TABLE service_requests
 
 **Chave PIX placeholder:** `pix@painelclean.com.br` — alterar em `components/cliente/PaymentCard.tsx`
 
+### Tabela: `messages` — Chat in-app (migration `20260330_messages.sql`)
+
+```sql
+CREATE TABLE IF NOT EXISTS messages (
+  id                   UUID          DEFAULT gen_random_uuid() PRIMARY KEY,
+  service_request_id   UUID          REFERENCES service_requests(id) ON DELETE CASCADE NOT NULL,
+  sender_id            UUID          REFERENCES auth.users(id) NOT NULL,
+  content              TEXT          NOT NULL,
+  read                 BOOLEAN       DEFAULT false,
+  created_at           TIMESTAMPTZ   DEFAULT NOW(),
+  is_system            BOOLEAN       DEFAULT false
+);
+```
+
+**RLS habilitado.** Políticas:
+- Cliente e técnico do serviço: SELECT + INSERT (só o próprio sender_id) + UPDATE (marcar como lido)
+- Admin: acesso total
+
+**Fluxo:**
+- Chat só aparece quando `status IN ('accepted', 'in_progress', 'completed')`
+- Mensagens automáticas do sistema (`is_system = true`) são inseridas quando status muda
+- Polling a cada 5 s para novas mensagens
+- Números de telefone e e-mails são bloqueados no input (alerta exibido)
+- Chave de acesso: `/cliente/servico/[id]` (cliente) e `/tecnico/chamados/[id]` (técnico)
+
 ### Comportamento com tabela inexistente
 
 O app funciona **sem a tabela criada** — todas as páginas usam dados mockados como fallback.

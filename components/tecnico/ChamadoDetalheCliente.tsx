@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB } from "@/lib/types";
+import ChatBox, { insertSystemMessage } from "@/components/shared/ChatBox";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -310,6 +311,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         setTimeout(() => router.push("/tecnico/chamados"), 1800);
       } else {
         showToast("Chamado aceito! O cliente foi notificado.", "success");
+        await insertSystemMessage(id, userId ?? "", "✅ Técnico aceitou o chamado. Em breve entrará em contato.");
         setTimeout(() => router.push("/tecnico/chamados"), 1600);
       }
     } catch {
@@ -335,6 +337,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         // Update local state so the UI transitions immediately
         setService((prev) => prev ? { ...prev, status: "in_progress" } : prev);
         showToast("Serviço iniciado!", "success");
+        await insertSystemMessage(id, userId ?? "", "🔧 Serviço iniciado. O técnico está a caminho.");
       }
     } catch {
       showToast("Erro inesperado.", "error");
@@ -497,6 +500,16 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         <div className="card text-center py-8">
           <p className="text-brand-muted text-sm">Este chamado foi aceito por outro técnico.</p>
         </div>
+      )}
+
+      {/* ── CHAT (available when accepted/in_progress/completed and this is my service) ── */}
+      {["accepted", "in_progress", "completed"].includes(status) && isMyService && userId && (
+        <ChatBox
+          serviceId={id}
+          currentUserId={userId}
+          currentUserName="Técnico"
+          otherUserName="Cliente"
+        />
       )}
     </div>
   );

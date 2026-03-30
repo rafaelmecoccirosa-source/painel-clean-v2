@@ -197,9 +197,26 @@ function ServicoCard({
       </div>
 
       {s.status === "accepted" && (
-        <p className="text-xs text-blue-700 bg-blue-50 rounded-xl px-3 py-2 font-medium">
-          ✅ Técnico confirmado — aguardando início do serviço
-        </p>
+        <div className="space-y-2">
+          <p className="text-xs text-blue-700 bg-blue-50 rounded-xl px-3 py-2 font-medium">
+            ✅ Técnico confirmado — aguardando início do serviço
+          </p>
+          <Link
+            href={`/cliente/servico/${s.id}`}
+            className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-dark border border-brand-border hover:bg-brand-light rounded-xl py-2 transition-colors"
+          >
+            💬 Conversar com o técnico
+          </Link>
+        </div>
+      )}
+
+      {s.status === "in_progress" && (
+        <Link
+          href={`/cliente/servico/${s.id}`}
+          className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-brand-green border border-brand-green/30 bg-brand-green/5 hover:bg-brand-green/10 rounded-xl py-2 transition-colors"
+        >
+          🔧 Em andamento — 💬 Chat com técnico
+        </Link>
       )}
 
       {s.status === "completed" && (
@@ -217,6 +234,12 @@ function ServicoCard({
             className="block text-center text-xs font-semibold text-brand-green hover:underline"
           >
             Ver relatório completo →
+          </Link>
+          <Link
+            href={`/cliente/servico/${s.id}`}
+            className="block text-center text-xs font-semibold text-brand-muted hover:text-brand-dark"
+          >
+            💬 Ver conversa
           </Link>
 
           {existingRating !== null ? (

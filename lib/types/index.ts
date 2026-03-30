@@ -81,6 +81,18 @@ export function estimateHours(moduleCount: number): number {
   return 5;
 }
 
+// ── messages table (Supabase) ─────────────────────────────────────────────────
+
+export interface Message {
+  id: string;
+  service_request_id: string;
+  sender_id: string;
+  content: string;
+  read: boolean;
+  created_at: string;
+  is_system: boolean;
+}
+
 // ── service_reports table (Supabase) ────────────────────────────────────
 
 export interface ServiceReport {
