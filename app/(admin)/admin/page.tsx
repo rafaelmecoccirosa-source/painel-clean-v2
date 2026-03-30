@@ -5,57 +5,14 @@ import AdminReceitaChart from "@/components/admin/AdminReceitaChart";
 import AdminDonut from "@/components/admin/AdminDonut";
 import AdminTecnicosAba from "@/components/admin/AdminTecnicosAba";
 import { MOCK_ADMIN } from "@/lib/mock-data";
+import { createClient } from "@/lib/supabase/server";
+import type { ServiceRequestDB } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Painel Admin | Painel Clean" };
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
-
-// ── Derived from centralized mock data ────────────────────────────────────
-
-const kpis = [
-  {
-    emoji: "💰",
-    label: "Receita do mês",
-    value: fmt(MOCK_ADMIN.receitaMes),
-    trend: `+${MOCK_ADMIN.tendencia.receita}%`,
-    up: true,
-    sub: "vs mês anterior · comissão 15%",
-  },
-  {
-    emoji: "📋",
-    label: "Serviços concluídos",
-    value: String(MOCK_ADMIN.totalServicos),
-    trend: `+${MOCK_ADMIN.tendencia.servicos}`,
-    up: true,
-    sub: "vs mês anterior",
-  },
-  {
-    emoji: "👥",
-    label: "Técnicos ativos",
-    value: String(MOCK_ADMIN.tecnicosAtivos),
-    trend: null,
-    up: true,
-    sub: "≥1 serviço em 30 dias",
-  },
-  {
-    emoji: "👤",
-    label: "Clientes cadastrados",
-    value: String(MOCK_ADMIN.clientesCadastrados),
-    trend: `+${MOCK_ADMIN.clientesNovosMes}`,
-    up: true,
-    sub: "novos este mês",
-  },
-  {
-    emoji: "⭐",
-    label: "Satisfação média",
-    value: MOCK_ADMIN.satisfacaoMedia.toFixed(2),
-    trend: null,
-    up: true,
-    sub: "últimos 30 dias",
-  },
-];
 
 const alertas = [
   {
@@ -78,10 +35,6 @@ const alertas = [
   },
 ];
 
-const cidades = MOCK_ADMIN.porCidade;
-const maxServicos = Math.max(...cidades.map((c) => c.servicos));
-const ultimosServicos = MOCK_ADMIN.ultimosServicos;
-
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; cls: string }> = {
     concluido:  { label: "✅ Concluído",     cls: "bg-emerald-100 text-emerald-700" },
@@ -97,9 +50,96 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-export default function AdminDashboardPage() {
+export default async function AdminDashboardPage() {
   const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
   const anoAtual = new Date().getFullYear();
+
+  // ── Try real Supabase data; fall back to mock if table not ready ──────
+  let realServices: ServiceRequestDB[] = [];
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("service_requests")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data && data.length > 0) realServices = data as ServiceRequestDB[];
+  } catch { /* table not yet created — use mock */ }
+
+  const hasReal = realServices.length > 0;
+
+  // Derived real metrics
+  const realCompleted  = realServices.filter((s) => s.status === "completed");
+  const realReceita    = realCompleted.reduce((a, s) => a + s.price_estimate * 0.15, 0);
+  const realTotal      = realServices.length;
+  const realCities     = Array.from(new Set(realServices.map((s) => s.city)));
+
+  // KPIs: prefer real data, fall back to mock
+  const kpis = [
+    {
+      emoji: "💰",
+      label: "Receita do mês",
+      value: fmt(hasReal ? realReceita : MOCK_ADMIN.receitaMes),
+      trend: `+${MOCK_ADMIN.tendencia.receita}%`,
+      up: true,
+      sub: hasReal ? "dados reais · comissão 15%" : "vs mês anterior · comissão 15%",
+    },
+    {
+      emoji: "📋",
+      label: "Serviços concluídos",
+      value: String(hasReal ? realCompleted.length : MOCK_ADMIN.totalServicos),
+      trend: `+${MOCK_ADMIN.tendencia.servicos}`,
+      up: true,
+      sub: hasReal ? "dados reais" : "vs mês anterior",
+    },
+    {
+      emoji: "👥",
+      label: "Técnicos ativos",
+      value: String(MOCK_ADMIN.tecnicosAtivos),
+      trend: null,
+      up: true,
+      sub: "≥1 serviço em 30 dias",
+    },
+    {
+      emoji: "👤",
+      label: "Clientes cadastrados",
+      value: String(MOCK_ADMIN.clientesCadastrados),
+      trend: `+${MOCK_ADMIN.clientesNovosMes}`,
+      up: true,
+      sub: "novos este mês",
+    },
+    {
+      emoji: "⭐",
+      label: "Satisfação média",
+      value: MOCK_ADMIN.satisfacaoMedia.toFixed(2),
+      trend: null,
+      up: true,
+      sub: "últimos 30 dias",
+    },
+  ];
+
+  // Recent services table: prefer real, fall back to mock shape
+  const ultimosServicos = hasReal
+    ? realServices.slice(0, 10).map((s) => ({
+        id:       s.id,
+        data:     new Date(s.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+        cidade:   s.city,
+        cliente:  s.client_id.slice(0, 8),
+        tecnico:  s.technician_id ? s.technician_id.slice(0, 8) : "—",
+        modulos:  s.module_count,
+        valor:    s.status === "completed" ? s.price_estimate : 0,
+        comissao: s.status === "completed" ? s.price_estimate * 0.15 : 0,
+        status:   s.status === "completed" ? "concluido"
+                : s.status === "in_progress" ? "andamento"
+                : s.status === "accepted"    ? "agendado"
+                : s.status === "cancelled"   ? "cancelado"
+                : "agendado",
+        nota:     null as number | null,
+      }))
+    : MOCK_ADMIN.ultimosServicos;
+
+  const cidades    = MOCK_ADMIN.porCidade;
+  const maxServicos = Math.max(...cidades.map((c) => c.servicos));
 
   return (
     <div className="page-container space-y-6">
@@ -112,6 +152,15 @@ export default function AdminDashboardPage() {
         <p className="text-brand-muted text-sm mt-1">
           Painel Clean · visão geral da plataforma — {mesAtual} {anoAtual}
         </p>
+        {hasReal ? (
+          <span className="inline-block mt-1 text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+            ✅ Dados reais ({realTotal} serviços no banco)
+          </span>
+        ) : (
+          <span className="inline-block mt-1 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
+            📊 Dados demonstrativos (tabela ainda não criada)
+          </span>
+        )}
       </div>
 
       {/* ── Seção 7: Alertas ── */}

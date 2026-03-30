@@ -273,6 +273,58 @@ Componentes-chave a replicar:
 
 ---
 
+## Tabelas do Banco de Dados
+
+> ⚠️ **Importante:** As migrations em `supabase/migrations/` **não são aplicadas automaticamente**.
+> Você precisa executá-las manualmente no **Supabase SQL Editor** do seu projeto.
+> Acesse: [https://app.supabase.com](https://app.supabase.com) → seu projeto → **SQL Editor**
+
+### Como aplicar as migrations
+
+1. Acesse o Supabase Dashboard do projeto
+2. Vá em **SQL Editor → New query**
+3. Cole o conteúdo do arquivo `supabase/migrations/20260330_service_requests.sql` e execute
+
+### Tabela: `service_requests`
+
+Esta é a tabela central do fluxo de agendamento. Arquivo completo em `supabase/migrations/20260330_service_requests.sql`.
+
+```sql
+CREATE TABLE IF NOT EXISTS service_requests (
+  id               UUID          DEFAULT gen_random_uuid() PRIMARY KEY,
+  client_id        UUID          REFERENCES auth.users(id) NOT NULL,
+  technician_id    UUID          REFERENCES auth.users(id),
+  city             VARCHAR(100)  NOT NULL,
+  address          TEXT          NOT NULL,
+  module_count     INTEGER       NOT NULL,
+  price_estimate   DECIMAL(10,2) NOT NULL,
+  preferred_date   DATE          NOT NULL,
+  preferred_time   VARCHAR(20)   NOT NULL,
+  status           VARCHAR(30)   DEFAULT 'pending'
+    CHECK (status IN ('pending','accepted','in_progress','completed','cancelled')),
+  notes                TEXT,
+  created_at           TIMESTAMPTZ DEFAULT NOW(),
+  updated_at           TIMESTAMPTZ DEFAULT NOW(),
+  accepted_at          TIMESTAMPTZ,
+  completed_at         TIMESTAMPTZ,
+  cancelled_at         TIMESTAMPTZ,
+  cancellation_reason  TEXT
+);
+```
+
+**RLS habilitado.** Políticas:
+- Cliente: SELECT/INSERT próprios, UPDATE apenas `pending → cancelled`
+- Técnico: SELECT pendentes + os seus; UPDATE para aceitar e atualizar status
+- Admin: acesso total via policy que verifica `profiles.role = 'admin'`
+
+### Comportamento com tabela inexistente
+
+O app funciona **sem a tabela criada** — todas as páginas usam dados mockados como fallback.
+Quando a tabela existir e tiver dados reais, os dashboards exibem dados do banco automaticamente.
+O admin dashboard mostra um badge verde "✅ Dados reais" ou âmbar "📊 Dados demonstrativos".
+
+---
+
 ## Usuário Admin de Teste
 
 Para criar um admin de teste no Supabase, execute os passos abaixo:
