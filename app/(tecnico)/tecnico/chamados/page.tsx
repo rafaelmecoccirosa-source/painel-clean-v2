@@ -166,11 +166,18 @@ export default function ChamadosPage() {
           </div>
         </div>
 
-        {/* Payment confirmed badge for available chamados */}
+        {/* Badges row for available chamados */}
         {isAvailable && (
-          <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 w-fit">
-            💰 Pagamento confirmado
-          </span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+              💰 Pagamento confirmado
+            </span>
+            {c.latitude != null && c.longitude != null && (
+              <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
+                📍 Localização no mapa
+              </span>
+            )}
+          </div>
         )}
 
         {/* Progress bar for all non-pending statuses */}

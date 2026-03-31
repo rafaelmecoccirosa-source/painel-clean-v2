@@ -494,3 +494,39 @@ Mapeamento de estados:
 - `in_progress`                                    → passo 4 done, passo 5 (Concluído) atual
 - `completed`                                      → passo 5 done, passo 6 (Repasse) atual
 - `payment_status=released`                        → todos os passos concluídos
+
+---
+
+## Localização com Pin no Mapa
+
+### Migration SQL (executar manualmente no Supabase SQL Editor)
+
+Arquivo: `supabase/migrations/20260331_location_columns.sql`
+
+```sql
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS latitude          DECIMAL(10,8),
+  ADD COLUMN IF NOT EXISTS longitude         DECIMAL(11,8),
+  ADD COLUMN IF NOT EXISTS location_description TEXT;
+```
+
+### Como funciona
+
+- **Tela de solicitação** (`/cliente/solicitar`): o cliente escolhe entre "Digitar endereço" (texto) ou "Marcar no mapa" (Leaflet interativo). No modo mapa, clica para posicionar um pin arrastável. Botão "Usar minha localização atual" usa `navigator.geolocation`.
+- **Mapa usa Leaflet + OpenStreetMap** (100% gratuito, sem API key). `react-leaflet@4` (compatível com React 18).
+- **Componentes**:
+  - `components/shared/MapPickerLeaflet.tsx` — mapa interativo com pin arrastável (solicitar)
+  - `components/shared/MapViewLeaflet.tsx` — mapa read-only (ver localização)
+  - Ambos importados via `dynamic(() => import(...), { ssr: false })` para evitar erro de SSR do Leaflet.
+- **Validação**: precisa ter endereço textual OU pin no mapa (pelo menos um).
+- **Tela do técnico** (`/tecnico/chamados/[id]`): se o serviço tem lat/lng, mostra mapa com pin + botões "Google Maps" (rota) e "Waze". Se só endereço textual, botão Google Maps por busca.
+- **Lista de chamados** (`/tecnico/chamados`): badge "📍 Localização no mapa" nos cards que têm coordenadas.
+- **Admin servicos**: coluna 📍 com link Google Maps por cidade.
+
+### Centros das cidades piloto
+
+| Cidade | Latitude | Longitude |
+|--------|----------|-----------|
+| Jaraguá do Sul | -26.4854 | -49.0713 |
+| Pomerode | -26.7407 | -49.1764 |
+| Florianópolis | -27.5954 | -48.5480 |

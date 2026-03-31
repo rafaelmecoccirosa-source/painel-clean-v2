@@ -49,6 +49,10 @@ export interface ServiceRequestDB {
   payment_proof_url?: string | null;
   paid_at?: string | null;
   released_at?: string | null;
+  // Location columns (added via migration 20260331_location_columns.sql)
+  latitude?: number | null;
+  longitude?: number | null;
+  location_description?: string | null;
 }
 
 export const STATUS_LABELS: Record<ServiceRequestStatus, string> = {
