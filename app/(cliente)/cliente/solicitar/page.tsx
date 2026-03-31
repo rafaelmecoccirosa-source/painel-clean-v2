@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { Copy, Check, CheckCircle2, MapPin, Navigation, X } from "lucide-react";
+import { Copy, Check, CheckCircle2, MapPin, Navigation } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
 import { calcularPreco, type TipoInstalacao, type NivelSujeira, type NivelAcesso } from "@/lib/pricing";
+import { getTecnicosDisponiveis, type DisponibilidadeResult } from "@/lib/availability";
+import { MVP_PRICING_ACTIVE } from "@/lib/config";
 
 // Leaflet must be loaded client-side only (no SSR)
 const MapPickerLeaflet = dynamic(
@@ -55,11 +57,13 @@ function PixPaymentScreen({ serviceId, amount }: { serviceId: string; amount: nu
     setSubmitting(true);
     try {
       const supabase = createClient();
+      const now = new Date().toISOString();
       await supabase
         .from("service_requests")
         .update({
-          payment_status: "awaiting_confirmation",
-          paid_at: new Date().toISOString(),
+          payment_status:       "awaiting_confirmation",
+          paid_at:              now,
+          payment_reported_at:  now,
           ...(transactionNote.trim()
             ? { notes: `[Transação PIX: ${transactionNote.trim()}]` }
             : {}),
@@ -67,7 +71,7 @@ function PixPaymentScreen({ serviceId, amount }: { serviceId: string; amount: nu
         .eq("id", serviceId);
 
       showToast(
-        "Pagamento informado! Seu agendamento será confirmado em até 24h.",
+        "Pagamento informado! Confirmação em até 15 minutos.",
         "success"
       );
       setTimeout(() => router.push("/cliente"), 2000);
@@ -100,8 +104,10 @@ function PixPaymentScreen({ serviceId, amount }: { serviceId: string; amount: nu
       </div>
 
       <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-700 text-sm">
-        <span>⏰</span>
-        <span className="font-medium">Este pedido expira em 24h se o pagamento não for confirmado</span>
+        <span>⏳</span>
+        <span className="font-medium">
+          Confirme o pagamento abaixo. Nosso time verifica em até <strong>15 minutos</strong> e seu agendamento é ativado automaticamente.
+        </span>
       </div>
 
       <div className="bg-brand-dark rounded-2xl p-6 space-y-5">
@@ -397,9 +403,16 @@ function PricePreviewCard({
 
   return (
     <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
-      <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
-        💰 Estimativa de preço
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
+          💰 Estimativa de preço
+        </p>
+        {result.descontoMvpAtivo && MVP_PRICING_ACTIVE && (
+          <span className="text-[10px] font-bold bg-brand-green/20 text-brand-green border border-brand-green/30 px-2 py-1 rounded-full whitespace-nowrap">
+            🏷️ Preço especial de lançamento
+          </span>
+        )}
+      </div>
 
       <div>
         <p className="font-heading font-extrabold text-brand-green text-3xl leading-none">
@@ -443,6 +456,9 @@ export default function SolicitarPage() {
   const { toast, show: showToast, hide: hideToast } = useToast();
 
   const [city, setCity]                           = useState("");
+  const [disponibilidade, setDisponibilidade]     = useState<DisponibilidadeResult | null>(null);
+  const [loadingDisp, setLoadingDisp]             = useState(false);
+  const [contatoSemTecnico, setContatoSemTecnico] = useState("");
   const [address, setAddress]                     = useState("");
   const [useMap, setUseMap]                       = useState(false);
   const [lat, setLat]                             = useState<number | null>(null);
@@ -463,6 +479,16 @@ export default function SolicitarPage() {
   const [createdPrice, setCreatedPrice] = useState<number | null>(null);
 
   const numPlacas = parseInt(placaCount) || 0;
+
+  // Verifica disponibilidade de técnicos ao selecionar cidade
+  useEffect(() => {
+    if (!city) { setDisponibilidade(null); return; }
+    setLoadingDisp(true);
+    const supabase = createClient();
+    getTecnicosDisponiveis(city, supabase)
+      .then(setDisponibilidade)
+      .finally(() => setLoadingDisp(false));
+  }, [city]);
 
   const handleLatLng = useCallback((newLat: number, newLng: number) => {
     setLat(newLat);
@@ -517,7 +543,7 @@ export default function SolicitarPage() {
         city,
         address:         address.trim() || (useMap ? `Pin no mapa: ${lat?.toFixed(5)}, ${lng?.toFixed(5)}` : ""),
         module_count:    numPlacas,
-        price_estimate:  pricing.precoEstimado,
+        price_estimate:  pricing.precoCliente,   // preço que o cliente paga (com desconto MVP se ativo)
         preco_min:       pricing.precoMin,
         preco_max:       pricing.precoMax,
         tipo_instalacao: tipoInstalacao,
@@ -553,7 +579,7 @@ export default function SolicitarPage() {
       }
 
       setCreatedId(data.id);
-      setCreatedPrice(pricing.precoEstimado);
+      setCreatedPrice(pricing.precoCliente);
     } catch (err) {
       console.error(err);
       showToast("Erro inesperado. Tente novamente.", "error");
@@ -599,6 +625,39 @@ export default function SolicitarPage() {
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
+
+            {/* Badge de disponibilidade */}
+            {loadingDisp && city && (
+              <p className="text-xs text-brand-muted mt-2 animate-pulse">
+                🔍 Verificando técnicos disponíveis…
+              </p>
+            )}
+            {!loadingDisp && disponibilidade && disponibilidade.disponivel && (
+              <div className="mt-2 flex items-center gap-2 bg-brand-light border border-brand-border rounded-xl px-3 py-2.5">
+                <span className="text-brand-green text-base">✅</span>
+                <p className="text-xs font-semibold text-brand-dark">{disponibilidade.mensagem}</p>
+              </div>
+            )}
+            {!loadingDisp && disponibilidade && !disponibilidade.disponivel && (
+              <div className="mt-2 space-y-3 bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                <div className="flex items-start gap-2">
+                  <span className="text-red-500 text-base flex-shrink-0">⚠️</span>
+                  <p className="text-sm font-medium text-red-800">{disponibilidade.mensagem}</p>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-red-700 mb-1.5">
+                    Deixe seu contato — avisamos quando tivermos cobertura
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="E-mail ou WhatsApp"
+                    className="w-full rounded-xl border border-red-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-300"
+                    value={contatoSemTecnico}
+                    onChange={(e) => setContatoSemTecnico(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Address / Map toggle */}
@@ -796,15 +855,30 @@ export default function SolicitarPage() {
           </div>
         </div>
 
-        <Button
-          type="submit"
-          size="lg"
-          className="w-full"
-          loading={submitting}
-          disabled={numPlacas > 200 || submitting}
-        >
-          {submitting ? "Criando solicitação…" : "🚀 Enviar solicitação e pagar via PIX"}
-        </Button>
+        {disponibilidade && !disponibilidade.disponivel ? (
+          <div className="space-y-2">
+            <button
+              type="button"
+              disabled
+              className="w-full py-3.5 rounded-2xl bg-gray-200 text-gray-400 font-heading font-bold text-sm cursor-not-allowed"
+            >
+              🚫 Sem técnicos disponíveis na sua região
+            </button>
+            <p className="text-xs text-center text-brand-muted">
+              Deixe seu contato acima e avisamos quando tivermos cobertura.
+            </p>
+          </div>
+        ) : (
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full"
+            loading={submitting}
+            disabled={numPlacas > 200 || submitting}
+          >
+            {submitting ? "Criando solicitação…" : "🚀 Enviar solicitação e pagar via PIX"}
+          </Button>
+        )}
       </form>
     </div>
   );

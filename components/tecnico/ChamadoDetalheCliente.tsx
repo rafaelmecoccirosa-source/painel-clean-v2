@@ -12,6 +12,7 @@ import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB } from "@/lib/types";
 import ChatBox, { insertSystemMessage } from "@/components/shared/ChatBox";
+import { REPASSE_MINIMO_TECNICO } from "@/lib/pricing";
 
 // Leaflet map (no SSR)
 const MapViewLeaflet = dynamic(
@@ -251,15 +252,22 @@ function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
       <LocationSection service={service} />
 
       {/* Repasse highlight */}
-      <div className="bg-brand-dark rounded-xl px-5 py-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-white/50 mb-0.5">Seu repasse (85%)</p>
-          <p className="font-heading font-extrabold text-2xl text-brand-green">{fmt(repasse)}</p>
+      <div className="bg-brand-dark rounded-xl px-5 py-4 space-y-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-white/50 mb-0.5">Seu repasse (85%)</p>
+            <p className="font-heading font-extrabold text-2xl text-brand-green">{fmt(repasse)}</p>
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-white/50 mb-0.5">Valor total</p>
+            <p className="text-white font-semibold">{fmt(service.price_estimate)}</p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-white/50 mb-0.5">Valor total</p>
-          <p className="text-white font-semibold">{fmt(service.price_estimate)}</p>
-        </div>
+        {repasse < REPASSE_MINIMO_TECNICO * 1.2 && (
+          <p className="text-xs text-brand-green/70">
+            💰 Ganho mínimo garantido: R$ {REPASSE_MINIMO_TECNICO.toFixed(0)}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -646,7 +654,14 @@ export default function ChamadoDetalheCliente({ id }: Props) {
             )}
 
             <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
-              <span className="text-sm text-brand-muted">Seu repasse (85%)</span>
+              <div>
+                <span className="text-sm text-brand-muted">Seu repasse (85%)</span>
+                {currentFinalPrice * 0.85 < REPASSE_MINIMO_TECNICO * 1.2 && (
+                  <p className="text-[10px] text-brand-muted mt-0.5">
+                    💰 Mínimo garantido: R$ {REPASSE_MINIMO_TECNICO.toFixed(0)}
+                  </p>
+                )}
+              </div>
               <span className="font-heading font-extrabold text-xl text-brand-green">
                 {fmt(currentFinalPrice * 0.85)}
               </span>

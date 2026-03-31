@@ -5,6 +5,7 @@ import DisponibilidadeToggle from "@/components/tecnico/DisponibilidadeToggle";
 import GanhosChart from "@/components/tecnico/GanhosChart";
 import { MOCK_TECNICO } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/server";
+import { SUBSCRIPTION_ENABLED } from "@/lib/config";
 
 export const metadata: Metadata = { title: "Dashboard — Técnico | Painel Clean" };
 
@@ -81,6 +82,21 @@ export default async function TecnicoDashboardPage() {
         </div>
         <DisponibilidadeToggle cidade="Jaraguá do Sul, SC" />
       </div>
+
+      {/* ── Banner sem mensalidade (MVP) ── */}
+      {!SUBSCRIPTION_ENABLED && (
+        <div className="flex items-start gap-3 bg-brand-light border border-brand-border rounded-2xl px-4 py-3.5">
+          <span className="text-2xl flex-shrink-0">💰</span>
+          <div>
+            <p className="text-sm font-bold text-brand-dark">
+              ✅ Sem mensalidade — apenas 15% de comissão por serviço realizado
+            </p>
+            <p className="text-xs text-brand-muted mt-0.5">
+              Exemplo: num serviço de R$ 600, você recebe R$ 510 via PIX automático.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Seção 1: Cards de resumo ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

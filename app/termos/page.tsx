@@ -79,7 +79,7 @@ export default function TermosPage() {
             <ul>
               <li>A Painel Clean retém <strong>15%</strong> do valor de cada serviço como comissão de intermediação.</li>
               <li>O repasse ao Técnico (85% do valor) é realizado via PIX após a conclusão e confirmação do pagamento.</li>
-              <li>Técnicos podem estar sujeitos a assinatura mensal para acesso à plataforma (a definir).</li>
+              <li>Cadastro gratuito para técnicos — sem mensalidade. Apenas 15% de comissão por serviço realizado.</li>
               <li>Os preços dos serviços são definidos pela plataforma e podem ser atualizados com aviso prévio de 30 dias.</li>
             </ul>
           </Section>

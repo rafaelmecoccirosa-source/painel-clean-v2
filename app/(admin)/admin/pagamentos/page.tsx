@@ -6,6 +6,8 @@ import { ArrowLeft, ExternalLink, CheckCircle2, XCircle, Banknote } from "lucide
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB, PaymentStatus } from "@/lib/types";
 
+const SLA_MINUTOS = 15; // SLA de confirmação em minutos
+
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
@@ -15,6 +17,32 @@ function fmtDateTime(iso: string) {
     day: "2-digit", month: "short", year: "numeric",
     hour: "2-digit", minute: "2-digit",
   });
+}
+
+function minutesSince(iso: string | null | undefined): number | null {
+  if (!iso) return null;
+  return Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+}
+
+function SlaTimer({ reportedAt }: { reportedAt: string | null | undefined }) {
+  if (!reportedAt) return null;
+  const mins = minutesSince(reportedAt);
+  if (mins === null) return null;
+  const slaEstourado = mins > SLA_MINUTOS;
+  return (
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold ${
+      slaEstourado
+        ? "bg-red-50 border border-red-300 text-red-700"
+        : "bg-amber-50 border border-amber-200 text-amber-700"
+    }`}>
+      <span>{slaEstourado ? "🚨" : "⏳"}</span>
+      <span>
+        {slaEstourado
+          ? `SLA estourado — ${mins}min aguardando confirmação (SLA: ${SLA_MINUTOS}min)`
+          : `Cliente reportou há ${mins}min — confirmar em até ${SLA_MINUTOS - mins}min`}
+      </span>
+    </div>
+  );
 }
 
 // ── Mock data (fallback when table/columns don't exist) ───────────────────────
@@ -130,7 +158,7 @@ export default function PagamentosAdminPage() {
         .from("service_requests")
         .select("*")
         .in("payment_status", ["awaiting_confirmation", "confirmed", "released"])
-        .order("created_at", { ascending: false });
+        .order("payment_reported_at", { ascending: true, nullsFirst: false });
 
       if (error || !data || data.length === 0) {
         setServices(MOCK_PAYMENTS);
@@ -391,6 +419,11 @@ function PaymentRow({
             </p>
           </div>
         </div>
+
+        {/* SLA timer */}
+        {s.payment_status === "awaiting_confirmation" && (
+          <SlaTimer reportedAt={s.payment_reported_at} />
+        )}
 
         {/* Proof link */}
         {s.payment_proof_url && (

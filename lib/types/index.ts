@@ -60,6 +60,10 @@ export interface ServiceRequestDB {
   distancia_km?: number | null;
   preco_min?: number | null;
   preco_max?: number | null;
+  // Escalation columns (added via migration 20260401_escalation_sla_columns.sql)
+  escalation_level?: number | null;
+  escalated_at?: string | null;
+  payment_reported_at?: string | null;
 }
 
 export const STATUS_LABELS: Record<ServiceRequestStatus, string> = {

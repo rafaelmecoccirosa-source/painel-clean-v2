@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import AdminReceitaChart from "@/components/admin/AdminReceitaChart";
 import AdminDonut from "@/components/admin/AdminDonut";
 import AdminTecnicosAba from "@/components/admin/AdminTecnicosAba";
+import ServicosEscalationAlert from "@/components/admin/ServicosEscalationAlert";
 import { MOCK_ADMIN } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/server";
 import type { ServiceRequestDB } from "@/lib/types";
@@ -71,6 +72,11 @@ export default async function AdminDashboardPage() {
       ).length;
     }
   } catch { /* table not yet created — use mock */ }
+
+  // Serviços confirmados mas sem técnico aceito (para escalonamento manual)
+  const unacceptedConfirmed = realServices.filter(
+    (s) => s.payment_status === "confirmed" && !s.technician_id && s.status === "pending"
+  );
 
   const hasReal = realServices.length > 0;
 
@@ -204,6 +210,11 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* ── Seção 0a: Escalonamento de serviços sem técnico ── */}
+      {unacceptedConfirmed.length > 0 && (
+        <ServicosEscalationAlert services={unacceptedConfirmed} />
+      )}
 
       {/* ── Seção 0b: Bypass Alerts ── */}
       <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 space-y-3">
