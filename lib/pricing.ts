@@ -1,3 +1,5 @@
+import { MVP_PRICING_ACTIVE } from "@/lib/config";
+
 // === FAIXAS DE PREÇO POR PLACA (média do mercado SC) ===
 // Economia de escala: quanto mais placas, menor o valor unitário
 
@@ -18,10 +20,13 @@ export function getFaixaLabel(placas: number): string {
 }
 
 // === CONSTANTES DE PRECIFICAÇÃO ===
-export const PRECO_POR_PLACA = 15;  // mantido para compatibilidade, não usado no algoritmo principal
-export const PRECO_MINIMO = 300;    // Mínimo R$ 300 (ajustado pro mercado SC)
-export const CUSTO_KM = 2;          // R$ por km de deslocamento
-export const BOOST_MVP = 1.15;      // 15% de boost para garantir aceitação no MVP
+export const PRECO_POR_PLACA       = 15;    // mantido para compatibilidade, não usado no algoritmo principal
+export const PRECO_MINIMO          = 300;   // mínimo R$ 300 por visita (mercado SC)
+export const CUSTO_KM              = 2;     // R$ por km de deslocamento
+export const BOOST_MVP             = 1.15;  // 15% boost para atrair técnicos no MVP
+export const REPASSE_MINIMO_TECNICO = 200;  // técnico nunca recebe menos que R$ 200
+export const DESCONTO_MVP_CLIENTE  = 0.85;  // 15% desconto pro cliente no MVP (SUBSCRIPTION_ENABLED=false)
+export const BOOST_MVP_TECNICO     = 1.15;  // mesma taxa que BOOST_MVP — documentado para clareza
 
 // === TIPOS ===
 export type TipoInstalacao = "solo" | "telhado_padrao" | "telhado_dificil";
@@ -41,11 +46,14 @@ export interface ResultadoPrecificacao {
   multTipo: number;
   multExtra: number;
   custoDeslocamento: number;
-  precoEstimado: number;
-  precoMin: number;
-  precoMax: number;
+  precoEstimado: number;   // preço interno cheio (com BOOST_MVP)
+  precoCliente: number;    // preço que o cliente paga (com desconto MVP se ativo)
+  precoMin: number;        // -10% do precoCliente
+  precoMax: number;        // +20% do precoCliente
+  repasseTecnico: number;  // 85% do precoEstimado (sem desconto — boost garantido)
   valorPorPlaca: number;
   boostAplicado: boolean;
+  descontoMvpAtivo: boolean;
   sobConsulta?: boolean;
   detalhe: {
     baseCalculo: string;
@@ -83,10 +91,13 @@ export function calcularPreco(dados: DadosServico): ResultadoPrecificacao {
       multExtra: 0,
       custoDeslocamento: 0,
       precoEstimado: 0,
+      precoCliente: 0,
       precoMin: 0,
       precoMax: 0,
+      repasseTecnico: 0,
       valorPorPlaca: 0,
       boostAplicado: false,
+      descontoMvpAtivo: false,
       sobConsulta: true,
       detalhe: {
         baseCalculo: "Acima de 200 placas — sob consulta",
@@ -117,18 +128,35 @@ export function calcularPreco(dados: DadosServico): ResultadoPrecificacao {
   // 4. Custo de deslocamento
   const custoDeslocamento = dados.distanciaKm * CUSTO_KM;
 
-  // 5. Preço estimado
+  // 5. Preço estimado (interno / cheio)
   let precoEstimado = precoBase * multTipo * multExtra + custoDeslocamento;
 
   // 6. Boost MVP (garantir aceitação dos técnicos)
   precoEstimado *= BOOST_MVP;
 
-  // 7. Arredondar
+  // 7. Garantia de repasse mínimo pro técnico
+  const repasseBruto = precoEstimado * 0.85;
+  if (repasseBruto < REPASSE_MINIMO_TECNICO) {
+    // Ajustar preço para cima para garantir repasse mínimo
+    precoEstimado = Math.ceil(REPASSE_MINIMO_TECNICO / 0.85);
+  }
+
+  // 8. Arredondar preço interno
   precoEstimado = Math.round(precoEstimado);
 
-  // 8. Faixa exibida (±10% min, +20% max)
-  const precoMin = Math.round(precoEstimado * 0.9);
-  const precoMax = Math.round(precoEstimado * 1.2);
+  // 9. Preço para o cliente (com desconto MVP se ativo)
+  const descontoMvpAtivo = MVP_PRICING_ACTIVE;
+  const precoCliente = descontoMvpAtivo
+    ? Math.round(precoEstimado * DESCONTO_MVP_CLIENTE)
+    : precoEstimado;
+
+  // 10. Repasse ao técnico = 85% do preço INTERNO (não do preço com desconto)
+  //     Isso garante o boost pro técnico mesmo com desconto pro cliente
+  const repasseTecnico = Math.round(precoEstimado * 0.85);
+
+  // 11. Faixa exibida baseada no precoCliente (±10% min, +20% max)
+  const precoMin = Math.round(precoCliente * 0.9);
+  const precoMax = Math.round(precoCliente * 1.2);
 
   return {
     precoBase,
@@ -136,10 +164,13 @@ export function calcularPreco(dados: DadosServico): ResultadoPrecificacao {
     multExtra,
     custoDeslocamento,
     precoEstimado,
+    precoCliente,
     precoMin,
     precoMax,
-    valorPorPlaca: Math.round(precoEstimado / dados.placas),
+    repasseTecnico,
+    valorPorPlaca: Math.round(precoCliente / dados.placas),
     boostAplicado: true,
+    descontoMvpAtivo,
     sobConsulta: false,
     detalhe: {
       baseCalculo: `${dados.placas} placas × R$ ${valorPorPlaca.toFixed(2)} = R$ ${(dados.placas * valorPorPlaca).toFixed(0)} (mín R$ ${PRECO_MINIMO})`,
