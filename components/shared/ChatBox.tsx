@@ -6,13 +6,25 @@ import { createClient } from "@/lib/supabase/client";
 import type { Message } from "@/lib/types";
 
 // Patterns that indicate contact details being shared
-const CONTACT_PATTERNS = [
-  /(\+?55\s*)?\(?\d{2}\)?\s*\d{4,5}[-\s]?\d{4}/,      // BR phone numbers
-  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,   // email addresses
-  /\bwhat[s']?app\b/i,                                   // WhatsApp mentions
-  /\btelegram\b/i,
-  /\binstagram\b/i,
-  /\bzap\b/i,
+const CONTACT_PATTERNS: RegExp[] = [
+  // BR phone numbers (formatted or raw)
+  /(\+?55\s*)?\(?\d{2}\)?\s*\d{4,5}[-\s]?\d{4}/,
+  // Any 8+ consecutive digits (unformatted numbers)
+  /\b\d{8,}\b/,
+  // Email addresses
+  /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/,
+  // WhatsApp / messaging app mentions
+  /\b(what[s']?app|wpp|zap|telegram|signal)\b/i,
+  // "Me chama no / manda msg / me add" phrasing
+  /\b(me chama|manda msg|me add|me manda|chama no|add no|fala comigo)\b/i,
+  // "meu número / cel / fone / whats / zap"
+  /\bmeu (numero|n[uú]mero|cel|celular|fone|telefone|whats|zap|wpp|contato)\b/i,
+  // Instagram / Facebook handles or mentions
+  /\b(instagram|insta|face(book)?|fb|tiktok)\b/i,
+  // @username pattern (social handles)
+  /@[a-zA-Z0-9._]{2,}/,
+  // "me segue / me acompanha" — social follow requests
+  /\bme (segue|acompanha|encontra|procura)\b/i,
 ];
 
 function hasContactInfo(text: string): boolean {
@@ -163,10 +175,25 @@ export default function ChatBox({
     setContactWarn(hasContactInfo(val));
   }
 
+  async function logContactAttempt(content: string) {
+    try {
+      const supabase = createClient();
+      await supabase.from("contact_attempt_logs").insert({
+        service_request_id: serviceId,
+        user_id:            currentUserId,
+        attempted_content:  content,
+      });
+    } catch { /* table may not exist yet — silent */ }
+  }
+
   async function handleSend() {
     const content = input.trim();
     if (!content || sending) return;
-    if (contactWarning) return; // blocked
+    if (contactWarning) {
+      // Log the blocked attempt for admin monitoring
+      await logContactAttempt(content);
+      return;
+    }
 
     setSending(true);
     try {
@@ -313,8 +340,7 @@ export default function ChatBox({
         <div className="flex items-start gap-2 px-4 py-2.5 bg-red-50 border-t border-red-200">
           <AlertTriangle size={14} className="text-red-500 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-red-700 font-medium">
-            Por segurança, dados de contato não são permitidos no chat.
-            Use a plataforma para toda comunicação.
+            ⚠️ Dados de contato não são permitidos no chat. Para sua segurança, toda comunicação deve ser feita pela plataforma.
           </p>
         </div>
       )}

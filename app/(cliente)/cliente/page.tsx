@@ -325,6 +325,19 @@ function ServicoCard({
         )}
       </div>
 
+      {/* Guarantee badge */}
+      {s.status !== "cancelled" && (
+        <div
+          className="flex items-center gap-2 bg-brand-light border border-brand-green/30 rounded-xl px-3 py-2"
+          title="Se o serviço não atender suas expectativas, a Painel Clean garante uma nova visita sem custo adicional. Válido apenas para serviços realizados pela plataforma."
+        >
+          <span className="text-brand-green text-sm">🛡️</span>
+          <p className="text-[11px] font-semibold text-brand-dark">
+            Garantia Painel Clean — serviço protegido pela plataforma
+          </p>
+        </div>
+      )}
+
       {/* Pending + unpaid: show PIX inline or "Pagar agora" button */}
       {needsPayment && (
         <div className="space-y-2">
@@ -650,6 +663,75 @@ export default function ClienteHomePage() {
           </div>
         ))}
       </div>
+
+      {/* ── Rewards Card ── */}
+      {(() => {
+        const totalServicos = completed.length;
+        const TIERS = [
+          { meta: 3,  beneficio: "10% de desconto na 3ª limpeza" },
+          { meta: 5,  beneficio: "15% de desconto" },
+          { meta: 10, beneficio: "1 limpeza grátis (até 10 módulos)" },
+        ];
+        const nextTier = TIERS.find((t) => totalServicos < t.meta) ?? TIERS[TIERS.length - 1];
+        const pct = Math.min(100, Math.round((totalServicos / nextTier.meta) * 100));
+        return (
+          <div className="bg-brand-bg border-2 border-brand-green/30 rounded-2xl p-5 mb-6 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-2xl">🌟</span>
+                <div>
+                  <p className="font-heading font-bold text-brand-dark text-sm">Painel Clean Rewards</p>
+                  <p className="text-xs text-brand-muted">Fidelidade que vale energia</p>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-brand-green bg-brand-green/10 px-2.5 py-1 rounded-full">
+                {totalServicos} serviço{totalServicos !== 1 ? "s" : ""}
+              </span>
+            </div>
+            {totalServicos < 10 ? (
+              <>
+                <div>
+                  <div className="flex justify-between text-xs mb-1.5">
+                    <span className="text-brand-muted">{totalServicos} de {nextTier.meta} serviços</span>
+                    <span className="text-brand-green font-semibold">{pct}%</span>
+                  </div>
+                  <div className="h-2.5 bg-brand-border rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-brand-green rounded-full transition-all"
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+                <p className="text-xs font-medium text-brand-dark">
+                  🎯 Próximo benefício: <span className="text-brand-green font-bold">{nextTier.beneficio}</span>
+                </p>
+                <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  {TIERS.map((t) => (
+                    <div
+                      key={t.meta}
+                      className={`rounded-xl px-2 py-2 text-center border ${
+                        totalServicos >= t.meta
+                          ? "bg-brand-green/10 border-brand-green/40"
+                          : "bg-white border-brand-border"
+                      }`}
+                    >
+                      <p className={`text-xs font-bold ${totalServicos >= t.meta ? "text-brand-green" : "text-brand-muted"}`}>
+                        {t.meta}+ serviços
+                      </p>
+                      <p className="text-[10px] text-brand-muted leading-tight mt-0.5">{t.beneficio}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="bg-brand-green/10 rounded-xl px-4 py-3 text-center">
+                <p className="text-sm font-bold text-brand-green">🏆 Nível máximo atingido!</p>
+                <p className="text-xs text-brand-dark mt-0.5">Você tem direito a uma limpeza grátis. Entre em contato.</p>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Tabs */}
       <div className="flex gap-2 mb-5 flex-wrap">

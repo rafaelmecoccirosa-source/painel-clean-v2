@@ -205,6 +205,32 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
+      {/* ── Seção 0b: Bypass Alerts ── */}
+      <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 space-y-3">
+        <p className="text-xs font-bold text-amber-700 uppercase tracking-widest">
+          🔍 Alertas de possível bypass
+        </p>
+        <div className="space-y-2">
+          {[
+            { msg: "Cliente Ana Silva fez 2 serviços com Carlos S. e não solicitou mais há 60 dias", href: "#" },
+            { msg: "Técnico Pedro M. teve 3 cancelamentos nos últimos 30 dias", href: "#" },
+            { msg: "Cliente Fazenda Verde estava ativo semanalmente e ficou inativo há 45 dias", href: "#" },
+          ].map(({ msg, href }) => (
+            <a
+              key={msg}
+              href={href}
+              className="flex items-start gap-2.5 bg-white border border-amber-200 rounded-xl px-4 py-3 hover:shadow-sm transition-shadow"
+            >
+              <span className="text-amber-500 text-sm mt-0.5 flex-shrink-0">⚠️</span>
+              <p className="text-sm font-medium text-amber-800 leading-snug">{msg}</p>
+            </a>
+          ))}
+        </div>
+        <p className="text-[10px] text-amber-600">
+          Dados demonstrativos — quando o banco tiver histórico real, estas análises serão calculadas automaticamente.
+        </p>
+      </div>
+
       {/* ── Seção 1: KPIs ── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {kpis.map(({ emoji, label, value, trend, up, sub }) => (
