@@ -4,19 +4,33 @@ import { useState } from "react";
 import Link from "next/link";
 import { calcularPreco, type TipoInstalacao, type NivelSujeira } from "@/lib/pricing";
 
+// === CONSTANTES DA CALCULADORA ===
+const KWH_POR_PLACA_MES  = 55;   // Média de geração por placa/mês em SC
+const VALOR_KWH          = 0.85; // R$ por kWh (tarifa média SC 2025)
+const PERDA_SUJEIRA_NORMAL = 0.15; // 15% de perda com sujeira normal
+const PERDA_SUJEIRA_PESADA = 0.30; // 30% de perda com sujeira pesada
+
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function fmtKwh(v: number) {
+  return v.toLocaleString("pt-BR") + " kWh";
+}
+
 export default function CalculadoraEconomia() {
-  const [placas, setPlacas]     = useState(20);
-  const [conta, setConta]       = useState(400);
-  const [tipo, setTipo]         = useState<TipoInstalacao>("telhado_padrao");
-  const [sujeira, setSujeira]   = useState<NivelSujeira>("normal");
+  const [placas, setPlacas]   = useState(20);
+  const [tipo, setTipo]       = useState<TipoInstalacao>("telhado_padrao");
+  const [sujeira, setSujeira] = useState<NivelSujeira>("normal");
 
-  const perdaMensal   = Math.round(conta * 0.25);
-  const economiaAnual = perdaMensal * 12;
+  // Cálculos de perda de energia
+  const geracaoMensal     = placas * KWH_POR_PLACA_MES;
+  const perdaPercentual   = sujeira === "pesada" ? PERDA_SUJEIRA_PESADA : PERDA_SUJEIRA_NORMAL;
+  const energiaPerdidaMes = Math.round(geracaoMensal * perdaPercentual);
+  const dinheiroPerdidoMes = Math.round(energiaPerdidaMes * VALOR_KWH * 100) / 100;
+  const dinheiroPerdidoAno = Math.round(dinheiroPerdidoMes * 12 * 100) / 100;
 
+  // Cálculo do investimento via algoritmo de preço
   const servico = calcularPreco({
     placas,
     tipoInstalacao: tipo,
@@ -25,13 +39,17 @@ export default function CalculadoraEconomia() {
     distanciaKm: 0,
   });
 
-  const retorno = servico.precoEstimado > 0
-    ? (economiaAnual / servico.precoEstimado).toFixed(1)
+  const semanasRetorno = servico.precoEstimado > 0 && dinheiroPerdidoMes > 0
+    ? Math.ceil((servico.precoEstimado / dinheiroPerdidoMes) * 4.3)
+    : null;
+
+  const retorno = servico.precoEstimado > 0 && dinheiroPerdidoAno > 0
+    ? (dinheiroPerdidoAno / servico.precoEstimado).toFixed(1)
     : null;
 
   const tipoOptions: { value: TipoInstalacao; emoji: string; label: string }[] = [
-    { value: "solo",            emoji: "☀️", label: "Solo" },
-    { value: "telhado_padrao",  emoji: "🏠", label: "Telhado" },
+    { value: "solo",            emoji: "☀️", label: "Solo"           },
+    { value: "telhado_padrao",  emoji: "🏠", label: "Telhado"        },
     { value: "telhado_dificil", emoji: "🏗️", label: "Telhado difícil" },
   ];
 
@@ -39,6 +57,8 @@ export default function CalculadoraEconomia() {
     { value: "normal", emoji: "🟢", label: "Normal" },
     { value: "pesada", emoji: "🟠", label: "Pesada" },
   ];
+
+  const sliderPct = ((placas - 1) / (200 - 1)) * 100;
 
   return (
     <section id="calculadora" className="bg-brand-bg py-20">
@@ -49,17 +69,17 @@ export default function CalculadoraEconomia() {
             🧮 Calculadora interativa
           </p>
           <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-4">
-            Quanto você pode economizar?
+            Quanto você perde com placas sujas?
           </h2>
           <p className="text-brand-muted text-lg max-w-xl mx-auto">
-            Descubra quanto a limpeza pode impactar na sua conta de luz
+            Descubra quanto de energia — e dinheiro — está escapando por falta de limpeza
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Inputs */}
+          {/* ── Inputs ── */}
           <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8">
-            {/* Placas */}
+            {/* Quantidade de placas */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="font-heading font-bold text-brand-dark text-sm">
@@ -72,17 +92,17 @@ export default function CalculadoraEconomia() {
               <input
                 type="range"
                 min={1}
-                max={100}
+                max={200}
                 value={placas}
                 onChange={(e) => setPlacas(Number(e.target.value))}
                 className="w-full h-2 appearance-none rounded-full cursor-pointer"
                 style={{
-                  background: `linear-gradient(to right, #3DC45A 0%, #3DC45A ${placas}%, #C8DFC0 ${placas}%, #C8DFC0 100%)`,
+                  background: `linear-gradient(to right, #3DC45A 0%, #3DC45A ${sliderPct}%, #C8DFC0 ${sliderPct}%, #C8DFC0 100%)`,
                 }}
               />
               <div className="flex justify-between text-[11px] text-brand-muted mt-1.5">
                 <span>1</span>
-                <span>100</span>
+                <span>200</span>
               </div>
             </div>
 
@@ -134,112 +154,101 @@ export default function CalculadoraEconomia() {
               </div>
             </div>
 
-            {/* Conta de luz */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <label className="font-heading font-bold text-brand-dark text-sm">
-                  Valor médio da conta de luz
-                </label>
-                <span className="font-heading font-extrabold text-brand-green text-2xl">
-                  {fmt(conta)}
-                </span>
-              </div>
-              <input
-                type="range"
-                min={100}
-                max={2000}
-                step={50}
-                value={conta}
-                onChange={(e) => setConta(Number(e.target.value))}
-                className="w-full h-2 appearance-none rounded-full cursor-pointer"
-                style={{
-                  background: `linear-gradient(to right, #3DC45A 0%, #3DC45A ${((conta - 100) / 1900) * 100}%, #C8DFC0 ${((conta - 100) / 1900) * 100}%, #C8DFC0 100%)`,
-                }}
-              />
-              <div className="flex justify-between text-[11px] text-brand-muted mt-1.5">
-                <span>R$ 100</span>
-                <span>R$ 2.000</span>
-              </div>
-            </div>
-
             {/* Breakdown */}
-            <div className="space-y-2 pt-2 border-t border-brand-border">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-brand-muted">Perda estimada/mês (25%)</span>
-                <span className="font-semibold text-red-500">{fmt(perdaMensal)}</span>
+            <div className="space-y-2 pt-2 border-t border-brand-border text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-brand-muted">Geração mensal estimada</span>
+                <span className="font-semibold text-brand-dark">{fmtKwh(geracaoMensal)}</span>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-brand-muted">Economia potencial/ano</span>
-                <span className="font-semibold text-brand-green">{fmt(economiaAnual)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-brand-muted">Investimento estimado*</span>
-                <span className="font-semibold text-brand-dark">
-                  {fmt(servico.precoMin)} a {fmt(servico.precoMax)}
-                </span>
+              <div className="flex items-center justify-between">
+                <span className="text-brand-muted">Perda por sujeira ({Math.round(perdaPercentual * 100)}%)</span>
+                <span className="font-semibold text-red-500">−{fmtKwh(energiaPerdidaMes)}/mês</span>
               </div>
             </div>
           </div>
 
-          {/* Result card */}
-          <div className="bg-brand-dark rounded-2xl p-6 sm:p-8 space-y-6">
-            <h3 className="font-heading font-bold text-white text-lg">
-              📊 Seu resultado estimado
-            </h3>
+          {/* ── Result card ── */}
+          <div className="rounded-2xl overflow-hidden shadow-lg">
 
-            {/* Main metric */}
-            <div className="bg-white/5 rounded-xl px-5 py-5 text-center">
-              <p className="text-white/60 text-sm mb-2">Economia anual com limpeza</p>
-              <p className="font-heading font-extrabold text-brand-green text-5xl leading-none mb-1">
-                {fmt(economiaAnual)}
+            {/* Top half — perda (fundo branco, valores vermelhos) */}
+            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4">
+              <h3 className="font-heading font-bold text-brand-dark text-base">
+                ⚡ O que você está perdendo
+              </h3>
+
+              <p className="text-sm text-brand-muted">
+                Suas <span className="font-bold text-brand-dark">{placas} placas</span> geram{" "}
+                <span className="font-bold text-brand-dark">~{fmtKwh(geracaoMensal)}/mês</span>
               </p>
-              <p className="text-white/50 text-xs">por ano</p>
+              <p className="text-sm text-brand-muted">Com sujeira, você perde:</p>
+
+              <div className="space-y-2">
+                <p
+                  className="font-heading font-extrabold leading-none"
+                  style={{ fontSize: "2.75rem", color: "#E24B4A" }}
+                >
+                  {fmtKwh(energiaPerdidaMes)}<span className="text-base font-semibold">/mês</span>
+                </p>
+                <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
+                  = {fmt(dinheiroPerdidoMes)}/mês{" "}
+                  <em className="font-normal" style={{ color: "#E24B4A" }}>jogados fora</em>
+                </p>
+                <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
+                  = {fmt(dinheiroPerdidoAno)}/ano de prejuízo
+                </p>
+              </div>
             </div>
 
-            {/* Investimento faixa */}
-            <div className="bg-white/5 rounded-xl px-5 py-4">
-              <p className="text-white/60 text-xs mb-1">Investimento estimado</p>
-              <p className="font-heading font-extrabold text-brand-green text-2xl leading-none">
-                {fmt(servico.precoMin)} a {fmt(servico.precoMax)}
-              </p>
-              <p className="text-white/40 text-xs mt-1">
+            {/* Bottom half — investimento (fundo brand-dark, valores verdes) */}
+            <div className="bg-brand-dark px-6 pt-5 pb-6 space-y-4">
+              <h3 className="font-heading font-bold text-white text-base">
+                💰 Investimento na limpeza
+              </h3>
+
+              {servico.sobConsulta ? (
+                <div className="bg-white/10 rounded-xl px-4 py-3 text-center">
+                  <p className="text-white font-bold text-lg">Sob consulta</p>
+                  <p className="text-white/60 text-xs mt-1">Entre em contato para instalações com 200+ placas</p>
+                </div>
+              ) : (
+                <>
+                  <div>
+                    <p className="font-heading font-extrabold text-brand-green text-3xl leading-none">
+                      {fmt(servico.precoMin)} a {fmt(servico.precoMax)}
+                    </p>
+                    <p className="text-white/50 text-xs mt-1.5">
+                      ({placas} placas × {servico.detalhe.tipoLabel.toLowerCase()})
+                    </p>
+                  </div>
+
+                  {retorno && (
+                    <div className="space-y-1.5">
+                      <p className="text-white/80 text-sm">
+                        Retorno: <span className="text-brand-green font-bold">{retorno}× o valor investido</span>
+                      </p>
+                      {semanasRetorno !== null && (
+                        <div className="inline-flex items-center gap-2 bg-brand-green/20 rounded-full px-3 py-1.5">
+                          <span className="text-brand-green font-bold text-sm">
+                            ✅ Se paga em ~{semanasRetorno} semana{semanasRetorno !== 1 ? "s" : ""}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              <Link
+                href="/cadastro"
+                className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
+              >
+                Agendar minha limpeza →
+              </Link>
+
+              <p className="text-[11px] text-white/30 text-center leading-relaxed">
                 *Valor final confirmado pelo técnico certificado
               </p>
             </div>
-
-            {/* Retorno */}
-            {retorno && (
-              <div className="flex items-center justify-between bg-brand-green/15 rounded-xl px-4 py-3">
-                <span className="text-white/80 text-sm">Retorno do investimento</span>
-                <span className="bg-brand-green text-white font-heading font-bold text-sm px-3 py-1 rounded-full">
-                  {retorno}× o valor
-                </span>
-              </div>
-            )}
-
-            {/* Detalhes */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">Limpeza a cada ano</span>
-                <span className="text-white font-medium">{fmt(servico.precoEstimado)}</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-white/60">Retorno mensal</span>
-                <span className="text-white font-medium">{fmt(perdaMensal)}</span>
-              </div>
-            </div>
-
-            <Link
-              href="/cadastro"
-              className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
-            >
-              Agendar minha limpeza →
-            </Link>
-
-            <p className="text-[11px] text-white/30 text-center leading-relaxed">
-              *Valores aproximados. O valor final pode variar conforme a complexidade e
-              localização do serviço.
-            </p>
           </div>
         </div>
       </div>

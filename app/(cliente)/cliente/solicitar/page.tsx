@@ -381,6 +381,20 @@ function PricePreviewCard({
 
   const result = calcularPreco({ placas, tipoInstalacao, sujeira, acesso, distanciaKm });
 
+  if (result.sobConsulta) {
+    return (
+      <div className="bg-brand-dark rounded-2xl p-5 space-y-3 text-center">
+        <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
+          💰 Estimativa de preço
+        </p>
+        <p className="font-heading font-bold text-white text-xl">Sob consulta</p>
+        <p className="text-white/60 text-sm">
+          Para instalações com mais de 200 placas, entre em contato pelo WhatsApp para um orçamento personalizado.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
       <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">

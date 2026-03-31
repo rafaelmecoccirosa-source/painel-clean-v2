@@ -71,29 +71,39 @@ const beneficios = [
 
 const faixas = [
   {
-    faixa: "Até 10 placas",
-    preco: "A partir de R$ 180*",
-    tempo: "1–2 horas",
+    faixa: "Até 30 placas",
+    valorPlaca: "R$ 20 a R$ 35/placa",
+    exemplo: "20 placas ≈ R$ 550*",
     destaque: false,
+    tag: undefined as string | undefined,
   },
   {
-    faixa: "11 a 30 placas",
-    preco: "A partir de R$ 300*",
-    tempo: "2–3 horas",
+    faixa: "31–50 placas",
+    valorPlaca: "R$ 15 a R$ 25/placa",
+    exemplo: "40 placas ≈ R$ 800*",
+    destaque: false,
+    tag: undefined as string | undefined,
+  },
+  {
+    faixa: "51–100 placas",
+    valorPlaca: "R$ 10 a R$ 18/placa",
+    exemplo: "80 placas ≈ R$ 1.120*",
     destaque: true,
     tag: "Mais popular",
   },
   {
-    faixa: "31 a 60 placas",
-    preco: "A partir de R$ 520*",
-    tempo: "3–4 horas",
+    faixa: "101–200 placas",
+    valorPlaca: "R$ 7 a R$ 12/placa",
+    exemplo: "150 placas ≈ R$ 1.425*",
     destaque: false,
+    tag: undefined as string | undefined,
   },
   {
-    faixa: "61+ placas",
-    preco: "Sob consulta",
-    tempo: "4h+",
+    faixa: "200+ placas",
+    valorPlaca: "Sob consulta",
+    exemplo: "—",
     destaque: false,
+    tag: undefined as string | undefined,
   },
 ];
 
@@ -274,57 +284,58 @@ export default function HomePage() {
               💰 Investimento acessível
             </p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-3">
-              Investimento que se paga em semanas
+              Preço por placa — economia de escala
             </h2>
-            <p className="text-brand-muted text-base">Valores estimados por faixa de placas</p>
+            <p className="text-brand-muted text-base">Quanto mais placas, menor o custo unitário</p>
           </div>
 
-          {/* Cards: scale + fade, stagger 100 ms */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {faixas.map(({ faixa, preco, tempo, destaque, tag }, idx) => (
-              <div
-                key={faixa}
-                className={`rounded-2xl p-6 flex flex-col gap-4 border-2 relative animate-on-scroll animate-scale ${
-                  destaque
-                    ? "border-brand-green bg-brand-light"
-                    : "border-brand-border bg-white"
-                }`}
-                style={{ transitionDelay: `${idx * 100}ms` }}
-              >
-                {tag && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
-                    {tag}
-                  </span>
-                )}
-
-                <div>
-                  <p className="text-xs text-brand-muted mb-1">☀️ {faixa}</p>
-                  <p className="font-heading text-xl font-extrabold text-brand-dark">{preco}</p>
-                </div>
-
-                <div className="space-y-1.5 text-xs text-brand-muted">
-                  <p>⏱️ Duração: {tempo}</p>
-                  <p>✅ Limpeza + inspeção + relatório</p>
-                </div>
-
-                <Link
-                  href="/cadastro"
-                  className={`mt-auto block text-center font-heading font-bold text-sm py-2.5 rounded-xl transition-colors ${
-                    destaque
-                      ? "bg-brand-green text-white hover:bg-brand-green/90"
-                      : "border border-brand-dark text-brand-dark hover:bg-brand-bg"
-                  }`}
-                >
-                  Agendar
-                </Link>
-              </div>
-            ))}
+          {/* Table: stagger 100 ms */}
+          <div className="overflow-x-auto animate-on-scroll">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-brand-bg">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide rounded-tl-xl">Faixa</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Valor por placa</th>
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide rounded-tr-xl">Exemplo</th>
+                </tr>
+              </thead>
+              <tbody>
+                {faixas.map(({ faixa, valorPlaca, exemplo, destaque, tag }, idx) => (
+                  <tr
+                    key={faixa}
+                    className={`border-b border-brand-border ${destaque ? "bg-brand-light" : "bg-white"}`}
+                  >
+                    <td className="px-5 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-brand-dark text-sm">{faixa}</span>
+                        {tag && (
+                          <span className="bg-brand-green text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                            {tag}
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 font-heading font-bold text-brand-dark">{valorPlaca}</td>
+                    <td className="px-5 py-4 text-sm text-brand-muted">{exemplo}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
-          <p className="text-center text-[11px] text-brand-muted mt-6">
-            *Valores aproximados para referência. O preço final pode variar conforme localização,
-            acesso ao telhado e condições do local.
+          <p className="text-center text-[11px] text-brand-muted mt-5">
+            *Valores médios estimados para instalação em solo com sujeira normal. Valor final varia conforme
+            tipo de telhado, nível de sujeira e acesso.
           </p>
+
+          <div className="flex justify-center mt-6">
+            <Link
+              href="/cadastro"
+              className="bg-brand-green text-white font-heading font-bold text-sm px-8 py-3 rounded-xl hover:bg-brand-green/90 transition-colors"
+            >
+              Calcular meu preço →
+            </Link>
+          </div>
         </div>
       </section>
 
