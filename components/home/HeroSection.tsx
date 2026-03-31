@@ -1,30 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 export default function HeroSection() {
   const [count, setCount] = useState(0);
-  const [started, setStarted] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
 
-  // Start counter when section enters viewport
+  // Hero is always the first thing visible — start counter on mount
   useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !started) setStarted(true);
-      },
-      { threshold: 0.2 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [started]);
-
-  // Animate 0 → 30 over 2 seconds
-  useEffect(() => {
-    if (!started) return;
     const TARGET = 30;
     const DURATION = 2000;
     const INTERVAL = 16;
@@ -41,11 +24,10 @@ export default function HeroSection() {
       }
     }, INTERVAL);
     return () => clearInterval(timer);
-  }, [started]);
+  }, []);
 
   return (
     <section
-      ref={sectionRef}
       id="hero"
       className="relative min-h-[640px] flex items-center"
       style={{
