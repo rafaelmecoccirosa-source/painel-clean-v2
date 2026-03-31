@@ -25,35 +25,6 @@
   }
 }
 
-/* ── Scroll animations ─────────────────────────────────────────────────────
-   Only applied when the user hasn't requested reduced motion.
-   Uses only opacity + transform (GPU-accelerated).
-   .animate-visible is added by ScrollAnimations.tsx via IntersectionObserver.
-──────────────────────────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: no-preference) {
-  .animate-on-scroll {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-
-  /* Slide from left variant */
-  .animate-on-scroll.animate-slide-left {
-    transform: translateX(-40px);
-  }
-
-  /* Scale-up variant */
-  .animate-on-scroll.animate-scale {
-    transform: scale(0.95);
-  }
-
-  /* Final state — resets all transforms */
-  .animate-on-scroll.animate-visible {
-    opacity: 1;
-    transform: none;
-  }
-}
-
 @layer components {
   .page-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;
@@ -76,5 +47,38 @@
 
   .label-base {
     @apply block text-sm font-medium text-brand-dark mb-1.5;
+  }
+}
+
+/* ── Scroll animations ─────────────────────────────────────────────────────
+   Placed AFTER all @layer blocks so these rules win over Tailwind utilities
+   (e.g. transition-shadow) in the CSS cascade.
+   !important on transition + opacity/transform prevents any Tailwind utility
+   from overriding the animation state.
+   Uses only opacity + transform (GPU-accelerated, no layout reflow).
+──────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-on-scroll {
+    opacity: 0 !important;
+    transform: translateY(30px) !important;
+    /* !important prevents Tailwind's transition-shadow/transition-colors from
+       overriding this and silently killing the opacity/transform transition */
+    transition: opacity 0.6s ease, transform 0.6s ease !important;
+  }
+
+  /* Slide from left — overrides the default translateY */
+  .animate-on-scroll.animate-slide-left {
+    transform: translateX(-40px) !important;
+  }
+
+  /* Scale-up — cards animate from slightly smaller to full size */
+  .animate-on-scroll.animate-scale {
+    transform: scale(0.95) !important;
+  }
+
+  /* Visible state — added by ScrollAnimations.tsx IntersectionObserver */
+  .animate-on-scroll.animate-visible {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
