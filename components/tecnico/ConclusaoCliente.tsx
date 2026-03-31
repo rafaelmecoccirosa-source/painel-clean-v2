@@ -9,6 +9,7 @@ import {
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
+import { insertSystemMessage } from "@/components/shared/ChatBox";
 
 export interface PrevistoData {
   valorServico: number;
@@ -265,6 +266,13 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
         setUploadProgress("");
         return;
       }
+
+      // Insert system message notifying client
+      await insertSystemMessage(
+        servicoId,
+        user.id,
+        "✅ Serviço concluído. O relatório fotográfico foi enviado. Aguardando seu pagamento."
+      );
 
       setDone(true);
       showToast("Serviço concluído! Aguardando avaliação do cliente.", "success");

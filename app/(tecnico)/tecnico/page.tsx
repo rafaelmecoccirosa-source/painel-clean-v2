@@ -114,6 +114,95 @@ export default async function TecnicoDashboardPage() {
         ))}
       </div>
 
+      {/* ── Seção 1b: Ranking + Fluxo de clientes ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Ranking card */}
+        <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">🏆</span>
+              <div>
+                <p className="font-heading font-bold text-white text-sm">Seu ranking</p>
+                <p className="text-white/50 text-xs">Jaraguá do Sul</p>
+              </div>
+            </div>
+            <span className="font-heading font-extrabold text-brand-green text-2xl">#2</span>
+          </div>
+          <div>
+            <div className="flex justify-between text-xs mb-1.5">
+              <span className="text-white/60">Posição atual</span>
+              <span className="text-brand-green font-semibold">Top 3 → mais chamados</span>
+            </div>
+            <div className="h-2.5 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-brand-green rounded-full" style={{ width: "72%" }} />
+            </div>
+            <p className="text-white/40 text-[10px] mt-1.5">
+              Faltam 3 serviços para o #1 · Top 3 recebem prioridade nos chamados
+            </p>
+          </div>
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            {[
+              { pos: "#1", nome: "Carlos M.", pts: "48 serv.", destaque: false },
+              { pos: "#2", nome: userName,    pts: "45 serv.", destaque: true  },
+              { pos: "#3", nome: "Luiz O.",   pts: "38 serv.", destaque: false },
+            ].map(({ pos, nome, pts, destaque }) => (
+              <div
+                key={pos}
+                className={`rounded-xl p-2.5 text-center border ${
+                  destaque
+                    ? "bg-brand-green/20 border-brand-green/40"
+                    : "bg-white/5 border-white/10"
+                }`}
+              >
+                <p className={`text-xs font-bold ${destaque ? "text-brand-green" : "text-white/60"}`}>{pos}</p>
+                <p className="text-white text-[11px] font-semibold truncate mt-0.5">{nome}</p>
+                <p className="text-white/40 text-[10px]">{pts}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Chamados via plataforma */}
+        <div className="bg-white border border-brand-border rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📈</span>
+            <div>
+              <p className="font-heading font-bold text-brand-dark text-sm">Chamados pela plataforma</p>
+              <p className="text-brand-muted text-xs">{mesCapitalized} {anoAtual}</p>
+            </div>
+          </div>
+          <div>
+            <p className="font-heading font-extrabold text-brand-dark text-3xl">
+              {MOCK_TECNICO.servicosMes}
+              <span className="text-brand-muted text-base font-normal ml-1">chamados</span>
+            </p>
+            <p className="text-xs text-brand-muted mt-1">
+              Técnicos ativos recebem em média{" "}
+              <span className="font-semibold text-brand-dark">15 chamados/mês</span>
+            </p>
+          </div>
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-brand-muted">Meta mensal</span>
+              <span className="font-semibold text-brand-dark">
+                {MOCK_TECNICO.servicosMes}/15 ({Math.round((MOCK_TECNICO.servicosMes / 15) * 100)}%)
+              </span>
+            </div>
+            <div className="h-2 bg-brand-bg rounded-full overflow-hidden">
+              <div
+                className="h-full bg-brand-green rounded-full"
+                style={{ width: `${Math.min(100, Math.round((MOCK_TECNICO.servicosMes / 15) * 100))}%` }}
+              />
+            </div>
+          </div>
+          <div className="bg-brand-light rounded-xl px-3 py-2.5">
+            <p className="text-xs font-medium text-brand-dark">
+              💡 Fique online o máximo possível para receber mais chamados automaticamente
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* ── Seção 2: Gráfico de ganhos (client component com toggle) ── */}
       <GanhosChart />
 

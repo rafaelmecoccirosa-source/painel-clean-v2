@@ -101,7 +101,7 @@ export default function ServicosPage() {
           <table className="w-full text-xs">
             <thead className="bg-brand-bg">
               <tr>
-                {["#", "Data", "Cidade", "Cliente", "Técnico", "Módulos", "Valor", "Comissão", "Status", "Nota"].map(
+                {["#", "Data", "Cidade", "Cliente", "Técnico", "Módulos", "Valor", "Comissão", "Status", "Nota", "Mapa"].map(
                   (h) => (
                     <th
                       key={h}
@@ -133,6 +133,17 @@ export default function ServicosPage() {
                   </td>
                   <td className="px-4 py-3 text-amber-500 font-bold">
                     {s.nota !== null ? `⭐ ${s.nota.toFixed(1)}` : "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <a
+                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.cidade + " SC")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 text-xs font-semibold"
+                      title={`Ver ${s.cidade} no mapa`}
+                    >
+                      📍
+                    </a>
                   </td>
                 </tr>
               ))}

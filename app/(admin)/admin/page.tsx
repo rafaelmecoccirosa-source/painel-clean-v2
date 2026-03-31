@@ -182,11 +182,11 @@ export default async function AdminDashboardPage() {
           {awaitingPaymentCount > 0 && (
             <Link
               href="/admin/pagamentos"
-              className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-white border border-amber-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
+              className="flex items-center gap-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
             >
               <span>💰</span>
               <span>
-                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação
+                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação — clientes esperando
               </span>
               <ArrowRight size={12} className="opacity-50 ml-auto" />
             </Link>
@@ -203,6 +203,32 @@ export default async function AdminDashboardPage() {
             </a>
           ))}
         </div>
+      </div>
+
+      {/* ── Seção 0b: Bypass Alerts ── */}
+      <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 space-y-3">
+        <p className="text-xs font-bold text-amber-700 uppercase tracking-widest">
+          🔍 Alertas de possível bypass
+        </p>
+        <div className="space-y-2">
+          {[
+            { msg: "Cliente Ana Silva fez 2 serviços com Carlos S. e não solicitou mais há 60 dias", href: "#" },
+            { msg: "Técnico Pedro M. teve 3 cancelamentos nos últimos 30 dias", href: "#" },
+            { msg: "Cliente Fazenda Verde estava ativo semanalmente e ficou inativo há 45 dias", href: "#" },
+          ].map(({ msg, href }) => (
+            <a
+              key={msg}
+              href={href}
+              className="flex items-start gap-2.5 bg-white border border-amber-200 rounded-xl px-4 py-3 hover:shadow-sm transition-shadow"
+            >
+              <span className="text-amber-500 text-sm mt-0.5 flex-shrink-0">⚠️</span>
+              <p className="text-sm font-medium text-amber-800 leading-snug">{msg}</p>
+            </a>
+          ))}
+        </div>
+        <p className="text-[10px] text-amber-600">
+          Dados demonstrativos — quando o banco tiver histórico real, estas análises serão calculadas automaticamente.
+        </p>
       </div>
 
       {/* ── Seção 1: KPIs ── */}

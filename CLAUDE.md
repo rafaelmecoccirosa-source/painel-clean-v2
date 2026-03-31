@@ -116,15 +116,24 @@ Subtítulo no header: "Limpeza de Placa Solar".
 
 ## Fluxo principal do serviço
 
+> ⚠️ **Fluxo atualizado: Pagamento ANTECIPADO** — o técnico só vê o chamado após o pagamento ser confirmado pelo admin.
+
 ```
 1. Cliente solicita → informa cidade, endereço, nº módulos, data, período
-2. Sistema faz matching → notifica técnicos disponíveis na região
-3. Técnico aceita → cliente é notificado via WhatsApp
-4. Técnico executa → preenche relatório fotográfico (antes/depois + diagnóstico)
-5. Técnico conclui → cliente recebe relatório e é cobrado
-6. Pagamento confirmado → PIX automático para o técnico (85%)
-7. Cliente avalia → feedback visível no perfil do técnico
+2. Sistema cria serviço com status = 'pending' + payment_status = 'pending'
+3. Cliente paga via PIX → payment_status = 'awaiting_confirmation'
+4. Admin confirma pagamento → payment_status = 'confirmed'
+   └─ AGORA o chamado aparece na lista de disponíveis para os técnicos
+5. Técnico aceita → status = 'accepted', cliente é notificado via WhatsApp
+6. Técnico inicia → status = 'in_progress'
+7. Técnico executa → preenche relatório fotográfico (antes/depois + diagnóstico)
+8. Técnico conclui → status = 'completed'
+9. Admin libera repasse → payment_status = 'released', PIX para o técnico (85%)
+10. Cliente avalia → feedback visível no perfil do técnico
 ```
+
+**Regra crítica:** O técnico NUNCA vê chamados com `payment_status != 'confirmed'`.
+Isso elimina o risco de calote — o técnico nunca sai de casa sem pagamento confirmado.
 
 ---
 
@@ -353,6 +362,31 @@ ALTER TABLE service_requests
 
 **Chave PIX placeholder:** `pix@painelclean.com.br` — alterar em `components/cliente/PaymentCard.tsx`
 
+### Tabela: `messages` — Chat in-app (migration `20260330_messages.sql`)
+
+```sql
+CREATE TABLE IF NOT EXISTS messages (
+  id                   UUID          DEFAULT gen_random_uuid() PRIMARY KEY,
+  service_request_id   UUID          REFERENCES service_requests(id) ON DELETE CASCADE NOT NULL,
+  sender_id            UUID          REFERENCES auth.users(id) NOT NULL,
+  content              TEXT          NOT NULL,
+  read                 BOOLEAN       DEFAULT false,
+  created_at           TIMESTAMPTZ   DEFAULT NOW(),
+  is_system            BOOLEAN       DEFAULT false
+);
+```
+
+**RLS habilitado.** Políticas:
+- Cliente e técnico do serviço: SELECT + INSERT (só o próprio sender_id) + UPDATE (marcar como lido)
+- Admin: acesso total
+
+**Fluxo:**
+- Chat só aparece quando `status IN ('accepted', 'in_progress', 'completed')`
+- Mensagens automáticas do sistema (`is_system = true`) são inseridas quando status muda
+- Polling a cada 5 s para novas mensagens
+- Números de telefone e e-mails são bloqueados no input (alerta exibido)
+- Chave de acesso: `/cliente/servico/[id]` (cliente) e `/tecnico/chamados/[id]` (técnico)
+
 ### Comportamento com tabela inexistente
 
 O app funciona **sem a tabela criada** — todas as páginas usam dados mockados como fallback.
@@ -442,3 +476,57 @@ CREATE POLICY "Admin can read all servicos"
   );
 ```
 - Repasse box: fundo `green-dark`, valor final em `green-vibe`
+
+---
+
+## Barra de Progresso (ServiceProgressBar)
+
+Nova ordem dos passos (fluxo pós pagamento antecipado):
+```
+Solicitado → Pago → Aceito → Em andamento → Concluído → Repasse
+```
+
+Mapeamento de estados:
+- `pending + payment_status=pending`               → passo 1 (Solicitado) atual
+- `pending + payment_status=awaiting_confirmation` → passo 1 done, passo 2 (Pago) atual
+- `pending + payment_status=confirmed`             → passo 2 done, passo 3 (Aceito) atual
+- `accepted`                                       → passo 3 done, passo 4 (Em andamento) atual
+- `in_progress`                                    → passo 4 done, passo 5 (Concluído) atual
+- `completed`                                      → passo 5 done, passo 6 (Repasse) atual
+- `payment_status=released`                        → todos os passos concluídos
+
+---
+
+## Localização com Pin no Mapa
+
+### Migration SQL (executar manualmente no Supabase SQL Editor)
+
+Arquivo: `supabase/migrations/20260331_location_columns.sql`
+
+```sql
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS latitude          DECIMAL(10,8),
+  ADD COLUMN IF NOT EXISTS longitude         DECIMAL(11,8),
+  ADD COLUMN IF NOT EXISTS location_description TEXT;
+```
+
+### Como funciona
+
+- **Tela de solicitação** (`/cliente/solicitar`): o cliente escolhe entre "Digitar endereço" (texto) ou "Marcar no mapa" (Leaflet interativo). No modo mapa, clica para posicionar um pin arrastável. Botão "Usar minha localização atual" usa `navigator.geolocation`.
+- **Mapa usa Leaflet + OpenStreetMap** (100% gratuito, sem API key). `react-leaflet@4` (compatível com React 18).
+- **Componentes**:
+  - `components/shared/MapPickerLeaflet.tsx` — mapa interativo com pin arrastável (solicitar)
+  - `components/shared/MapViewLeaflet.tsx` — mapa read-only (ver localização)
+  - Ambos importados via `dynamic(() => import(...), { ssr: false })` para evitar erro de SSR do Leaflet.
+- **Validação**: precisa ter endereço textual OU pin no mapa (pelo menos um).
+- **Tela do técnico** (`/tecnico/chamados/[id]`): se o serviço tem lat/lng, mostra mapa com pin + botões "Google Maps" (rota) e "Waze". Se só endereço textual, botão Google Maps por busca.
+- **Lista de chamados** (`/tecnico/chamados`): badge "📍 Localização no mapa" nos cards que têm coordenadas.
+- **Admin servicos**: coluna 📍 com link Google Maps por cidade.
+
+### Centros das cidades piloto
+
+| Cidade | Latitude | Longitude |
+|--------|----------|-----------|
+| Jaraguá do Sul | -26.4854 | -49.0713 |
+| Pomerode | -26.7407 | -49.1764 |
+| Florianópolis | -27.5954 | -48.5480 |

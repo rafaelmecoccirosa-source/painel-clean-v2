@@ -49,6 +49,10 @@ export interface ServiceRequestDB {
   payment_proof_url?: string | null;
   paid_at?: string | null;
   released_at?: string | null;
+  // Location columns (added via migration 20260331_location_columns.sql)
+  latitude?: number | null;
+  longitude?: number | null;
+  location_description?: string | null;
 }
 
 export const STATUS_LABELS: Record<ServiceRequestStatus, string> = {
@@ -79,6 +83,18 @@ export function estimateHours(moduleCount: number): number {
   if (moduleCount <= 30) return 2.5;
   if (moduleCount <= 60) return 3.5;
   return 5;
+}
+
+// ── messages table (Supabase) ─────────────────────────────────────────────────
+
+export interface Message {
+  id: string;
+  service_request_id: string;
+  sender_id: string;
+  content: string;
+  read: boolean;
+  created_at: string;
+  is_system: boolean;
 }
 
 // ── service_reports table (Supabase) ────────────────────────────────────

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
   MapPin, Calendar, Clock, Sun, AlertTriangle,
@@ -10,6 +11,13 @@ import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB } from "@/lib/types";
+import ChatBox, { insertSystemMessage } from "@/components/shared/ChatBox";
+
+// Leaflet map (no SSR)
+const MapViewLeaflet = dynamic(
+  () => import("@/components/shared/MapViewLeaflet"),
+  { ssr: false, loading: () => <div className="w-full h-full bg-brand-bg animate-pulse rounded-xl" /> }
+);
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -42,6 +50,71 @@ function Skeleton() {
         <div className="h-5 bg-white/10 rounded-full w-1/3" />
         <div className="h-4 bg-white/10 rounded-full w-full" />
         <div className="h-4 bg-white/10 rounded-full w-3/4" />
+      </div>
+    </div>
+  );
+}
+
+// ── Location section (map + navigation links) ─────────────────────────────────
+
+function LocationSection({ service }: { service: ServiceRequestDB }) {
+  const hasPin = service.latitude != null && service.longitude != null;
+  const lat = service.latitude as number;
+  const lng = service.longitude as number;
+
+  const gmapsUrl = hasPin
+    ? `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(service.address + ", " + service.city)}`;
+
+  const wazeUrl = hasPin
+    ? `https://waze.com/ul?ll=${lat},${lng}&navigate=yes`
+    : null;
+
+  return (
+    <div className="space-y-3">
+      {/* Map (only when lat/lng available) */}
+      {hasPin && (
+        <div
+          className="w-full rounded-xl overflow-hidden border border-brand-border"
+          style={{ height: "220px" }}
+        >
+          <MapViewLeaflet lat={lat} lng={lng} zoom={14} />
+        </div>
+      )}
+
+      {/* Address + description */}
+      {service.location_description && (
+        <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
+          <span className="font-semibold text-brand-dark">📍 Referência: </span>
+          {service.location_description}
+        </div>
+      )}
+
+      {/* Navigation buttons */}
+      <div className="grid grid-cols-2 gap-2">
+        <a
+          href={gmapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 rounded-xl transition-colors"
+        >
+          🗺️ Google Maps
+        </a>
+        {wazeUrl && (
+          <a
+            href={wazeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-1.5 bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold py-2.5 rounded-xl transition-colors"
+          >
+            📍 Abrir no Waze
+          </a>
+        )}
+        {!wazeUrl && (
+          <div className="flex items-center justify-center gap-1.5 bg-brand-bg text-brand-muted text-xs font-semibold py-2.5 rounded-xl border border-brand-border">
+            📍 Endereço textual
+          </div>
+        )}
       </div>
     </div>
   );
@@ -114,6 +187,9 @@ function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
           {service.notes}
         </div>
       )}
+
+      {/* Map / Navigation */}
+      <LocationSection service={service} />
 
       {/* Repasse highlight */}
       <div className="bg-brand-dark rounded-xl px-5 py-4 flex items-center justify-between">
@@ -310,6 +386,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         setTimeout(() => router.push("/tecnico/chamados"), 1800);
       } else {
         showToast("Chamado aceito! O cliente foi notificado.", "success");
+        await insertSystemMessage(id, userId ?? "", "✅ Técnico aceitou o chamado. Em breve entrará em contato.");
         setTimeout(() => router.push("/tecnico/chamados"), 1600);
       }
     } catch {
@@ -335,6 +412,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         // Update local state so the UI transitions immediately
         setService((prev) => prev ? { ...prev, status: "in_progress" } : prev);
         showToast("Serviço iniciado!", "success");
+        await insertSystemMessage(id, userId ?? "", "🔧 Serviço iniciado. O técnico está a caminho.");
       }
     } catch {
       showToast("Erro inesperado.", "error");
@@ -497,6 +575,16 @@ export default function ChamadoDetalheCliente({ id }: Props) {
         <div className="card text-center py-8">
           <p className="text-brand-muted text-sm">Este chamado foi aceito por outro técnico.</p>
         </div>
+      )}
+
+      {/* ── CHAT (available when accepted/in_progress/completed and this is my service) ── */}
+      {["accepted", "in_progress", "completed"].includes(status) && isMyService && userId && (
+        <ChatBox
+          serviceId={id}
+          currentUserId={userId}
+          currentUserName="Técnico"
+          otherUserName="Cliente"
+        />
       )}
     </div>
   );

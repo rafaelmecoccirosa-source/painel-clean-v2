@@ -17,6 +17,7 @@ export default function CadastroPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -24,6 +25,7 @@ export default function CadastroPage() {
 
     if (!nome.trim()) return setError("Informe seu nome completo.");
     if (password.length < 8) return setError("A senha deve ter pelo menos 8 caracteres.");
+    if (!termsAccepted) return setError("Você precisa aceitar os Termos de Uso para continuar.");
 
     setLoading(true);
 
@@ -148,6 +150,23 @@ export default function CadastroPage() {
                 <option value="cliente">Cliente — quero limpar minhas placas</option>
                 <option value="tecnico">Técnico — quero prestar serviços</option>
               </select>
+            </div>
+
+            <div className="flex items-start gap-2.5 pt-1">
+              <input
+                type="checkbox"
+                id="terms"
+                checked={termsAccepted}
+                onChange={(e) => setTermsAccepted(e.target.checked)}
+                className="mt-0.5 h-4 w-4 flex-shrink-0 accent-brand-green cursor-pointer"
+              />
+              <label htmlFor="terms" className="text-sm text-brand-muted cursor-pointer leading-snug">
+                Li e aceito os{" "}
+                <Link href="/termos" target="_blank" className="text-brand-green font-medium hover:underline">
+                  Termos de Uso
+                </Link>{" "}
+                da plataforma, incluindo a proibição de contato direto entre clientes e técnicos fora da plataforma.
+              </label>
             </div>
 
             <Button type="submit" size="lg" className="w-full mt-2" loading={loading}>
