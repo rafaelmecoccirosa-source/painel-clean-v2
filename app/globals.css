@@ -25,6 +25,35 @@
   }
 }
 
+/* ── Scroll animations ─────────────────────────────────────────────────────
+   Only applied when the user hasn't requested reduced motion.
+   Uses only opacity + transform (GPU-accelerated).
+   .animate-visible is added by ScrollAnimations.tsx via IntersectionObserver.
+──────────────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  /* Slide from left variant */
+  .animate-on-scroll.animate-slide-left {
+    transform: translateX(-40px);
+  }
+
+  /* Scale-up variant */
+  .animate-on-scroll.animate-scale {
+    transform: scale(0.95);
+  }
+
+  /* Final state — resets all transforms */
+  .animate-on-scroll.animate-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @layer components {
   .page-container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8;

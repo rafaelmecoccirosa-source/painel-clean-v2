@@ -2,6 +2,7 @@ import Link from "next/link";
 import Logo from "@/components/layout/Logo";
 import HeroSection from "@/components/home/HeroSection";
 import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
+import ScrollAnimations from "@/components/home/ScrollAnimations";
 
 // ── Seção 2 — Por que limpar? ──────────────────────────────────────────────
 
@@ -102,6 +103,9 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white">
 
+      {/* Mounts single IntersectionObserver for all .animate-on-scroll elements */}
+      <ScrollAnimations />
+
       {/* ── Header fixo ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-brand-light border-b border-brand-border shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -123,13 +127,14 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Seção 1: Hero ───────────────────────────────────────────────── */}
+      {/* ── Seção 1: Hero — sem animação de scroll, já visível ao carregar ── */}
       <HeroSection />
 
       {/* ── Seção 2: Por que limpar? ─────────────────────────────────────── */}
       <section className="bg-brand-bg py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          {/* Heading fades in from below */}
+          <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               ☀️ Importância da manutenção
             </p>
@@ -138,11 +143,13 @@ export default function HomePage() {
             </h2>
           </div>
 
+          {/* Cards: stagger 150 ms each */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {motivoCards.map(({ emoji, titulo, texto }) => (
+            {motivoCards.map(({ emoji, titulo, texto }, idx) => (
               <div
                 key={titulo}
-                className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col gap-4 hover:shadow-card-hover transition-shadow"
+                className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col gap-4 hover:shadow-card-hover transition-shadow animate-on-scroll"
+                style={{ transitionDelay: `${idx * 150}ms` }}
               >
                 <span className="text-4xl">{emoji}</span>
                 <h3 className="font-heading text-lg font-bold text-brand-dark">{titulo}</h3>
@@ -153,13 +160,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 3: Calculadora ─────────────────────────────────────────── */}
-      <CalculadoraEconomia />
+      {/* ── Seção 3: Calculadora — slide from left ───────────────────────── */}
+      <div className="animate-on-scroll animate-slide-left">
+        <CalculadoraEconomia />
+      </div>
 
       {/* ── Seção 4: Como funciona ──────────────────────────────────────── */}
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          {/* Heading */}
+          <div className="text-center mb-14 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               🚀 Processo simples
             </p>
@@ -168,10 +178,14 @@ export default function HomePage() {
             </h2>
           </div>
 
-          {/* Desktop: horizontal timeline */}
+          {/* Desktop: horizontal timeline — each step staggered 200 ms */}
           <div className="hidden md:flex items-start gap-0">
             {passos.map((passo, idx) => (
-              <div key={passo.num} className="flex-1 flex flex-col items-center relative">
+              <div
+                key={passo.num}
+                className="flex-1 flex flex-col items-center relative animate-on-scroll"
+                style={{ transitionDelay: `${idx * 200}ms` }}
+              >
                 {/* Connector line */}
                 {idx < passos.length - 1 && (
                   <div className="absolute top-8 left-1/2 w-full h-0.5 bg-brand-border" />
@@ -193,10 +207,14 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Mobile: vertical list */}
+          {/* Mobile: vertical list — each step staggered 200 ms */}
           <div className="md:hidden space-y-6">
-            {passos.map((passo) => (
-              <div key={passo.num} className="flex items-start gap-5">
+            {passos.map((passo, idx) => (
+              <div
+                key={passo.num}
+                className="flex items-start gap-5 animate-on-scroll"
+                style={{ transitionDelay: `${idx * 200}ms` }}
+              >
                 <div className="h-12 w-12 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-xl flex-shrink-0">
                   {passo.num}
                 </div>
@@ -216,7 +234,8 @@ export default function HomePage() {
       {/* ── Seção 5: Por que a Painel Clean? ───────────────────────────── */}
       <section className="bg-brand-bg py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          {/* Heading */}
+          <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               🏆 Nossos diferenciais
             </p>
@@ -225,11 +244,13 @@ export default function HomePage() {
             </h2>
           </div>
 
+          {/* Grid: stagger 100 ms each */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {beneficios.map(({ emoji, titulo, texto }) => (
+            {beneficios.map(({ emoji, titulo, texto }, idx) => (
               <div
                 key={titulo}
-                className="bg-white rounded-2xl border border-brand-light p-6 flex gap-4 hover:shadow-card-hover transition-shadow"
+                className="bg-white rounded-2xl border border-brand-light p-6 flex gap-4 hover:shadow-card-hover transition-shadow animate-on-scroll"
+                style={{ transitionDelay: `${idx * 100}ms` }}
               >
                 <span className="text-3xl flex-shrink-0">{emoji}</span>
                 <div>
@@ -247,7 +268,8 @@ export default function HomePage() {
       {/* ── Seção 6: Faixas de preço ─────────────────────────────────────── */}
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          {/* Heading */}
+          <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               💰 Investimento acessível
             </p>
@@ -257,15 +279,17 @@ export default function HomePage() {
             <p className="text-brand-muted text-base">Valores estimados por faixa de módulos</p>
           </div>
 
+          {/* Cards: scale + fade, stagger 100 ms */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {faixas.map(({ faixa, preco, tempo, destaque, tag }) => (
+            {faixas.map(({ faixa, preco, tempo, destaque, tag }, idx) => (
               <div
                 key={faixa}
-                className={`rounded-2xl p-6 flex flex-col gap-4 border-2 relative ${
+                className={`rounded-2xl p-6 flex flex-col gap-4 border-2 relative animate-on-scroll animate-scale ${
                   destaque
                     ? "border-brand-green bg-brand-light"
                     : "border-brand-border bg-white"
                 }`}
+                style={{ transitionDelay: `${idx * 100}ms` }}
               >
                 {tag && (
                   <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-green text-white text-[11px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
@@ -304,9 +328,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 7: CTA Final ───────────────────────────────────────────── */}
+      {/* ── Seção 7: CTA Final — simple fade-in ─────────────────────────── */}
       <section className="bg-brand-dark py-20">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-on-scroll">
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
             Suas placas merecem render 100%
           </h2>
@@ -360,6 +384,11 @@ export default function HomePage() {
                 <p>
                   <Link href="/cadastro" className="hover:text-white/80 transition-colors">
                     Cadastrar-se
+                  </Link>
+                </p>
+                <p>
+                  <Link href="/termos" className="hover:text-white/80 transition-colors">
+                    Termos de Uso
                   </Link>
                 </p>
               </div>
