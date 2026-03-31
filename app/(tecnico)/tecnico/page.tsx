@@ -288,7 +288,7 @@ export default async function TecnicoDashboardPage() {
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-brand-muted">
                     <span>📅 {c.data} · {c.hora}</span>
-                    <span>🔋 {c.modulos} módulos</span>
+                    <span>🔋 {c.modulos} placas</span>
                     <span>💰 {fmt(c.valorServico)} (repasse: <strong className="text-brand-green">{fmt(c.repasse)}</strong>)</span>
                   </div>
                 </div>
@@ -358,7 +358,7 @@ export default async function TecnicoDashboardPage() {
               <div className="space-y-0.5">
                 <p className="text-sm font-medium text-brand-dark">{h.cidade}</p>
                 <p className="text-[11px] text-brand-muted">
-                  {h.data} · {h.modulos} módulos
+                  {h.data} · {h.modulos} placas
                 </p>
               </div>
               <div className="text-right space-y-0.5">

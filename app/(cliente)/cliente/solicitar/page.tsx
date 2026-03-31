@@ -7,7 +7,7 @@ import { Copy, Check, CheckCircle2, MapPin, Navigation, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
-import { calcPrice } from "@/lib/types";
+import { calcularPreco, type TipoInstalacao, type NivelSujeira, type NivelAcesso } from "@/lib/pricing";
 
 // Leaflet must be loaded client-side only (no SSR)
 const MapPickerLeaflet = dynamic(
@@ -34,13 +34,6 @@ const PIX_NAME = "Painel Clean Ltda";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-function faixaLabel(n: number) {
-  if (n <= 10) return "Pequena instalação (até 10 módulos)";
-  if (n <= 30) return "Instalação média (11–30 módulos)";
-  if (n <= 60) return "Grande instalação (31–60 módulos)";
-  return "Usina solar (61+ módulos)";
 }
 
 function minDate() {
@@ -234,7 +227,6 @@ function MapSection({
 
   return (
     <div className="space-y-3">
-      {/* Geolocation button */}
       <button
         type="button"
         onClick={handleGeolocate}
@@ -249,14 +241,12 @@ function MapSection({
         <p className="text-xs text-red-600 bg-red-50 rounded-lg px-3 py-2">{geoError}</p>
       )}
 
-      {/* Instruction */}
       <p className="text-xs text-brand-muted">
         {lat !== null
           ? `📍 Pin posicionado: ${lat.toFixed(5)}, ${lng?.toFixed(5)} — arraste para ajustar`
           : "Clique no mapa para posicionar o pin de localização"}
       </p>
 
-      {/* Map */}
       <div
         className="w-full rounded-xl overflow-hidden border border-brand-border shadow-sm"
         style={{ height: "280px" }}
@@ -270,7 +260,6 @@ function MapSection({
         />
       </div>
 
-      {/* Location description */}
       {lat !== null && (
         <div>
           <label className="label-base">
@@ -290,31 +279,176 @@ function MapSection({
   );
 }
 
+// ── Radio Button Group ─────────────────────────────────────────────────────────
+
+function RadioGroup<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; emoji: string; label: string; desc: string; color?: string }[];
+}) {
+  return (
+    <div>
+      <label className="label-base">{label}</label>
+      <div className="grid grid-cols-1 gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
+              value === opt.value
+                ? "border-brand-green bg-brand-light"
+                : "border-brand-border bg-white hover:border-brand-dark/30"
+            }`}
+          >
+            <span className="text-2xl flex-shrink-0">{opt.emoji}</span>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-brand-dark">{opt.label}</p>
+              <p className="text-xs text-brand-muted leading-snug">{opt.desc}</p>
+            </div>
+            <div className={`ml-auto h-4 w-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${
+              value === opt.value ? "border-brand-green bg-brand-green" : "border-brand-border"
+            }`}>
+              {value === opt.value && (
+                <div className="h-2 w-2 rounded-full bg-white" />
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TwoOptionGroup<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; emoji: string; label: string; desc: string }[];
+}) {
+  return (
+    <div>
+      <label className="label-base">{label}</label>
+      <div className="grid grid-cols-2 gap-2">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={`flex flex-col gap-1.5 px-3 py-3 rounded-xl border-2 text-left transition-colors ${
+              value === opt.value
+                ? "border-brand-green bg-brand-light"
+                : "border-brand-border bg-white hover:border-brand-dark/30"
+            }`}
+          >
+            <span className="text-xl">{opt.emoji}</span>
+            <p className="text-sm font-semibold text-brand-dark">{opt.label}</p>
+            <p className="text-xs text-brand-muted leading-snug">{opt.desc}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Price Preview Card ─────────────────────────────────────────────────────────
+
+function PricePreviewCard({
+  placas,
+  tipoInstalacao,
+  sujeira,
+  acesso,
+  distanciaKm,
+}: {
+  placas: number;
+  tipoInstalacao: TipoInstalacao;
+  sujeira: NivelSujeira;
+  acesso: NivelAcesso;
+  distanciaKm: number;
+}) {
+  if (placas <= 0) return null;
+
+  const result = calcularPreco({ placas, tipoInstalacao, sujeira, acesso, distanciaKm });
+
+  return (
+    <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
+      <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
+        💰 Estimativa de preço
+      </p>
+
+      <div>
+        <p className="font-heading font-extrabold text-brand-green text-3xl leading-none">
+          {fmt(result.precoMin)} a {fmt(result.precoMax)}
+        </p>
+        <p className="text-white/50 text-xs mt-1.5">
+          estimativa baseada nas condições informadas
+        </p>
+      </div>
+
+      <div className="space-y-1.5 border-t border-white/10 pt-3">
+        <p className="text-white/50 text-xs font-semibold uppercase tracking-wide mb-2">
+          Detalhamento
+        </p>
+        <p className="text-white/70 text-sm">
+          · {result.detalhe.baseCalculo}
+        </p>
+        <p className="text-white/70 text-sm">
+          · {result.detalhe.tipoLabel} (×{result.multTipo.toFixed(2)})
+        </p>
+        {result.detalhe.extras.map((extra) => (
+          <p key={extra} className="text-white/70 text-sm">· {extra}</p>
+        ))}
+        {distanciaKm > 0 && (
+          <p className="text-white/70 text-sm">
+            · Deslocamento: {fmt(result.custoDeslocamento)} ({distanciaKm} km)
+          </p>
+        )}
+      </div>
+
+      <p className="text-white/40 text-xs border-t border-white/10 pt-3">
+        * Valor final confirmado pelo técnico dentro desta faixa
+      </p>
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function SolicitarPage() {
   const { toast, show: showToast, hide: hideToast } = useToast();
 
-  const [city, setCity]               = useState("");
-  const [address, setAddress]         = useState("");
-  const [useMap, setUseMap]           = useState(false);
-  const [lat, setLat]                 = useState<number | null>(null);
-  const [lng, setLng]                 = useState<number | null>(null);
+  const [city, setCity]                           = useState("");
+  const [address, setAddress]                     = useState("");
+  const [useMap, setUseMap]                       = useState(false);
+  const [lat, setLat]                             = useState<number | null>(null);
+  const [lng, setLng]                             = useState<number | null>(null);
   const [locationDescription, setLocationDescription] = useState("");
-  const [moduleCount, setModuleCount] = useState("");
-  const [preferredDate, setPreferredDate] = useState("");
-  const [preferredTime, setPreferredTime] = useState("Qualquer horário");
-  const [notes, setNotes]             = useState("");
-  const [submitting, setSubmitting]   = useState(false);
+  const [placaCount, setPlacaCount]               = useState("");
+  const [tipoInstalacao, setTipoInstalacao]       = useState<TipoInstalacao>("telhado_padrao");
+  const [sujeira, setSujeira]                     = useState<NivelSujeira>("normal");
+  const [acesso, setAcesso]                       = useState<NivelAcesso>("normal");
+  const [distanciaKm, setDistanciaKm]             = useState(0);
+  const [preferredDate, setPreferredDate]         = useState("");
+  const [preferredTime, setPreferredTime]         = useState("Qualquer horário");
+  const [notes, setNotes]                         = useState("");
+  const [submitting, setSubmitting]               = useState(false);
 
   // After submit
   const [createdId,    setCreatedId]    = useState<string | null>(null);
   const [createdPrice, setCreatedPrice] = useState<number | null>(null);
 
-  const numModules    = parseInt(moduleCount) || 0;
-  const price         = numModules > 0 ? calcPrice(numModules) : null;
-  const isSobConsulta = numModules > 60;
-  const showPreview   = numModules > 0 || city.length > 0;
+  const numPlacas = parseInt(placaCount) || 0;
 
   const handleLatLng = useCallback((newLat: number, newLng: number) => {
     setLat(newLat);
@@ -326,7 +460,6 @@ export default function SolicitarPage() {
 
     if (!city) { showToast("Selecione uma cidade.", "error"); return; }
 
-    // Require address OR map pin
     if (!useMap && !address.trim()) {
       showToast("Informe o endereço ou marque a localização no mapa.", "error");
       return;
@@ -336,10 +469,23 @@ export default function SolicitarPage() {
       return;
     }
 
-    if (!moduleCount || numModules < 1) { showToast("Informe a quantidade de módulos.", "error"); return; }
-    if (isSobConsulta) { showToast("Para 61+ módulos, entre em contato via WhatsApp.", "error"); return; }
+    if (!placaCount || numPlacas < 1) {
+      showToast("Informe a quantidade de placas.", "error");
+      return;
+    }
+    if (numPlacas > 200) {
+      showToast("Para instalações com mais de 200 placas, entre em contato via WhatsApp.", "error");
+      return;
+    }
     if (!preferredDate) { showToast("Selecione a data preferida.", "error"); return; }
-    if (!price) return;
+
+    const pricing = calcularPreco({
+      placas: numPlacas,
+      tipoInstalacao,
+      sujeira,
+      acesso,
+      distanciaKm,
+    });
 
     setSubmitting(true);
     try {
@@ -353,16 +499,22 @@ export default function SolicitarPage() {
       }
 
       const payload: Record<string, unknown> = {
-        client_id:      user.id,
+        client_id:       user.id,
         city,
-        address:        address.trim() || (useMap ? `Pin no mapa: ${lat?.toFixed(5)}, ${lng?.toFixed(5)}` : ""),
-        module_count:   numModules,
-        price_estimate: price,
-        preferred_date: preferredDate,
-        preferred_time: preferredTime,
-        notes:          notes.trim() || null,
-        status:         "pending",
-        payment_status: "pending",
+        address:         address.trim() || (useMap ? `Pin no mapa: ${lat?.toFixed(5)}, ${lng?.toFixed(5)}` : ""),
+        module_count:    numPlacas,
+        price_estimate:  pricing.precoEstimado,
+        preco_min:       pricing.precoMin,
+        preco_max:       pricing.precoMax,
+        tipo_instalacao: tipoInstalacao,
+        nivel_sujeira:   sujeira,
+        nivel_acesso:    acesso,
+        distancia_km:    distanciaKm,
+        preferred_date:  preferredDate,
+        preferred_time:  preferredTime,
+        notes:           notes.trim() || null,
+        status:          "pending",
+        payment_status:  "pending",
       };
 
       if (useMap && lat !== null && lng !== null) {
@@ -387,7 +539,7 @@ export default function SolicitarPage() {
       }
 
       setCreatedId(data.id);
-      setCreatedPrice(price);
+      setCreatedPrice(pricing.precoEstimado);
     } catch (err) {
       console.error(err);
       showToast("Erro inesperado. Tente novamente.", "error");
@@ -413,8 +565,8 @@ export default function SolicitarPage() {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
+        {/* ── Card 1: Local ────────────────────────────────────── */}
         <div className="card space-y-5">
-
           {/* Cidade */}
           <div>
             <label className="label-base">🏙️ Cidade *</label>
@@ -423,7 +575,6 @@ export default function SolicitarPage() {
               value={city}
               onChange={(e) => {
                 setCity(e.target.value);
-                // Reset map pin when city changes
                 setLat(null);
                 setLng(null);
               }}
@@ -439,8 +590,6 @@ export default function SolicitarPage() {
           {/* Address / Map toggle */}
           <div className="space-y-3">
             <label className="label-base">📍 Localização *</label>
-
-            {/* Toggle buttons */}
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -466,7 +615,6 @@ export default function SolicitarPage() {
               </button>
             </div>
 
-            {/* Address text input */}
             {!useMap && (
               <input
                 type="text"
@@ -477,7 +625,6 @@ export default function SolicitarPage() {
               />
             )}
 
-            {/* Map picker */}
             {useMap && (
               <MapSection
                 city={city}
@@ -489,72 +636,103 @@ export default function SolicitarPage() {
               />
             )}
           </div>
+        </div>
 
-          {/* Módulos */}
+        {/* ── Card 2: Informações das placas ───────────────────── */}
+        <div className="card space-y-6">
+          <h2 className="font-heading font-bold text-brand-dark text-base -mb-1">
+            ☀️ Informações das placas
+          </h2>
+
+          {/* Quantidade de placas */}
           <div>
-            <label className="label-base">☀️ Quantidade de módulos *</label>
+            <label className="label-base">Quantidade de placas *</label>
             <input
               type="number"
               min={1}
+              max={200}
               placeholder="Ex: 12"
               className="input-base"
-              value={moduleCount}
-              onChange={(e) => setModuleCount(e.target.value)}
+              value={placaCount}
+              onChange={(e) => setPlacaCount(e.target.value)}
               required
             />
-            {isSobConsulta && (
+            {numPlacas > 200 && (
               <p className="mt-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
-                ⚠️ Para instalações com 61+ módulos, entre em contato pelo WhatsApp para orçamento personalizado.
+                ⚠️ Para instalações com mais de 200 placas, entre em contato pelo WhatsApp para orçamento personalizado.
               </p>
             )}
           </div>
 
-          {/* Preview card */}
-          {showPreview && !isSobConsulta && (
-            <div className="bg-brand-dark rounded-2xl p-5 space-y-3">
-              <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">
-                Resumo da solicitação
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-white/5 rounded-xl p-3">
-                  <p className="text-lg mb-1">📍</p>
-                  <p className="font-heading font-bold text-white text-sm">{city || "—"}</p>
-                  <p className="text-white/50 text-xs mt-0.5">cidade selecionada</p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3">
-                  <p className="text-lg mb-1">☀️</p>
-                  <p className="font-heading font-bold text-white text-sm">
-                    {numModules > 0 ? `${numModules} módulos` : "—"}
-                  </p>
-                  <p className="text-white/50 text-xs mt-0.5">
-                    {numModules > 0 ? faixaLabel(numModules) : "informe a quantidade"}
-                  </p>
-                </div>
-                <div className="bg-white/5 rounded-xl p-3">
-                  <p className="text-lg mb-1">💰</p>
-                  <p className="font-heading font-bold text-brand-green text-base">
-                    {price ? fmt(price) : "—"}
-                  </p>
-                  <p className="text-white/50 text-xs mt-0.5">valor a pagar via PIX</p>
-                </div>
-              </div>
-              {useMap && lat !== null && (
-                <div className="bg-white/5 rounded-xl p-3">
-                  <p className="text-white/50 text-xs mb-1">📍 Localização marcada no mapa</p>
-                  <p className="text-white text-xs font-mono">{lat.toFixed(5)}, {lng?.toFixed(5)}</p>
-                  {locationDescription && (
-                    <p className="text-white/70 text-xs mt-1">{locationDescription}</p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+          {/* Tipo de instalação */}
+          <RadioGroup<TipoInstalacao>
+            label="🏗️ Tipo de instalação *"
+            value={tipoInstalacao}
+            onChange={setTipoInstalacao}
+            options={[
+              { value: "solo",            emoji: "☀️", label: "Solo",            desc: "Placas instaladas no chão ou estrutura baixa" },
+              { value: "telhado_padrao",  emoji: "🏠", label: "Telhado padrão",  desc: "Telhado residencial com acesso normal" },
+              { value: "telhado_dificil", emoji: "🏗️", label: "Telhado difícil", desc: "Telhado alto, inclinado ou de difícil acesso" },
+            ]}
+          />
+
+          {/* Nível de sujeira */}
+          <TwoOptionGroup<NivelSujeira>
+            label="🧹 Nível de sujeira"
+            value={sujeira}
+            onChange={setSujeira}
+            options={[
+              { value: "normal", emoji: "🟢", label: "Normal", desc: "Poeira leve, sujeira comum" },
+              { value: "pesada", emoji: "🟠", label: "Pesada", desc: "Acúmulo intenso, fezes de pássaros, fuligem" },
+            ]}
+          />
+
+          {/* Acesso ao local */}
+          <TwoOptionGroup<NivelAcesso>
+            label="🚪 Acesso ao local"
+            value={acesso}
+            onChange={setAcesso}
+            options={[
+              { value: "normal",  emoji: "🟢", label: "Normal", desc: "Acesso fácil, sem obstáculos" },
+              { value: "dificil", emoji: "🟠", label: "Difícil", desc: "Acesso restrito, escada, terreno irregular" },
+            ]}
+          />
+
+          {/* Distância estimada */}
+          <div>
+            <label className="label-base">📏 Distância estimada ao local (km)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.5}
+              placeholder="0"
+              className="input-base"
+              value={distanciaKm || ""}
+              onChange={(e) => setDistanciaKm(parseFloat(e.target.value) || 0)}
+            />
+            <p className="text-xs text-brand-muted mt-1.5">
+              Distância aproximada da sua cidade ao local. Se for na cidade, deixe 0.
+            </p>
+          </div>
+
+          {/* Real-time price preview */}
+          <PricePreviewCard
+            placas={numPlacas}
+            tipoInstalacao={tipoInstalacao}
+            sujeira={sujeira}
+            acesso={acesso}
+            distanciaKm={distanciaKm}
+          />
         </div>
 
+        {/* ── Card 3: Agendamento ──────────────────────────────── */}
         <div className="card space-y-5">
-          {/* Data preferida */}
+          <h2 className="font-heading font-bold text-brand-dark text-base -mb-1">
+            📅 Agendamento
+          </h2>
+
           <div>
-            <label className="label-base">📅 Data preferida *</label>
+            <label className="label-base">Data preferida *</label>
             <input
               type="date"
               className="input-base"
@@ -565,7 +743,6 @@ export default function SolicitarPage() {
             />
           </div>
 
-          {/* Horário */}
           <div>
             <label className="label-base">🕐 Horário preferido</label>
             <select
@@ -579,7 +756,6 @@ export default function SolicitarPage() {
             </select>
           </div>
 
-          {/* Observações */}
           <div>
             <label className="label-base">
               💬 Observações{" "}
@@ -593,44 +769,6 @@ export default function SolicitarPage() {
               onChange={(e) => setNotes(e.target.value)}
             />
           </div>
-        </div>
-
-        {/* Price table */}
-        <div className="card">
-          <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-3">
-            Tabela de preços
-          </p>
-          <div className="space-y-2">
-            {[
-              { faixa: "Pequena", modulos: "até 10",  preco: 180,  destaque: false },
-              { faixa: "Média",   modulos: "11 a 30", preco: 300,  destaque: true  },
-              { faixa: "Grande",  modulos: "31 a 60", preco: 520,  destaque: false },
-              { faixa: "Usina",   modulos: "61+",     preco: null, destaque: false },
-            ].map((row) => (
-              <div
-                key={row.faixa}
-                className={`flex justify-between items-center px-4 py-2.5 rounded-xl text-sm ${
-                  row.destaque
-                    ? "bg-brand-light border border-brand-border font-semibold"
-                    : "bg-brand-bg"
-                }`}
-              >
-                <span className="text-brand-dark">
-                  {row.faixa}{" "}
-                  <span className="text-brand-muted font-normal">({row.modulos} módulos)</span>
-                </span>
-                <span className={row.destaque ? "text-brand-dark font-bold" : "text-brand-muted"}>
-                  {row.preco ? fmt(row.preco) : "Sob consulta"}
-                  {row.destaque && (
-                    <span className="text-brand-green text-xs ml-1.5">← mais comum</span>
-                  )}
-                </span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs text-brand-muted mt-3">
-            * Pagamento antecipado via PIX. O técnico só é acionado após confirmação do pagamento.
-          </p>
         </div>
 
         {/* PIX info banner */}
@@ -649,7 +787,7 @@ export default function SolicitarPage() {
           size="lg"
           className="w-full"
           loading={submitting}
-          disabled={isSobConsulta || submitting}
+          disabled={numPlacas > 200 || submitting}
         >
           {submitting ? "Criando solicitação…" : "🚀 Enviar solicitação e pagar via PIX"}
         </Button>

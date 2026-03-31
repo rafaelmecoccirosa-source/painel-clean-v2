@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import {
   MapPin, Calendar, Clock, Sun, AlertTriangle,
-  ArrowRight, Play, CheckCircle2,
+  ArrowRight, Play, CheckCircle2, Info,
 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
@@ -120,6 +120,62 @@ function LocationSection({ service }: { service: ServiceRequestDB }) {
   );
 }
 
+// ── Helpers for new fields ────────────────────────────────────────────────────
+
+function tipoLabel(t: string | null | undefined) {
+  switch (t) {
+    case "solo":            return "☀️ Solo";
+    case "telhado_padrao":  return "🏠 Telhado padrão";
+    case "telhado_dificil": return "🏗️ Telhado difícil";
+    default:                return "—";
+  }
+}
+
+function sujeiraLabel(s: string | null | undefined) {
+  return s === "pesada" ? "🟠 Pesada" : "🟢 Normal";
+}
+
+function acessoLabel(a: string | null | undefined) {
+  return a === "dificil" ? "🟠 Difícil" : "🟢 Normal";
+}
+
+// ── Service details grid (new fields) ─────────────────────────────────────────
+
+function ServiceDetailsGrid({ service }: { service: ServiceRequestDB }) {
+  const hasDetails =
+    service.tipo_instalacao || service.nivel_sujeira || service.nivel_acesso;
+  if (!hasDetails) return null;
+
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {service.tipo_instalacao && (
+        <div className="bg-brand-bg rounded-xl px-3 py-2.5">
+          <p className="text-[10px] text-brand-muted mb-0.5">Tipo de instalação</p>
+          <p className="text-sm font-medium text-brand-dark">{tipoLabel(service.tipo_instalacao)}</p>
+        </div>
+      )}
+      {service.nivel_sujeira && (
+        <div className="bg-brand-bg rounded-xl px-3 py-2.5">
+          <p className="text-[10px] text-brand-muted mb-0.5">Nível de sujeira</p>
+          <p className="text-sm font-medium text-brand-dark">{sujeiraLabel(service.nivel_sujeira)}</p>
+        </div>
+      )}
+      {service.nivel_acesso && (
+        <div className="bg-brand-bg rounded-xl px-3 py-2.5">
+          <p className="text-[10px] text-brand-muted mb-0.5">Acesso ao local</p>
+          <p className="text-sm font-medium text-brand-dark">{acessoLabel(service.nivel_acesso)}</p>
+        </div>
+      )}
+      {(service.distancia_km != null && service.distancia_km > 0) && (
+        <div className="bg-brand-bg rounded-xl px-3 py-2.5">
+          <p className="text-[10px] text-brand-muted mb-0.5">Distância estimada</p>
+          <p className="text-sm font-medium text-brand-dark">📏 {service.distancia_km} km</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Service info card (for accepted / in_progress) ────────────────────────────
 
 function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
@@ -170,7 +226,7 @@ function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
         <div className="flex items-center gap-2.5">
           <Sun size={16} className="text-brand-muted flex-shrink-0" />
           <p className="text-sm text-brand-dark">
-            <span className="font-semibold">{service.module_count}</span> módulos
+            <span className="font-semibold">{service.module_count}</span> placas
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -180,6 +236,9 @@ function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
           </p>
         </div>
       </div>
+
+      {/* New service conditions */}
+      <ServiceDetailsGrid service={service} />
 
       {service.notes && (
         <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
@@ -280,7 +339,7 @@ function Calculator({
           <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-2.5">
             <Clock size={14} className="text-white/40" />
             <span className="text-white text-sm font-medium">{tempo}h</span>
-            <span className="text-white/40 text-xs">({modulos} módulos)</span>
+            <span className="text-white/40 text-xs">({modulos} placas)</span>
           </div>
         </div>
       </div>
@@ -341,10 +400,12 @@ export default function ChamadoDetalheCliente({ id }: Props) {
   const router = useRouter();
   const { toast, show: showToast, hide: hideToast } = useToast();
 
-  const [service, setService] = useState<ServiceRequestDB | null>(null);
-  const [userId,  setUserId]  = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [busy,    setBusy]    = useState(false);
+  const [service,       setService]       = useState<ServiceRequestDB | null>(null);
+  const [userId,        setUserId]        = useState<string | null>(null);
+  const [loading,       setLoading]       = useState(true);
+  const [busy,          setBusy]          = useState(false);
+  const [finalPrice,    setFinalPrice]    = useState<number | null>(null);
+  const [justificativa, setJustificativa] = useState("");
 
   const fetchService = useCallback(async () => {
     try {
@@ -364,19 +425,37 @@ export default function ChamadoDetalheCliente({ id }: Props) {
 
   useEffect(() => { fetchService(); }, [fetchService]);
 
+  // Initialize finalPrice to price_estimate when service loads
+  useEffect(() => {
+    if (service && finalPrice === null) {
+      setFinalPrice(service.price_estimate);
+    }
+  }, [service, finalPrice]);
+
   // ── Mutations ──────────────────────────────────────────────────────────────
 
   async function handleAccept() {
     if (!userId) { showToast("Sessão expirada. Faça login novamente.", "error"); return; }
+    if (!service) return;
+    const priceToSave = finalPrice ?? service.price_estimate;
+    const precoMin = service.preco_min ?? 0;
+    const precoMax = service.preco_max ?? Infinity;
+    const fora = precoMin > 0 && (priceToSave < precoMin || priceToSave > precoMax);
+    if (fora && !justificativa.trim()) {
+      showToast("Informe a justificativa para o preço fora da faixa aprovada.", "error");
+      return;
+    }
     setBusy(true);
     try {
       const supabase = createClient();
       const { error } = await supabase
         .from("service_requests")
         .update({
-          technician_id: userId,
-          status:        "accepted",
-          accepted_at:   new Date().toISOString(),
+          technician_id:  userId,
+          status:         "accepted",
+          accepted_at:    new Date().toISOString(),
+          price_estimate: priceToSave,
+          ...(justificativa.trim() ? { notes: `[Ajuste de preço] ${justificativa.trim()}` } : {}),
         })
         .eq("id", id)
         .eq("status", "pending"); // race-condition guard
@@ -435,6 +514,11 @@ export default function ChamadoDetalheCliente({ id }: Props) {
 
   const { status, module_count, price_estimate, city } = service;
   const isMyService = service.technician_id === userId;
+  const currentFinalPrice = finalPrice ?? price_estimate;
+  const precoMin = service.preco_min ?? 0;
+  const precoMax = service.preco_max ?? 0;
+  const hasFaixa = precoMin > 0 && precoMax > 0;
+  const foraFaixa = hasFaixa && (currentFinalPrice < precoMin || currentFinalPrice > precoMax);
 
   return (
     <div className="space-y-6">
@@ -443,7 +527,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
       <div className="mb-2">
         <h1 className="font-heading text-2xl font-bold text-brand-dark">Detalhe do chamado</h1>
         <p className="text-brand-muted text-sm mt-1">
-          {city} · {module_count} módulos · #{id.slice(0, 8).toUpperCase()}
+          {city} · {module_count} placas · #{id.slice(0, 8).toUpperCase()}
         </p>
       </div>
 
@@ -483,7 +567,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
               <div className="flex items-center gap-2.5">
                 <Sun size={16} className="text-brand-muted flex-shrink-0" />
                 <p className="text-sm text-brand-dark">
-                  <span className="font-semibold">{module_count}</span> módulos
+                  <span className="font-semibold">{module_count}</span> placas
                 </p>
               </div>
               <div className="flex items-center gap-2.5">
@@ -494,6 +578,9 @@ export default function ChamadoDetalheCliente({ id }: Props) {
               </div>
             </div>
 
+            {/* New service conditions */}
+            <ServiceDetailsGrid service={service} />
+
             {service.notes && (
               <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
                 <span className="font-semibold text-brand-dark">Obs: </span>
@@ -502,13 +589,66 @@ export default function ChamadoDetalheCliente({ id }: Props) {
             )}
           </div>
 
-          <Calculator valorServico={price_estimate} modulos={module_count} distanciaKm={10} />
+          {/* Price range approved */}
+          {hasFaixa && (
+            <div className="bg-brand-dark rounded-2xl px-5 py-4 space-y-1">
+              <p className="text-white/50 text-xs font-semibold uppercase tracking-wide">
+                💰 Faixa de preço aprovada pelo cliente
+              </p>
+              <p className="font-heading font-extrabold text-brand-green text-2xl">
+                {fmt(precoMin)} – {fmt(precoMax)}
+              </p>
+              <p className="text-white/40 text-xs">
+                Valor estimado: {fmt(price_estimate)}
+              </p>
+            </div>
+          )}
 
-          <div className="card space-y-3">
+          <Calculator valorServico={currentFinalPrice} modulos={module_count} distanciaKm={service.distancia_km ?? 10} />
+
+          {/* Price adjustment */}
+          <div className="card space-y-4">
+            <div>
+              <label className="label-base flex items-center gap-1.5">
+                <Info size={13} className="text-brand-muted" />
+                💵 Preço final que você irá cobrar
+              </label>
+              <input
+                type="number"
+                min={1}
+                step={1}
+                value={currentFinalPrice}
+                onChange={(e) => setFinalPrice(parseFloat(e.target.value) || price_estimate)}
+                className="input-base mt-1"
+              />
+              {hasFaixa && (
+                <p className={`text-xs mt-2 font-semibold ${foraFaixa ? "text-red-600" : "text-emerald-600"}`}>
+                  {foraFaixa
+                    ? `⚠️ Fora da faixa aprovada (${fmt(precoMin)} – ${fmt(precoMax)})`
+                    : `✅ Dentro da faixa aprovada (${fmt(precoMin)} – ${fmt(precoMax)})`}
+                </p>
+              )}
+            </div>
+
+            {foraFaixa && (
+              <div>
+                <label className="label-base text-red-700">
+                  ⚠️ Justificativa obrigatória (preço fora da faixa) *
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Explique o motivo do preço estar fora da faixa aprovada…"
+                  className="input-base resize-none border-red-300 focus:ring-red-400"
+                  value={justificativa}
+                  onChange={(e) => setJustificativa(e.target.value)}
+                />
+              </div>
+            )}
+
             <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
-              <span className="text-sm text-brand-muted">💵 Lucro estimado se aceitar</span>
+              <span className="text-sm text-brand-muted">Seu repasse (85%)</span>
               <span className="font-heading font-extrabold text-xl text-brand-green">
-                {fmt(price_estimate * 0.85)}
+                {fmt(currentFinalPrice * 0.85)}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">

@@ -259,7 +259,7 @@ export default function AgendaPage() {
                       <StatusBadge status={c.status} />
                     </div>
                     <div className="flex items-center gap-4 text-xs pt-2 border-t border-brand-border">
-                      <span className="text-brand-muted">🔋 {c.modulos} módulos</span>
+                      <span className="text-brand-muted">🔋 {c.modulos} placas</span>
                       <span className="font-bold text-brand-green">
                         💰 {fmt(c.valor * 0.85)} <span className="font-normal text-brand-muted">(repasse 85%)</span>
                       </span>

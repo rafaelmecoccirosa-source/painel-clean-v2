@@ -282,7 +282,7 @@ export default function RelatoriosPage() {
 
           {/* Donut faixas */}
           <div>
-            <p className="text-xs font-semibold text-brand-muted mb-3 uppercase tracking-wide">Faixas de módulos</p>
+            <p className="text-xs font-semibold text-brand-muted mb-3 uppercase tracking-wide">Faixas de placas</p>
             <DonutChart slices={FAIXAS_MODULOS} />
           </div>
 

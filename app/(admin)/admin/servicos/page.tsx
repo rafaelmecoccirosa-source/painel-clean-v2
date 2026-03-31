@@ -162,7 +162,7 @@ export default function ServicosPage() {
                 <StatusBadge status={s.status} />
               </div>
               <p className="text-xs text-brand-muted">
-                📍 {s.cidade} · {s.data} · ☀️ {s.modulos} módulos
+                📍 {s.cidade} · {s.data} · ☀️ {s.modulos} placas
               </p>
               <div className="flex items-center gap-3 text-xs">
                 <span className="font-bold text-brand-dark">
