@@ -83,28 +83,42 @@ export default function HeroSection() {
           </a>
         </div>
 
-        {/* Diferential badges — 2x2 on mobile, 4-in-a-row on desktop */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
-          {[
-            { icon: "✅", label: "Técnicos certificados"   },
-            { icon: "⚡", label: "Agendamento em minutos"  },
-            { icon: "📸", label: "Relatório fotográfico"   },
-            { icon: "💰", label: "Preço transparente"      },
-          ].map(({ icon, label }) => (
-            <div
-              key={label}
-              className="flex items-center gap-3 rounded-xl px-4 py-3 border"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                backdropFilter: "blur(4px)",
-                borderColor: "rgba(255,255,255,0.25)",
-                borderRadius: "12px",
-              }}
-            >
-              <span style={{ fontSize: "24px", lineHeight: 1 }}>{icon}</span>
-              <span className="text-white font-bold text-sm leading-tight">{label}</span>
-            </div>
-          ))}
+        {/* Trust signals — inline row with subtle dividers, no button appearance */}
+        <div className="mt-10">
+          {/* Desktop: single row with | dividers */}
+          <div className="hidden sm:flex items-center gap-5 flex-wrap">
+            {[
+              { icon: "✅", label: "Técnicos certificados"  },
+              { icon: "⚡", label: "Agendamento em minutos" },
+              { icon: "📸", label: "Relatório fotográfico"  },
+              { icon: "💰", label: "Preço transparente"     },
+            ].map(({ icon, label }, idx, arr) => (
+              <div key={label} className="flex items-center gap-5">
+                <span className="flex items-center gap-1.5">
+                  <span style={{ fontSize: "16px", lineHeight: 1 }}>{icon}</span>
+                  <span className="text-white font-medium text-[13px]">{label}</span>
+                </span>
+                {idx < arr.length - 1 && (
+                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "16px", userSelect: "none" }}>|</span>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: 2x2 grid, no dividers */}
+          <div className="sm:hidden grid grid-cols-2 gap-x-6 gap-y-3">
+            {[
+              { icon: "✅", label: "Técnicos certificados"  },
+              { icon: "⚡", label: "Agendamento em minutos" },
+              { icon: "📸", label: "Relatório fotográfico"  },
+              { icon: "💰", label: "Preço transparente"     },
+            ].map(({ icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5">
+                <span style={{ fontSize: "16px", lineHeight: 1 }}>{icon}</span>
+                <span className="text-white font-medium text-[13px]">{label}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
     </section>
