@@ -8,10 +8,11 @@ import Logo from "./Logo";
 import { createClient } from "@/lib/supabase/client";
 
 const navLinks = [
-  { href: "/admin",            label: "Dashboard",  emoji: "📊" },
-  { href: "/admin/usuarios",   label: "Usuários",   emoji: "👥" },
-  { href: "/admin/servicos",   label: "Serviços",   emoji: "🔧" },
-  { href: "/admin/relatorios", label: "Relatórios", emoji: "📈" },
+  { href: "/admin",             label: "Dashboard",  emoji: "📊" },
+  { href: "/admin/usuarios",    label: "Usuários",   emoji: "👥" },
+  { href: "/admin/servicos",    label: "Serviços",   emoji: "🔧" },
+  { href: "/admin/pagamentos",  label: "Pagamentos", emoji: "💰" },
+  { href: "/admin/relatorios",  label: "Relatórios", emoji: "📈" },
 ];
 
 const NOTIFICACOES = [
