@@ -319,7 +319,7 @@ function ServicoCard({
 
       {/* Progress bar */}
       {s.status !== "cancelled" && (
-        <ServiceProgressBar status={s.status} paymentStatus={payStatus} />
+        <ServiceProgressBar status={s.status} paymentStatus={payStatus} role="cliente" />
       )}
 
       <div className="space-y-1 text-xs text-brand-muted">
