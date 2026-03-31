@@ -12,9 +12,11 @@ import {
   type PaymentStatus,
   STATUS_LABELS,
   STATUS_BADGE,
+  calcPrice,
 } from "@/lib/types";
 import PaymentCard from "@/components/cliente/PaymentCard";
 import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
+import { Copy, Check, CheckCircle2 } from "lucide-react";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -28,11 +30,132 @@ function fmtDate(iso: string) {
   });
 }
 
-function StatusBadge({ status }: { status: ServiceRequestStatus }) {
+/** Combined badge that reflects payment state for pending services */
+function StatusBadge({
+  status,
+  paymentStatus,
+}: {
+  status: ServiceRequestStatus;
+  paymentStatus: PaymentStatus;
+}) {
+  if (status === "pending") {
+    if (!paymentStatus || paymentStatus === "pending") {
+      return (
+        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap bg-red-100 text-red-700">
+          🔴 Aguardando pagamento
+        </span>
+      );
+    }
+    if (paymentStatus === "awaiting_confirmation") {
+      return (
+        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap bg-yellow-100 text-yellow-700">
+          🟡 Pagamento em análise
+        </span>
+      );
+    }
+    if (paymentStatus === "confirmed") {
+      return (
+        <span className="text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap bg-blue-100 text-blue-700">
+          🔵 Aguardando técnico
+        </span>
+      );
+    }
+  }
   return (
     <span className={`text-[11px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap ${STATUS_BADGE[status]}`}>
       {STATUS_LABELS[status]}
     </span>
+  );
+}
+
+// ── Inline PIX Pay Modal ──────────────────────────────────────────────────────
+
+const PIX_KEY  = "pix@painelclean.com.br";
+const PIX_NAME = "Painel Clean Ltda";
+
+function InlinePixCard({
+  serviceId,
+  amount,
+  onSuccess,
+}: {
+  serviceId: string;
+  amount: number;
+  onSuccess: () => void;
+}) {
+  const [copied, setCopied]   = useState(false);
+  const [note, setNote]       = useState("");
+  const [saving, setSaving]   = useState(false);
+  const supabase = createClient();
+
+  async function handlePaid() {
+    setSaving(true);
+    try {
+      await supabase
+        .from("service_requests")
+        .update({
+          payment_status: "awaiting_confirmation",
+          paid_at: new Date().toISOString(),
+        })
+        .eq("id", serviceId);
+      onSuccess();
+    } catch {
+      setSaving(false);
+    }
+  }
+
+  function copyKey() {
+    navigator.clipboard.writeText(PIX_KEY).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
+      <p className="text-white/60 text-xs font-semibold uppercase tracking-widest">Pagar via PIX</p>
+
+      <div className="text-center">
+        <p className="font-heading font-bold text-brand-green text-3xl">{fmt(amount)}</p>
+      </div>
+
+      <div className="bg-white/5 rounded-xl p-3 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-white/50 text-xs">Chave PIX</p>
+            <p className="text-white font-mono text-sm font-semibold truncate">{PIX_KEY}</p>
+          </div>
+          <button
+            type="button"
+            onClick={copyKey}
+            className="flex items-center gap-1 bg-brand-green hover:bg-brand-green/90 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors flex-shrink-0"
+          >
+            {copied ? <Check size={12} /> : <Copy size={12} />}
+            {copied ? "Copiado!" : "Copiar"}
+          </button>
+        </div>
+        <div>
+          <p className="text-white/50 text-xs">Beneficiário</p>
+          <p className="text-white text-sm font-semibold">{PIX_NAME}</p>
+        </div>
+      </div>
+
+      <textarea
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        placeholder="ID da transação (opcional)"
+        rows={2}
+        className="w-full rounded-xl bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-1 focus:ring-brand-green resize-none"
+      />
+
+      <button
+        type="button"
+        onClick={handlePaid}
+        disabled={saving}
+        className="w-full flex items-center justify-center gap-2 bg-brand-green hover:bg-brand-green/90 text-white font-semibold text-sm py-3 rounded-xl transition-colors disabled:opacity-60"
+      >
+        <CheckCircle2 size={16} />
+        {saving ? "Registrando…" : "Já paguei ✅"}
+      </button>
+    </div>
   );
 }
 
@@ -158,15 +281,22 @@ function RatingModal({ serviceId, technicianId, onClose, onSuccess, showToast }:
 function ServicoCard({
   s,
   onCancel,
+  onCancelRefund,
   onRate,
   existingRating,
 }: {
   s: ServiceRequestDB;
   onCancel: (id: string) => void;
+  onCancelRefund: (id: string) => void;
   onRate: (id: string, technicianId: string | null) => void;
   existingRating: number | null;
 }) {
   const [payStatus, setPayStatus] = useState<PaymentStatus>(s.payment_status ?? "pending");
+  const [showPix,   setShowPix]   = useState(false);
+
+  const needsPayment = s.status === "pending" && payStatus === "pending";
+  const paymentSent  = s.status === "pending" &&
+    (payStatus === "awaiting_confirmation" || payStatus === "confirmed");
 
   return (
     <div className="bg-white border border-brand-border rounded-2xl p-5 shadow-sm space-y-4">
@@ -179,7 +309,7 @@ function ServicoCard({
             {s.module_count} módulo{s.module_count !== 1 ? "s" : ""} — {s.city}
           </p>
         </div>
-        <StatusBadge status={s.status} />
+        <StatusBadge status={s.status} paymentStatus={payStatus} />
       </div>
 
       {/* Progress bar */}
@@ -193,8 +323,50 @@ function ServicoCard({
         {s.price_estimate > 0 && (
           <p className="font-semibold text-brand-dark">💰 {fmt(s.price_estimate)}</p>
         )}
-        {s.notes && <p className="italic">"{s.notes}"</p>}
       </div>
+
+      {/* Pending + unpaid: show PIX inline or "Pagar agora" button */}
+      {needsPayment && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+            <span className="text-red-500 text-sm">⏰</span>
+            <p className="text-xs font-medium text-red-700">
+              Realize o pagamento para confirmar seu agendamento
+            </p>
+          </div>
+          {showPix ? (
+            <InlinePixCard
+              serviceId={s.id}
+              amount={s.price_estimate}
+              onSuccess={() => {
+                setPayStatus("awaiting_confirmation");
+                setShowPix(false);
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => setShowPix(true)}
+              className="w-full flex items-center justify-center gap-2 bg-brand-green hover:bg-brand-green/90 text-white font-semibold text-sm py-2.5 rounded-xl transition-colors"
+            >
+              💰 Pagar agora via PIX
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Pending + awaiting confirmation */}
+      {s.status === "pending" && payStatus === "awaiting_confirmation" && (
+        <p className="text-xs text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-3 py-2 font-medium">
+          🟡 Pagamento em análise — seu agendamento será confirmado em até 24h.
+        </p>
+      )}
+
+      {/* Pending + confirmed → waiting for technician */}
+      {s.status === "pending" && payStatus === "confirmed" && (
+        <p className="text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2 font-medium">
+          🔵 Pagamento confirmado! Estamos buscando um técnico na sua cidade.
+        </p>
+      )}
 
       {s.status === "accepted" && (
         <div className="space-y-2">
@@ -221,7 +393,7 @@ function ServicoCard({
 
       {s.status === "completed" && (
         <div className="space-y-3">
-          {/* Payment card */}
+          {/* Payment card — shows PIX info until payment confirmed, then progress */}
           <PaymentCard
             serviceId={s.id}
             amount={s.price_estimate}
@@ -261,12 +433,22 @@ function ServicoCard({
         </div>
       )}
 
-      {s.status === "pending" && (
+      {/* Cancel buttons */}
+      {needsPayment && (
         <button
           onClick={() => onCancel(s.id)}
           className="w-full text-xs font-semibold text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 rounded-xl py-2 transition-colors"
         >
           Cancelar solicitação
+        </button>
+      )}
+
+      {paymentSent && (
+        <button
+          onClick={() => onCancelRefund(s.id)}
+          className="w-full text-xs font-semibold text-red-600 hover:text-red-700 border border-red-200 hover:border-red-400 rounded-xl py-2 transition-colors"
+        >
+          Cancelar e solicitar reembolso
         </button>
       )}
     </div>
@@ -350,7 +532,11 @@ export default function ClienteHomePage() {
       const supabase = createClient();
       const { error } = await supabase
         .from("service_requests")
-        .update({ status: "cancelled", cancelled_at: new Date().toISOString() })
+        .update({
+          status: "cancelled",
+          cancelled_at: new Date().toISOString(),
+          cancellation_reason: "Cancelado pelo cliente",
+        })
         .eq("id", id)
         .eq("status", "pending");
 
@@ -358,6 +544,33 @@ export default function ClienteHomePage() {
         showToast("Erro ao cancelar. Tente novamente.", "error");
       } else {
         showToast("Solicitação cancelada.", "info");
+        setServices((prev) =>
+          prev.map((s) => s.id === id ? { ...s, status: "cancelled" as ServiceRequestStatus } : s)
+        );
+      }
+    } catch {
+      showToast("Erro inesperado.", "error");
+    }
+  }
+
+  async function handleCancelRefund(id: string) {
+    if (!confirm("Cancelar este serviço e solicitar reembolso?")) return;
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from("service_requests")
+        .update({
+          status: "cancelled",
+          cancelled_at: new Date().toISOString(),
+          cancellation_reason: "Cancelado pelo cliente — reembolso solicitado",
+        })
+        .eq("id", id)
+        .eq("status", "pending");
+
+      if (error) {
+        showToast("Erro ao cancelar. Tente novamente.", "error");
+      } else {
+        showToast("Serviço cancelado. O reembolso será processado em até 48h.", "info");
         setServices((prev) =>
           prev.map((s) => s.id === id ? { ...s, status: "cancelled" as ServiceRequestStatus } : s)
         );
@@ -484,6 +697,7 @@ export default function ClienteHomePage() {
               key={s.id}
               s={s}
               onCancel={handleCancel}
+              onCancelRefund={handleCancelRefund}
               onRate={handleOpenRating}
               existingRating={reviews[s.id] ?? null}
             />

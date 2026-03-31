@@ -182,11 +182,11 @@ export default async function AdminDashboardPage() {
           {awaitingPaymentCount > 0 && (
             <Link
               href="/admin/pagamentos"
-              className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-white border border-amber-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
+              className="flex items-center gap-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
             >
               <span>💰</span>
               <span>
-                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação
+                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação — clientes esperando
               </span>
               <ArrowRight size={12} className="opacity-50 ml-auto" />
             </Link>

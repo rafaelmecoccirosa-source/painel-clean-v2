@@ -116,15 +116,24 @@ Subtítulo no header: "Limpeza de Placa Solar".
 
 ## Fluxo principal do serviço
 
+> ⚠️ **Fluxo atualizado: Pagamento ANTECIPADO** — o técnico só vê o chamado após o pagamento ser confirmado pelo admin.
+
 ```
 1. Cliente solicita → informa cidade, endereço, nº módulos, data, período
-2. Sistema faz matching → notifica técnicos disponíveis na região
-3. Técnico aceita → cliente é notificado via WhatsApp
-4. Técnico executa → preenche relatório fotográfico (antes/depois + diagnóstico)
-5. Técnico conclui → cliente recebe relatório e é cobrado
-6. Pagamento confirmado → PIX automático para o técnico (85%)
-7. Cliente avalia → feedback visível no perfil do técnico
+2. Sistema cria serviço com status = 'pending' + payment_status = 'pending'
+3. Cliente paga via PIX → payment_status = 'awaiting_confirmation'
+4. Admin confirma pagamento → payment_status = 'confirmed'
+   └─ AGORA o chamado aparece na lista de disponíveis para os técnicos
+5. Técnico aceita → status = 'accepted', cliente é notificado via WhatsApp
+6. Técnico inicia → status = 'in_progress'
+7. Técnico executa → preenche relatório fotográfico (antes/depois + diagnóstico)
+8. Técnico conclui → status = 'completed'
+9. Admin libera repasse → payment_status = 'released', PIX para o técnico (85%)
+10. Cliente avalia → feedback visível no perfil do técnico
 ```
+
+**Regra crítica:** O técnico NUNCA vê chamados com `payment_status != 'confirmed'`.
+Isso elimina o risco de calote — o técnico nunca sai de casa sem pagamento confirmado.
 
 ---
 
@@ -467,3 +476,21 @@ CREATE POLICY "Admin can read all servicos"
   );
 ```
 - Repasse box: fundo `green-dark`, valor final em `green-vibe`
+
+---
+
+## Barra de Progresso (ServiceProgressBar)
+
+Nova ordem dos passos (fluxo pós pagamento antecipado):
+```
+Solicitado → Pago → Aceito → Em andamento → Concluído → Repasse
+```
+
+Mapeamento de estados:
+- `pending + payment_status=pending`               → passo 1 (Solicitado) atual
+- `pending + payment_status=awaiting_confirmation` → passo 1 done, passo 2 (Pago) atual
+- `pending + payment_status=confirmed`             → passo 2 done, passo 3 (Aceito) atual
+- `accepted`                                       → passo 3 done, passo 4 (Em andamento) atual
+- `in_progress`                                    → passo 4 done, passo 5 (Concluído) atual
+- `completed`                                      → passo 5 done, passo 6 (Repasse) atual
+- `payment_status=released`                        → todos os passos concluídos

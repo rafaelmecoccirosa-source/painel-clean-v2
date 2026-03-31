@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Copy, Check, CheckCircle2 } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
@@ -13,6 +15,9 @@ const HORARIOS = [
   { value: "Tarde (13h-17h)",  label: "🌇 Tarde (13h–17h)" },
   { value: "Qualquer horário", label: "🕐 Qualquer horário" },
 ];
+
+const PIX_KEY  = "pix@painelclean.com.br";
+const PIX_NAME = "Painel Clean Ltda";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -31,20 +36,187 @@ function minDate() {
   return d.toISOString().split("T")[0];
 }
 
-export default function SolicitarPage() {
+// ── PIX Payment Screen ────────────────────────────────────────────────────────
+
+function PixPaymentScreen({
+  serviceId,
+  amount,
+  onPaid,
+}: {
+  serviceId: string;
+  amount: number;
+  onPaid: () => void;
+}) {
   const router = useRouter();
+  const [copied, setCopied]           = useState(false);
+  const [transactionNote, setNote]    = useState("");
+  const [submitting, setSubmitting]   = useState(false);
   const { toast, show: showToast, hide: hideToast } = useToast();
 
-  const [city, setCity] = useState("");
-  const [address, setAddress] = useState("");
+  async function handlePaid() {
+    setSubmitting(true);
+    try {
+      const supabase = createClient();
+      await supabase
+        .from("service_requests")
+        .update({
+          payment_status: "awaiting_confirmation",
+          paid_at: new Date().toISOString(),
+          notes: transactionNote.trim()
+            ? `[Transação PIX: ${transactionNote.trim()}]`
+            : undefined,
+        })
+        .eq("id", serviceId);
+
+      showToast(
+        "Pagamento informado! Seu agendamento será confirmado em até 24h.",
+        "success"
+      );
+      setTimeout(() => router.push("/cliente"), 2000);
+    } catch {
+      showToast("Erro ao registrar pagamento. Tente novamente.", "error");
+      setSubmitting(false);
+    }
+  }
+
+  function copyKey() {
+    navigator.clipboard.writeText(PIX_KEY).catch(() => {});
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="page-container max-w-lg mx-auto space-y-6">
+      {toast && <Toast key={toast.key} message={toast.message} type={toast.type} onClose={hideToast} />}
+
+      {/* Success header */}
+      <div className="text-center space-y-2">
+        <div className="h-16 w-16 rounded-full bg-brand-green/10 flex items-center justify-center mx-auto">
+          <CheckCircle2 size={36} className="text-brand-green" />
+        </div>
+        <h1 className="font-heading font-bold text-brand-dark text-xl">
+          Solicitação criada com sucesso!
+        </h1>
+        <p className="text-brand-muted text-sm">
+          Para confirmar seu agendamento, realize o pagamento via PIX
+        </p>
+      </div>
+
+      {/* Expiry notice */}
+      <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-amber-700 text-sm">
+        <span>⏰</span>
+        <span className="font-medium">Este pedido expira em 24h se o pagamento não for confirmado</span>
+      </div>
+
+      {/* PIX card */}
+      <div className="bg-brand-dark rounded-2xl p-6 space-y-5">
+        <div className="text-center">
+          <p className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">
+            Valor do serviço
+          </p>
+          <p className="font-heading font-bold text-brand-green text-4xl">
+            {fmt(amount)}
+          </p>
+        </div>
+
+        <div className="bg-white/5 rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-white/50 text-xs mb-0.5">Chave PIX</p>
+              <p className="text-white font-mono text-sm font-semibold truncate">{PIX_KEY}</p>
+            </div>
+            <button
+              type="button"
+              onClick={copyKey}
+              className="flex items-center gap-1.5 bg-brand-green hover:bg-brand-green/90 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-colors flex-shrink-0"
+            >
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              {copied ? "Copiado!" : "Copiar chave"}
+            </button>
+          </div>
+          <div>
+            <p className="text-white/50 text-xs mb-0.5">Beneficiário</p>
+            <p className="text-white text-sm font-semibold">{PIX_NAME}</p>
+          </div>
+        </div>
+
+        {/* Instructions */}
+        <div className="space-y-2">
+          {[
+            "Abra o app do seu banco",
+            `Faça um PIX no valor exato de ${fmt(amount)}`,
+            "Volte aqui e confirme o pagamento",
+          ].map((step, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="h-6 w-6 rounded-full bg-brand-green flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                {i + 1}
+              </div>
+              <p className="text-white/80 text-sm">{step}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Transaction note */}
+      <div>
+        <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">
+          ID da transação ou observação <span className="font-normal">(opcional)</span>
+        </label>
+        <textarea
+          value={transactionNote}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder="Cole o ID da transação ou qualquer observação sobre o pagamento…"
+          rows={2}
+          className="w-full rounded-xl border border-brand-border bg-white px-4 py-2.5 text-sm text-brand-dark placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-green resize-none"
+        />
+      </div>
+
+      <Button
+        type="button"
+        size="lg"
+        className="w-full"
+        onClick={handlePaid}
+        loading={submitting}
+      >
+        <CheckCircle2 size={18} />
+        {submitting ? "Registrando…" : "Já paguei ✅"}
+      </Button>
+
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={() => router.push("/cliente")}
+          className="text-sm text-brand-muted hover:text-brand-dark underline underline-offset-2 transition-colors"
+        >
+          Pagar depois
+        </button>
+        <p className="text-xs text-brand-muted mt-1">
+          O serviço não será agendado até o pagamento ser confirmado.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Solicitar Form ────────────────────────────────────────────────────────────
+
+export default function SolicitarPage() {
+  const { toast, show: showToast, hide: hideToast } = useToast();
+
+  const [city, setCity]               = useState("");
+  const [address, setAddress]         = useState("");
   const [moduleCount, setModuleCount] = useState("");
   const [preferredDate, setPreferredDate] = useState("");
   const [preferredTime, setPreferredTime] = useState("Qualquer horário");
-  const [notes, setNotes] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [notes, setNotes]             = useState("");
+  const [submitting, setSubmitting]   = useState(false);
 
-  const numModules = parseInt(moduleCount) || 0;
-  const price = numModules > 0 ? calcPrice(numModules) : null;
+  // After submit, show PIX screen
+  const [createdId,    setCreatedId]    = useState<string | null>(null);
+  const [createdPrice, setCreatedPrice] = useState<number | null>(null);
+
+  const numModules  = parseInt(moduleCount) || 0;
+  const price       = numModules > 0 ? calcPrice(numModules) : null;
   const isSobConsulta = numModules > 60;
   const showPreview = numModules > 0 || city.length > 0;
 
@@ -69,34 +241,49 @@ export default function SolicitarPage() {
         return;
       }
 
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from("service_requests")
         .insert({
-          client_id: user.id,
+          client_id:      user.id,
           city,
-          address: address.trim(),
-          module_count: numModules,
+          address:        address.trim(),
+          module_count:   numModules,
           price_estimate: price,
           preferred_date: preferredDate,
           preferred_time: preferredTime,
-          notes: notes.trim() || null,
-          status: "pending",
-        });
+          notes:          notes.trim() || null,
+          status:         "pending",
+          payment_status: "pending",
+        })
+        .select("id")
+        .single();
 
-      if (error) {
+      if (error || !data) {
         console.error("Supabase insert error:", error);
         showToast("Erro ao enviar solicitação. Tente novamente.", "error");
         setSubmitting(false);
         return;
       }
 
-      showToast("Solicitação enviada! Você será notificado quando um técnico aceitar.", "success");
-      setTimeout(() => router.push("/cliente"), 1800);
+      // Transition to PIX payment screen
+      setCreatedId(data.id);
+      setCreatedPrice(price);
     } catch (err) {
       console.error(err);
       showToast("Erro inesperado. Tente novamente.", "error");
       setSubmitting(false);
     }
+  }
+
+  // Show PIX screen after successful insert
+  if (createdId && createdPrice) {
+    return (
+      <PixPaymentScreen
+        serviceId={createdId}
+        amount={createdPrice}
+        onPaid={() => {}}
+      />
+    );
   }
 
   return (
@@ -114,7 +301,7 @@ export default function SolicitarPage() {
         🧹 Solicitar limpeza
       </h1>
       <p className="text-brand-muted text-sm mb-8">
-        Preencha as informações abaixo e receba propostas de técnicos certificados na sua região.
+        Preencha as informações abaixo e realize o pagamento via PIX para confirmar seu agendamento.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -196,7 +383,7 @@ export default function SolicitarPage() {
                   <p className="font-heading font-bold text-brand-green text-base">
                     {price ? fmt(price) : "—"}
                   </p>
-                  <p className="text-white/50 text-xs mt-0.5">valor estimado</p>
+                  <p className="text-white/50 text-xs mt-0.5">valor a pagar via PIX</p>
                 </div>
               </div>
             </div>
@@ -281,8 +468,19 @@ export default function SolicitarPage() {
             ))}
           </div>
           <p className="text-xs text-brand-muted mt-3">
-            * Repasse ao técnico: 85% do valor. Pagamento somente após conclusão.
+            * Pagamento antecipado via PIX. O técnico só é acionado após confirmação do pagamento.
           </p>
+        </div>
+
+        {/* PIX info banner */}
+        <div className="flex items-start gap-3 bg-brand-light border border-brand-border rounded-xl px-4 py-3">
+          <span className="text-xl">💰</span>
+          <div>
+            <p className="text-sm font-semibold text-brand-dark">Pagamento antecipado via PIX</p>
+            <p className="text-xs text-brand-muted mt-0.5">
+              Após enviar a solicitação, você receberá a chave PIX para pagamento. Seu agendamento é confirmado em até 24h após o pagamento.
+            </p>
+          </div>
         </div>
 
         <Button
@@ -292,7 +490,7 @@ export default function SolicitarPage() {
           loading={submitting}
           disabled={isSobConsulta || submitting}
         >
-          {submitting ? "Enviando…" : "🚀 Enviar solicitação"}
+          {submitting ? "Criando solicitação…" : "🚀 Enviar solicitação e pagar via PIX"}
         </Button>
       </form>
     </div>

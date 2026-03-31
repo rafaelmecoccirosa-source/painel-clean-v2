@@ -66,6 +66,7 @@ export default function ChamadosPage() {
           .from("service_requests")
           .select("*")
           .eq("status", "pending")
+          .eq("payment_status", "confirmed")  // Only show paid+confirmed requests
           .order("preferred_date", { ascending: true }),
         supabase
           .from("service_requests")
@@ -164,6 +165,13 @@ export default function ChamadosPage() {
             <ArrowRight size={18} className="text-brand-muted group-hover:text-brand-green transition-colors" />
           </div>
         </div>
+
+        {/* Payment confirmed badge for available chamados */}
+        {isAvailable && (
+          <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 w-fit">
+            💰 Pagamento confirmado
+          </span>
+        )}
 
         {/* Progress bar for all non-pending statuses */}
         {!isAvailable && (
