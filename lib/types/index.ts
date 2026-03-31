@@ -53,6 +53,13 @@ export interface ServiceRequestDB {
   latitude?: number | null;
   longitude?: number | null;
   location_description?: string | null;
+  // Dynamic pricing columns (added via migration 20260331_pricing_columns.sql)
+  tipo_instalacao?: "solo" | "telhado_padrao" | "telhado_dificil" | null;
+  nivel_sujeira?: "normal" | "pesada" | null;
+  nivel_acesso?: "normal" | "dificil" | null;
+  distancia_km?: number | null;
+  preco_min?: number | null;
+  preco_max?: number | null;
 }
 
 export const STATUS_LABELS: Record<ServiceRequestStatus, string> = {

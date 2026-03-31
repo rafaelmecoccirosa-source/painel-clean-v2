@@ -8,10 +8,10 @@ interface Fatia {
 }
 
 const fatias: Fatia[] = [
-  { label: "Até 10 módulos",  pct: 30, color: "#CBD5E1", faixa: "R$ 180" },
-  { label: "11–30 módulos",   pct: 45, color: "#3DC45A", faixa: "R$ 300" },
-  { label: "31–60 módulos",   pct: 20, color: "#1B3A2D", faixa: "R$ 520" },
-  { label: "61+ módulos",     pct: 5,  color: "#F59E0B", faixa: "Consulta" },
+  { label: "Até 10 placas",  pct: 30, color: "#CBD5E1", faixa: "R$ 180" },
+  { label: "11–30 placas",   pct: 45, color: "#3DC45A", faixa: "R$ 300" },
+  { label: "31–60 placas",   pct: 20, color: "#1B3A2D", faixa: "R$ 520" },
+  { label: "61+ placas",     pct: 5,  color: "#F59E0B", faixa: "Consulta" },
 ];
 
 // r=45, cx=60, cy=60 → C = 2π×45 ≈ 282.74

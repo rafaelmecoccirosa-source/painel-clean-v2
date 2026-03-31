@@ -116,7 +116,7 @@ export default function ClienteServicoPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-brand-dark">Detalhes do serviço</h1>
         <p className="text-brand-muted text-sm mt-1">
-          {service.city} · {service.module_count} módulos · #{id.slice(0, 8).toUpperCase()}
+          {service.city} · {service.module_count} placas · #{id.slice(0, 8).toUpperCase()}
         </p>
       </div>
 
@@ -150,7 +150,7 @@ export default function ClienteServicoPage() {
           <div className="flex items-center gap-2.5">
             <Sun size={15} className="text-brand-muted flex-shrink-0" />
             <p className="text-sm text-brand-dark">
-              <span className="font-semibold">{service.module_count}</span> módulos
+              <span className="font-semibold">{service.module_count}</span> placas
             </p>
           </div>
           <div className="flex items-center gap-2.5">

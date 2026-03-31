@@ -342,6 +342,30 @@ export default async function AdminDashboardPage() {
       {/* ── Seção 4: Donut distribuição por faixa ── */}
       <AdminDonut />
 
+      {/* ── Seção 5b: Métricas de precificação ── */}
+      <div className="bg-white border border-brand-border rounded-2xl p-6 shadow-sm space-y-5">
+        <h2 className="font-heading font-bold text-brand-dark text-base">
+          📊 Métricas de precificação
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { label: "Ticket médio",           value: fmt(347),  sub: "últimos 30 dias",        color: "text-brand-dark"   },
+            { label: "% aceitas na faixa",     value: "87%",     sub: "dentro de preco_min/max", color: "text-emerald-600" },
+            { label: "Tempo médio aceitação",  value: "1h 24m",  sub: "do pagamento ao técnico", color: "text-brand-dark"   },
+            { label: "% fora da faixa",        value: "13%",     sub: "com justificativa",       color: "text-orange-500"  },
+          ].map(({ label, value, sub, color }) => (
+            <div key={label} className="bg-brand-bg rounded-2xl p-4 space-y-1">
+              <p className={`font-heading font-bold text-2xl ${color}`}>{value}</p>
+              <p className="text-xs font-semibold text-brand-dark leading-tight">{label}</p>
+              <p className="text-[10px] text-brand-muted">{sub}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-[10px] text-brand-muted">
+          * Dados demonstrativos — calculados automaticamente quando houver histórico real no banco.
+        </p>
+      </div>
+
       {/* ── Seção 6: Últimos serviços ── */}
       <div className="card !p-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between flex-wrap gap-2">
@@ -366,7 +390,7 @@ export default async function AdminDashboardPage() {
           <table className="w-full text-xs">
             <thead className="bg-brand-bg">
               <tr>
-                {["Data", "Cidade", "Cliente", "Técnico", "Módulos", "Valor", "Comissão", "Status", "Nota"].map(
+                {["Data", "Cidade", "Cliente", "Técnico", "Placas", "Valor", "Comissão", "Status", "Nota"].map(
                   (h) => (
                     <th
                       key={h}
@@ -415,7 +439,7 @@ export default async function AdminDashboardPage() {
                 <StatusBadge status={s.status} />
               </div>
               <p className="text-xs text-brand-muted">
-                📍 {s.cidade} · {s.data} · ☀️ {s.modulos} módulos
+                📍 {s.cidade} · {s.data} · ☀️ {s.modulos} placas
               </p>
               <div className="flex items-center gap-3 text-xs">
                 <span className="font-bold text-brand-dark">

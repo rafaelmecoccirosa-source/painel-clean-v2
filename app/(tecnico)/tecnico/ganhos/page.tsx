@@ -171,7 +171,7 @@ export default function GanhosPage() {
             <thead className="bg-brand-bg">
               <tr>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Data</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Local / módulos</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Local / placas</th>
                 <th className="text-right px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Bruto</th>
                 <th className="text-right px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Comissão</th>
                 <th className="text-right px-6 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Repasse</th>
@@ -184,7 +184,7 @@ export default function GanhosPage() {
                   <td className="px-6 py-4 text-brand-muted whitespace-nowrap">{p.data}</td>
                   <td className="px-6 py-4">
                     <p className="font-medium text-brand-dark">{p.endereco}</p>
-                    <p className="text-xs text-brand-muted mt-0.5">{p.modulos} módulos</p>
+                    <p className="text-xs text-brand-muted mt-0.5">{p.modulos} placas</p>
                   </td>
                   <td className="px-6 py-4 text-right text-brand-dark font-medium">
                     {fmt(p.bruto)}
@@ -216,7 +216,7 @@ export default function GanhosPage() {
               <div className="min-w-0">
                 <p className="text-xs text-brand-muted mb-0.5">{p.data}</p>
                 <p className="font-medium text-brand-dark text-sm truncate">{p.endereco}</p>
-                <p className="text-xs text-brand-muted mt-0.5">{p.modulos} módulos</p>
+                <p className="text-xs text-brand-muted mt-0.5">{p.modulos} placas</p>
                 <div className="flex items-center gap-1.5 mt-2">
                   <Smartphone size={11} className="text-brand-green" />
                   <span className="text-xs font-semibold text-brand-green">Pago · PIX</span>

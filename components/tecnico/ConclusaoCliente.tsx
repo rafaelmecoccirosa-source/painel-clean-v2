@@ -31,7 +31,7 @@ interface ConclusaoClienteProps {
 type GeneralCondition = "bom" | "regular" | "necessita_atencao";
 
 const CHECKLIST_ITEMS = [
-  { key: "visual_inspection",  label: "Inspeção visual dos módulos" },
+  { key: "visual_inspection",  label: "Inspeção visual das placas" },
   { key: "connector_check",    label: "Verificação de conectores" },
   { key: "cleaning_complete",  label: "Limpeza concluída" },
   { key: "damage_test",        label: "Teste visual de danos" },
@@ -362,7 +362,7 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
 
         <div>
           <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">
-            Condição geral dos módulos
+            Condição geral das placas
           </label>
           <div className="grid grid-cols-3 gap-2">
             {CONDITION_OPTIONS.map(({ value, label, color }) => (

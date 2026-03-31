@@ -19,7 +19,7 @@ function fmtDate(iso: string) {
 }
 
 const CHECKLIST_LABELS: Record<string, string> = {
-  visual_inspection: "Inspeção visual dos módulos",
+  visual_inspection: "Inspeção visual das placas",
   connector_check:   "Verificação de conectores",
   cleaning_complete: "Limpeza concluída",
   damage_test:       "Teste visual de danos",
@@ -223,7 +223,7 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
               <span className="font-mono">{item.id.slice(0, 8).toUpperCase()}</span>
             </div>
             <p className="font-semibold text-brand-dark">
-              {item.module_count} módulo{item.module_count !== 1 ? "s" : ""} — {item.city}
+              {item.module_count} placa{item.module_count !== 1 ? "s" : ""} — {item.city}
             </p>
           </div>
           <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 whitespace-nowrap">
@@ -241,7 +241,11 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
           <span className="flex items-center gap-1">
             <Clock size={11} /> {item.completed_at ? fmtDate(item.completed_at) : fmtDate(item.preferred_date)}
           </span>
-          <span className="font-semibold text-brand-dark">{fmt(item.price_estimate)}</span>
+          <span className="font-semibold text-brand-dark">
+            {item.preco_min && item.preco_max && item.preco_min > 0
+              ? `${fmt(item.preco_min)} a ${fmt(item.preco_max)}`
+              : fmt(item.price_estimate)}
+          </span>
           <span>{item.preferred_time}</span>
         </div>
 

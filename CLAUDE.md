@@ -530,3 +530,80 @@ ALTER TABLE service_requests
 | Jaraguá do Sul | -26.4854 | -49.0713 |
 | Pomerode | -26.7407 | -49.1764 |
 | Florianópolis | -27.5954 | -48.5480 |
+
+---
+
+## Algoritmo de Precificação Dinâmica
+
+Arquivo: `lib/pricing.ts`
+
+### Constantes
+
+```typescript
+PRECO_POR_PLACA = 15      // R$/placa base
+PRECO_MINIMO    = 250     // mínimo absoluto por visita
+CUSTO_KM        = 2       // R$/km de deslocamento
+BOOST_MVP       = 1.15    // ajuste de mercado (+15%) no MVP
+PISO_VALOR_POR_PLACA = 10 // garante mínimo de R$ 10/placa
+```
+
+### Multiplicadores
+
+| Parâmetro | Valor | Multiplicador |
+|-----------|-------|---------------|
+| `solo` | Instalação no solo | 1.0 |
+| `telhado_padrao` | Telhado acessível | 1.15 |
+| `telhado_dificil` | Telhado difícil/2 andares | 1.35 |
+| `normal` (sujeira) | Sujeira leve | 1.0 |
+| `pesada` (sujeira) | Sujeira pesada | 1.20 |
+| `normal` (acesso) | Acesso fácil | 1.0 |
+| `dificil` (acesso) | Acesso difícil | 1.15 |
+
+### Faixa de preço (±15%)
+
+O `calcularPreco()` retorna `precoMin`, `precoEstimado` e `precoMax`.
+A faixa é ±15% do estimado, sempre respeitando o `PRECO_MINIMO`.
+
+### Colunas na tabela `service_requests` (migration `20260331_pricing_columns.sql`)
+
+```sql
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS tipo_instalacao VARCHAR(20)
+    CHECK (tipo_instalacao IN ('solo', 'telhado_padrao', 'telhado_dificil'));
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS nivel_sujeira VARCHAR(10)
+    CHECK (nivel_sujeira IN ('normal', 'pesada'));
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS nivel_acesso VARCHAR(10)
+    CHECK (nivel_acesso IN ('normal', 'dificil'));
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS distancia_km DECIMAL(6,1);
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS preco_min DECIMAL(10,2);
+
+ALTER TABLE service_requests
+  ADD COLUMN IF NOT EXISTS preco_max DECIMAL(10,2);
+```
+
+### Nomenclatura UI
+
+A palavra "módulos" foi renomeada para **"placas"** em toda a interface do usuário
+(dashboards, cards, tabelas, formulários). Colunas do banco de dados permanecem como
+`module_count` para compatibilidade.
+
+### Fluxo no cliente (`/cliente/solicitar`)
+
+1. Cliente seleciona: tipo de instalação (3 opções), nível de sujeira (2 opções), nível de acesso (2 opções), distância estimada
+2. Preview em tempo real mostra faixa de preço (preco_min a preco_max)
+3. Submit salva: `tipo_instalacao`, `nivel_sujeira`, `nivel_acesso`, `distancia_km`, `preco_min`, `preco_max`
+
+### Fluxo no técnico (`/tecnico/chamados/[id]`)
+
+- Técnico vê a faixa aprovada pelo cliente
+- Pode ajustar o preço final dentro da faixa
+- Se fora da faixa: deve preencher justificativa obrigatória
+- Preço final salvo ao aceitar o chamado

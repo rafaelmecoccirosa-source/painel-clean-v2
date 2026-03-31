@@ -12,8 +12,13 @@ import {
   type PaymentStatus,
   STATUS_LABELS,
   STATUS_BADGE,
-  calcPrice,
 } from "@/lib/types";
+
+const TIPO_LABEL: Record<string, string> = {
+  solo:             "Solo",
+  telhado_padrao:   "Telhado padrão",
+  telhado_dificil:  "Telhado difícil",
+};
 import PaymentCard from "@/components/cliente/PaymentCard";
 import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
 import { Copy, Check, CheckCircle2 } from "lucide-react";
@@ -306,7 +311,7 @@ function ServicoCard({
             #{s.id.slice(0, 8).toUpperCase()}
           </p>
           <p className="font-semibold text-brand-dark">
-            {s.module_count} módulo{s.module_count !== 1 ? "s" : ""} — {s.city}
+            {s.module_count} placa{s.module_count !== 1 ? "s" : ""} — {s.city}
           </p>
         </div>
         <StatusBadge status={s.status} paymentStatus={payStatus} />
@@ -320,9 +325,23 @@ function ServicoCard({
       <div className="space-y-1 text-xs text-brand-muted">
         <p>📍 {s.address}</p>
         <p>📅 {fmtDate(s.preferred_date)} · {s.preferred_time}</p>
-        {s.price_estimate > 0 && (
-          <p className="font-semibold text-brand-dark">💰 {fmt(s.price_estimate)}</p>
+        {s.tipo_instalacao && (
+          <p>🔧 {TIPO_LABEL[s.tipo_instalacao] ?? s.tipo_instalacao} · {s.module_count} placa{s.module_count !== 1 ? "s" : ""}</p>
         )}
+        {(() => {
+          const hasRange = s.preco_min && s.preco_max && s.preco_min > 0;
+          if (hasRange) {
+            return (
+              <p className="font-semibold text-brand-dark">
+                💰 {fmt(s.preco_min!)} a {fmt(s.preco_max!)}
+              </p>
+            );
+          }
+          if (s.price_estimate > 0) {
+            return <p className="font-semibold text-brand-dark">💰 {fmt(s.price_estimate)}</p>;
+          }
+          return null;
+        })()}
       </div>
 
       {/* Guarantee badge */}
@@ -670,7 +689,7 @@ export default function ClienteHomePage() {
         const TIERS = [
           { meta: 3,  beneficio: "10% de desconto na 3ª limpeza" },
           { meta: 5,  beneficio: "15% de desconto" },
-          { meta: 10, beneficio: "1 limpeza grátis (até 10 módulos)" },
+          { meta: 10, beneficio: "1 limpeza grátis (até 10 placas)" },
         ];
         const nextTier = TIERS.find((t) => totalServicos < t.meta) ?? TIERS[TIERS.length - 1];
         const pct = Math.min(100, Math.round((totalServicos / nextTier.meta) * 100));

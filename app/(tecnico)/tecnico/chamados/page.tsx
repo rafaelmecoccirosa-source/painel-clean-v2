@@ -149,7 +149,7 @@ export default function ChamadosPage() {
                 <MapPin size={13} /> {displayAddress} — {c.city}
               </span>
               <span className="flex items-center gap-1.5">
-                <Sun size={13} /> {c.module_count} módulos
+                <Sun size={13} /> {c.module_count} placas
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={13} /> {fmtDate(c.preferred_date)}, {c.preferred_time}

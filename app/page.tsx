@@ -17,7 +17,7 @@ const motivoCards = [
     emoji: "🛡️",
     titulo: "Proteção do equipamento",
     texto:
-      "Sujeira acumulada causa pontos quentes (hotspots) que podem danificar permanentemente seus módulos.",
+      "Sujeira acumulada causa pontos quentes (hotspots) que podem danificar permanentemente seus placas.",
   },
   {
     emoji: "📊",
@@ -34,7 +34,7 @@ const passos = [
     num: "1",
     emoji: "📱",
     titulo: "Solicite pelo app",
-    texto: "Informe sua cidade, quantidade de módulos e escolha a melhor data.",
+    texto: "Informe sua cidade, quantidade de placas e escolha a melhor data.",
   },
   {
     num: "2",
@@ -61,8 +61,8 @@ const passos = [
 const beneficios = [
   { emoji: "✅", titulo: "Técnicos certificados",      texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
   { emoji: "⚡", titulo: "Agendamento dinâmico",       texto: "Sem espera. Você escolhe a data e o técnico mais próximo aceita rapidamente." },
-  { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada módulo." },
-  { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de módulos. Sem surpresas na hora de pagar." },
+  { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada placa." },
+  { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de placas. Sem surpresas na hora de pagar." },
   { emoji: "🔒", titulo: "Pagamento seguro",           texto: "PIX, cartão ou boleto. Pagamento só após o serviço concluído." },
   { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
 ];
@@ -71,26 +71,26 @@ const beneficios = [
 
 const faixas = [
   {
-    faixa: "Até 10 módulos",
+    faixa: "Até 10 placas",
     preco: "A partir de R$ 180*",
     tempo: "1–2 horas",
     destaque: false,
   },
   {
-    faixa: "11 a 30 módulos",
+    faixa: "11 a 30 placas",
     preco: "A partir de R$ 300*",
     tempo: "2–3 horas",
     destaque: true,
     tag: "Mais popular",
   },
   {
-    faixa: "31 a 60 módulos",
+    faixa: "31 a 60 placas",
     preco: "A partir de R$ 520*",
     tempo: "3–4 horas",
     destaque: false,
   },
   {
-    faixa: "61+ módulos",
+    faixa: "61+ placas",
     preco: "Sob consulta",
     tempo: "4h+",
     destaque: false,
@@ -276,7 +276,7 @@ export default function HomePage() {
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-3">
               Investimento que se paga em semanas
             </h2>
-            <p className="text-brand-muted text-base">Valores estimados por faixa de módulos</p>
+            <p className="text-brand-muted text-base">Valores estimados por faixa de placas</p>
           </div>
 
           {/* Cards: scale + fade, stagger 100 ms */}

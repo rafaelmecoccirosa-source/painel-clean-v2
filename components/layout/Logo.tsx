@@ -7,22 +7,25 @@ interface LogoProps {
 }
 
 const sizes = {
-  sm: { icon: 32, text: "text-base" },
-  md: { icon: 40, text: "text-xl" },
-  lg: { icon: 52, text: "text-2xl" },
+  // sm: 40px mobile / 48px desktop
+  sm: { text: "text-base", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
+  // md: 40px mobile / 48px desktop
+  md: { text: "text-xl",  mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
+  // lg: 48px mobile / 52px desktop
+  lg: { text: "text-2xl", mobileCls: "w-12 h-12", desktopCls: "md:w-14 md:h-14" },
 };
 
 export default function Logo({ inverted = false, size = "md" }: LogoProps) {
-  const { icon, text } = sizes[size];
+  const { text, mobileCls, desktopCls } = sizes[size];
 
   return (
     <Link href="/" className="flex items-center gap-2.5 group">
       <Image
         src="/logo.jpg"
         alt="Painel Clean"
-        width={icon}
-        height={icon}
-        className="flex-shrink-0 rounded-lg object-contain"
+        width={56}
+        height={56}
+        className={`flex-shrink-0 rounded-lg object-contain ${mobileCls} ${desktopCls}`}
         priority
       />
 
