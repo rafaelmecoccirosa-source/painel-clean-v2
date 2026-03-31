@@ -63,17 +63,27 @@ Subtítulo no header: "Limpeza de Placa Solar".
 
 ---
 
-## Tabela de preços dos serviços
+## Tabela de preços dos serviços (faixas regressivas por escala)
 
-| Faixa | Módulos | Preço |
-|---|---|---|
-| Pequena | Até 10 módulos | R$ 180 |
-| Média | 11 a 30 módulos | R$ 300 ← mais comum |
-| Grande | 31 a 60 módulos | R$ 520 |
-| Usina | 61+ módulos | Sob consulta |
+> ⚠️ **Valores atualizados** — economia de escala: quanto mais placas, menor o valor unitário.
+> Preços representam a média do mercado SC (2025). Valor mínimo por serviço: **R$ 300**.
 
-**Tempo médio por serviço:** 2–3 horas
-**Repasse ao técnico:** 85% do valor (ex: R$255 de R$300)
+| Faixa | Placas | Valor por placa | Exemplo (solo, sujeira normal) |
+|---|---|---|---|
+| Residencial pequeno | Até 30 | R$ 20 a R$ 35/placa (média R$ 27,50) | 20 placas ≈ R$ 550 |
+| Residencial médio | 31–50 | R$ 15 a R$ 25/placa (média R$ 20,00) | 40 placas ≈ R$ 800 |
+| Comercial | 51–100 | R$ 10 a R$ 18/placa (média R$ 14,00) | 80 placas ≈ R$ 1.120 |
+| Industrial pequeno | 101–200 | R$ 7 a R$ 12/placa (média R$ 9,50) | 150 placas ≈ R$ 1.425 |
+| Usina | 200+ | Sob consulta | — |
+
+**Multiplicadores aplicados no algoritmo:**
+- Tipo de instalação: Solo ×1.0 / Telhado padrão ×1.25 / Telhado difícil ×1.5
+- Sujeira pesada: +20%
+- Acesso difícil: +20%
+- Deslocamento: R$ 2/km
+- Boost MVP: ×1.15
+
+**Repasse ao técnico:** 85% do valor final
 **Pagamento ao técnico:** PIX automático após conclusão e confirmação do pagamento
 
 ---
@@ -540,29 +550,37 @@ Arquivo: `lib/pricing.ts`
 ### Constantes
 
 ```typescript
-PRECO_POR_PLACA = 15      // R$/placa base
-PRECO_MINIMO    = 250     // mínimo absoluto por visita
-CUSTO_KM        = 2       // R$/km de deslocamento
-BOOST_MVP       = 1.15    // ajuste de mercado (+15%) no MVP
-PISO_VALOR_POR_PLACA = 10 // garante mínimo de R$ 10/placa
+PRECO_MINIMO = 300   // mínimo absoluto por visita (atualizado para mercado SC)
+CUSTO_KM     = 2     // R$/km de deslocamento
+BOOST_MVP    = 1.15  // ajuste de mercado (+15%) no MVP
 ```
+
+### Faixas de preço por placa (função getValorPorPlaca)
+
+| Placas | Valor médio/placa | Faixa de mercado |
+|--------|-------------------|-----------------|
+| ≤ 30   | R$ 27,50          | R$ 20–35        |
+| 31–50  | R$ 20,00          | R$ 15–25        |
+| 51–100 | R$ 14,00          | R$ 10–18        |
+| 101–200| R$ 9,50           | R$ 7–12         |
+| 200+   | Sob consulta      | —               |
 
 ### Multiplicadores
 
 | Parâmetro | Valor | Multiplicador |
 |-----------|-------|---------------|
 | `solo` | Instalação no solo | 1.0 |
-| `telhado_padrao` | Telhado acessível | 1.15 |
-| `telhado_dificil` | Telhado difícil/2 andares | 1.35 |
+| `telhado_padrao` | Telhado acessível | 1.25 |
+| `telhado_dificil` | Telhado difícil/2 andares | 1.5 |
 | `normal` (sujeira) | Sujeira leve | 1.0 |
 | `pesada` (sujeira) | Sujeira pesada | 1.20 |
 | `normal` (acesso) | Acesso fácil | 1.0 |
-| `dificil` (acesso) | Acesso difícil | 1.15 |
+| `dificil` (acesso) | Acesso difícil | 1.20 |
 
-### Faixa de preço (±15%)
+### Faixa de preço exibida
 
-O `calcularPreco()` retorna `precoMin`, `precoEstimado` e `precoMax`.
-A faixa é ±15% do estimado, sempre respeitando o `PRECO_MINIMO`.
+O `calcularPreco()` retorna `precoMin` (−10%) e `precoMax` (+20%) do estimado.
+Se `placas > 200`, retorna `sobConsulta: true` com todos os valores zerados.
 
 ### Colunas na tabela `service_requests` (migration `20260331_pricing_columns.sql`)
 

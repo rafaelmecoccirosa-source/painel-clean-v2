@@ -83,14 +83,28 @@ export default function HeroSection() {
           </a>
         </div>
 
-        {/* Social proof chips */}
-        <div
-          className="flex flex-wrap gap-4 mt-10 text-sm text-white/70"
-          style={{ textShadow: "0 1px 2px rgba(0,0,0,0.2)" }}
-        >
-          <span className="flex items-center gap-1.5">✅ Técnicos certificados</span>
-          <span className="flex items-center gap-1.5">⚡ Agendamento em minutos</span>
-          <span className="flex items-center gap-1.5">📸 Relatório fotográfico incluso</span>
+        {/* Diferential badges — 2x2 on mobile, 4-in-a-row on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
+          {[
+            { icon: "✅", label: "Técnicos certificados"   },
+            { icon: "⚡", label: "Agendamento em minutos"  },
+            { icon: "📸", label: "Relatório fotográfico"   },
+            { icon: "💰", label: "Preço transparente"      },
+          ].map(({ icon, label }) => (
+            <div
+              key={label}
+              className="flex items-center gap-3 rounded-xl px-4 py-3 border"
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                backdropFilter: "blur(4px)",
+                borderColor: "rgba(255,255,255,0.25)",
+                borderRadius: "12px",
+              }}
+            >
+              <span style={{ fontSize: "24px", lineHeight: 1 }}>{icon}</span>
+              <span className="text-white font-bold text-sm leading-tight">{label}</span>
+            </div>
+          ))}
         </div>
       </div>
     </section>
