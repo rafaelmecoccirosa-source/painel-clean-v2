@@ -182,7 +182,7 @@ export default function ChamadosPage() {
 
         {/* Progress bar for all non-pending statuses */}
         {!isAvailable && (
-          <ServiceProgressBar status={c.status} paymentStatus={c.payment_status ?? "pending"} />
+          <ServiceProgressBar status={c.status} paymentStatus={c.payment_status ?? "pending"} role="tecnico" />
         )}
 
         {/* Payment status badge for completed chamados */}

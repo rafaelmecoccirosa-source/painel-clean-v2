@@ -1,56 +1,84 @@
 import type { ServiceRequestStatus, PaymentStatus } from "@/lib/types";
 
+type Role = "cliente" | "tecnico" | "admin";
+
 interface Props {
   status: ServiceRequestStatus;
   paymentStatus?: PaymentStatus;
   cancelled?: boolean;
+  role?: Role;
 }
 
-const STEPS = [
-  { key: "solicitado", label: "Solicitado"  },
-  { key: "pago",       label: "Pago"        },
-  { key: "aceito",     label: "Aceito"      },
-  { key: "andamento",  label: "Em andamento"},
-  { key: "concluido",  label: "Concluído"   },
-  { key: "repasse",    label: "Repasse"     },
+// ── Step definitions per role ────────────────────────────────────────────────
+
+const STEPS_CLIENTE = [
+  { key: "solicitado", label: "Solicitado"   },
+  { key: "pago",       label: "Pago"         },
+  { key: "aceito",     label: "Aceito"       },
+  { key: "andamento",  label: "Em andamento" },
+  { key: "concluido",  label: "Concluído"    },
 ] as const;
 
-/**
- * Returns index of the last *completed* step (0-based, -1 = none done)
- *
- * New flow: Solicitado(0) → Pago(1) → Aceito(2) → Em andamento(3) → Concluído(4) → Repasse(5)
- */
-function completedUpTo(
+const STEPS_TECNICO = [
+  { key: "disponivel", label: "Disponível"   },
+  { key: "aceito",     label: "Aceito"       },
+  { key: "andamento",  label: "Em andamento" },
+  { key: "concluido",  label: "Concluído"    },
+] as const;
+
+const STEPS_ADMIN = [
+  { key: "solicitado", label: "Solicitado"   },
+  { key: "pago",       label: "Pago"         },
+  { key: "aceito",     label: "Aceito"       },
+  { key: "andamento",  label: "Em andamento" },
+  { key: "concluido",  label: "Concluído"    },
+  { key: "repasse",    label: "Repasse"      },
+] as const;
+
+// ── completedUpTo per role ───────────────────────────────────────────────────
+// Returns index of the last *completed* step (0-based, -1 = none done)
+
+function doneCliente(
   status: ServiceRequestStatus,
-  paymentStatus: PaymentStatus = "pending"
+  paymentStatus: PaymentStatus
 ): number {
-  if (status === "cancelled") return -1;
-
-  // Repasse
-  if (paymentStatus === "released") return 5;
-
-  // Concluído (step 4) + awaiting confirmation = Concluído done, Repasse is current
-  if (status === "completed" && paymentStatus === "awaiting_confirmation") return 4;
-  if (status === "completed" && paymentStatus === "confirmed")             return 4;
-  if (status === "completed")                                               return 4;
-
-  // Em andamento (step 3)
-  if (status === "in_progress") return 3;
-
-  // Aceito (step 2)
-  if (status === "accepted") return 2;
-
-  // Pago (step 1): payment confirmed, waiting for technician
-  if (paymentStatus === "confirmed") return 1;
-
-  // Awaiting confirmation (step 1 pending) — Solicitado done
-  if (paymentStatus === "awaiting_confirmation") return 0;
-
-  // Default: only Solicitado done
+  if (status === "completed")    return 4; // all 5 done
+  if (status === "in_progress")  return 3; // Concluído is current
+  if (status === "accepted")     return 2; // Em andamento is current
+  if (paymentStatus === "confirmed") return 1; // Aceito is current
+  // pending + pending/awaiting_confirmation: Pago is current (Solicitado done)
   return 0;
 }
 
-export default function ServiceProgressBar({ status, paymentStatus = "pending", cancelled }: Props) {
+function doneTecnico(status: ServiceRequestStatus): number {
+  if (status === "completed")    return 3; // all 4 done
+  if (status === "in_progress")  return 1; // Disponível+Aceito done, Em andamento current
+  if (status === "accepted")     return 0; // Disponível done, Aceito current
+  // pending (available for tech): nothing done, Disponível is current
+  return -1;
+}
+
+function doneAdmin(
+  status: ServiceRequestStatus,
+  paymentStatus: PaymentStatus
+): number {
+  if (paymentStatus === "released")  return 5; // all 6 done
+  if (status === "completed")        return 4; // Repasse is current
+  if (status === "in_progress")      return 3; // Concluído is current
+  if (status === "accepted")         return 2; // Em andamento is current
+  if (paymentStatus === "confirmed") return 1; // Aceito is current
+  if (paymentStatus === "awaiting_confirmation") return 0; // Pago is current
+  return 0;
+}
+
+// ── Component ────────────────────────────────────────────────────────────────
+
+export default function ServiceProgressBar({
+  status,
+  paymentStatus = "pending",
+  cancelled,
+  role = "admin",
+}: Props) {
   if (cancelled || status === "cancelled") {
     return (
       <div className="flex items-center justify-center py-2">
@@ -61,13 +89,22 @@ export default function ServiceProgressBar({ status, paymentStatus = "pending", 
     );
   }
 
-  const doneIdx    = completedUpTo(status, paymentStatus);
-  const currentIdx = doneIdx < STEPS.length - 1 ? doneIdx + 1 : -1;
+  const steps =
+    role === "cliente" ? STEPS_CLIENTE :
+    role === "tecnico" ? STEPS_TECNICO :
+    STEPS_ADMIN;
+
+  const doneIdx =
+    role === "cliente" ? doneCliente(status, paymentStatus) :
+    role === "tecnico" ? doneTecnico(status) :
+    doneAdmin(status, paymentStatus);
+
+  const currentIdx = doneIdx < steps.length - 1 ? doneIdx + 1 : -1;
 
   return (
     <div className="w-full overflow-x-auto pb-1">
-      <div className="flex items-center min-w-[340px]">
-        {STEPS.map((step, i) => {
+      <div className="flex items-center min-w-[280px]">
+        {steps.map((step, i) => {
           const done    = i <= doneIdx;
           const current = i === currentIdx;
           const future  = !done && !current;
@@ -94,7 +131,7 @@ export default function ServiceProgressBar({ status, paymentStatus = "pending", 
                     <span>{i + 1}</span>
                   )}
                 </div>
-                <span className={`text-[9px] font-semibold text-center leading-tight max-w-[44px] ${
+                <span className={`text-[9px] font-semibold text-center leading-tight max-w-[48px] ${
                   done    ? "text-brand-green" :
                   current ? "text-amber-600"   :
                             "text-brand-muted"

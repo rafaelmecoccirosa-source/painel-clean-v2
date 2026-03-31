@@ -129,8 +129,8 @@ export default function PagamentosAdminPage() {
       const { data, error } = await supabase
         .from("service_requests")
         .select("*")
-        .eq("status", "completed")
-        .order("paid_at", { ascending: false });
+        .in("payment_status", ["awaiting_confirmation", "confirmed", "released"])
+        .order("created_at", { ascending: false });
 
       if (error || !data || data.length === 0) {
         setServices(MOCK_PAYMENTS);

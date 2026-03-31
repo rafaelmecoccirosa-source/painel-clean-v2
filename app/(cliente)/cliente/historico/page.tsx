@@ -232,7 +232,7 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
         </div>
 
         {/* Progress bar */}
-        <ServiceProgressBar status={item.status} paymentStatus={item.payment_status ?? "pending"} />
+        <ServiceProgressBar status={item.status} paymentStatus={item.payment_status ?? "pending"} role="cliente" />
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-brand-muted">
           <span className="flex items-center gap-1">

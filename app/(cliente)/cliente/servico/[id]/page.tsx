@@ -130,7 +130,7 @@ export default function ClienteServicoPage() {
         </div>
 
         {/* Progress */}
-        <ServiceProgressBar status={service.status} paymentStatus={service.payment_status ?? "pending"} />
+        <ServiceProgressBar status={service.status} paymentStatus={service.payment_status ?? "pending"} role="cliente" />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
           <div className="flex items-start gap-2.5">
