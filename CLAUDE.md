@@ -736,3 +736,37 @@ NOTIFY pgrst, 'reload schema';
 - Dashboard do técnico mostra banner: "✅ Sem mensalidade — apenas 15% de comissão por serviço"
 - Termos de uso: "Cadastro gratuito para técnicos — sem mensalidade"
 - Ao ativar (`true`): re-habilitar card de assinatura no dashboard do técnico
+
+---
+
+## Google OAuth (Login e Cadastro)
+
+### Ativação no Supabase
+
+1. Acesse o Supabase Dashboard → **Authentication → Providers → Google**
+2. Ative o provider e configure:
+   - **Client ID**: obtido no Google Cloud Console (APIs & Services → Credentials)
+   - **Client Secret**: obtido no Google Cloud Console
+3. No Google Cloud Console, adicione a URL de callback autorizada:
+   - `https://<seu-projeto>.supabase.co/auth/v1/callback`
+
+### Fluxo
+
+- **Login/Cadastro**: botão "Continuar com Google" chama `supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: '/auth/callback' } })`
+- **`/auth/callback`** (route handler): troca o `code` por sessão, verifica se o usuário tem perfil na tabela `profiles`
+  - Se tem perfil → redireciona para `/cliente`, `/tecnico` ou `/admin`
+  - Se não tem perfil (novo usuário Google) → redireciona para `/completar-cadastro`
+- **`/completar-cadastro`**: usuário seleciona papel (cliente/técnico) + informa cidade e telefone → faz upsert na tabela `profiles`
+
+### Rotas públicas (middleware.ts)
+
+As seguintes rotas são públicas (sem autenticação):
+- `/`, `/login`, `/cadastro`, `/completar-cadastro`, `/termos`
+- `/auth/*` (callback do OAuth)
+
+### Cadastro em 2 etapas (`/cadastro`)
+
+- **Etapa 1**: dois cards clicáveis — "🏠 Sou cliente" / "🔧 Sou técnico" + botão Google OAuth
+- **Etapa 2**: formulário com nome, email, senha, cidade, telefone
+  - Técnico: campo extra de experiência + badge "Sem mensalidade"
+  - Botão Google OAuth também disponível na etapa 2
