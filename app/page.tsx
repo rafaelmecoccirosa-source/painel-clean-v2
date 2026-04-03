@@ -64,7 +64,6 @@ const beneficios = [
   { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada placa." },
   { emoji: "🛡️", titulo: "Seguro contra danos",        texto: "Todos os serviços incluem cobertura contra danos acidentais às suas placas e telhado." },
   { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de placas. Sem surpresas na hora de pagar." },
-  { emoji: "🔒", titulo: "Pagamento seguro",           texto: "PIX, cartão ou boleto. Pagamento só após o serviço concluído." },
   { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
 ];
 
@@ -364,7 +363,7 @@ export default function HomePage() {
             <div className="flex-1 grid grid-cols-2 gap-4 w-full">
               {[
                 { icon: "✅", titulo: "Sem mensalidade",      texto: "Cadastro gratuito. Você não paga nada para entrar na plataforma — o modelo é por comissão sobre serviços realizados." },
-                { icon: "💰", titulo: "Receba 75% do valor",  texto: "Receba via PIX automaticamente após a conclusão de cada serviço." },
+                { icon: "💰", titulo: "Repasse simplificado",  texto: "Receba via PIX automaticamente após a conclusão de cada serviço. Sem burocracia." },
                 { icon: "📱", titulo: "Gerencie pelo app",    texto: "Aceite chamados, registre relatórios e acompanhe seus ganhos em tempo real." },
                 { icon: "🛡️", titulo: "Seguro incluso",       texto: "Todos os serviços incluem cobertura contra danos acidentais durante a limpeza." },
               ].map(({ icon, titulo, texto }) => (
