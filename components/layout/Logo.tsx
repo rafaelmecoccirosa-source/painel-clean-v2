@@ -7,11 +7,10 @@ interface LogoProps {
 }
 
 const sizes = {
-  // sm/md: 20px mobile / 24px desktop title; subtitle inalterado
-  sm: { titleCls: "text-[20px] md:text-[24px]", subtitleCls: "text-[11px] md:text-[13px]", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
-  md: { titleCls: "text-[20px] md:text-[24px]", subtitleCls: "text-[11px] md:text-[13px]", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
-  // lg: ligeiramente maior mas mesma proporção
-  lg: { titleCls: "text-[20px] md:text-[24px]", subtitleCls: "text-[13px] md:text-[14px]", mobileCls: "w-12 h-12", desktopCls: "md:w-14 md:h-14" },
+  // sm: header logo — 16px title mobile, 20px desktop; compact image
+  sm: { titleCls: "text-[16px] md:text-[20px]", subtitleCls: "text-[10px] md:text-[12px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
+  md: { titleCls: "text-[16px] md:text-[20px]", subtitleCls: "text-[10px] md:text-[12px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
+  lg: { titleCls: "text-[20px] md:text-[24px]", subtitleCls: "text-[12px] md:text-[14px]", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
 };
 
 export default function Logo({ inverted = false, size = "md" }: LogoProps) {
