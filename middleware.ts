@@ -42,46 +42,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Unauthenticated — redirect to login
+  // Role-based guards are handled in each layout (Server Components, not Edge Runtime)
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
-  }
-
-  // Role-based protection: fetch role from profiles
-  const isAdminRoute  = pathname.startsWith("/admin");
-  const isClienteRoute = pathname.startsWith("/cliente");
-  const isTecnicoRoute = pathname.startsWith("/tecnico");
-
-  if (isAdminRoute || isClienteRoute || isTecnicoRoute) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single();
-
-    // If we can't read the profile (RLS not applied, table missing, etc.)
-    // let the request through — don't assume a wrong role.
-    if (!profile) {
-      return supabaseResponse;
-    }
-
-    const role = profile.role as string;
-
-    const correctRoot: Record<string, string> = {
-      admin:   "/admin",
-      tecnico: "/tecnico",
-      cliente: "/cliente",
-    };
-
-    const expectedPrefix = correctRoot[role] ?? "/cliente";
-    const currentPrefix  = isAdminRoute ? "/admin" : isClienteRoute ? "/cliente" : "/tecnico";
-
-    if (currentPrefix !== expectedPrefix) {
-      const url = request.nextUrl.clone();
-      url.pathname = expectedPrefix;
-      return NextResponse.redirect(url);
-    }
   }
 
   return supabaseResponse;

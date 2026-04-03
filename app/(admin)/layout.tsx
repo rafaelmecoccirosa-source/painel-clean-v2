@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import HeaderAdmin from "@/components/layout/HeaderAdmin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,9 +20,11 @@ export default async function AdminLayout({
     if (user) {
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name")
+        .select("full_name, role")
         .eq("user_id", user.id)
         .single();
+      if (profile?.role === "cliente") redirect("/cliente");
+      if (profile?.role === "tecnico") redirect("/tecnico");
       userName = profile?.full_name ?? user.email?.split("@")[0] ?? "Administrador";
     }
   } catch { /* fallback to default */ }
