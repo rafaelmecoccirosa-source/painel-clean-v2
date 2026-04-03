@@ -118,18 +118,18 @@ export default function HomePage() {
 
       {/* ── Header fixo ─────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-brand-light border-b border-brand-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between gap-2">
           <Logo size="sm" />
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
             <Link
               href="/login"
-              className="text-brand-dark/70 hover:text-brand-dark text-sm font-medium transition-colors px-3 py-1.5"
+              className="text-brand-dark/70 hover:text-brand-dark text-[12px] sm:text-sm font-medium transition-colors px-2 py-1.5 sm:px-3 whitespace-nowrap"
             >
               Entrar
             </Link>
             <Link
               href="/cadastro"
-              className="bg-brand-green text-white font-heading font-bold text-sm px-5 py-2 rounded-xl hover:bg-brand-green/90 transition-colors"
+              className="bg-brand-green text-white font-heading font-bold text-[12px] sm:text-sm px-3 py-1.5 sm:px-5 sm:py-2 rounded-xl hover:bg-brand-green/90 transition-colors whitespace-nowrap"
             >
               Cadastrar-se
             </Link>
@@ -475,15 +475,6 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* ── Botão flutuante mobile ───────────────────────────────────────── */}
-      <div className="fixed bottom-4 left-4 right-4 z-40 md:hidden">
-        <Link
-          href="/cadastro"
-          className="flex items-center justify-center gap-2 w-full bg-brand-green text-white font-heading font-bold text-base py-4 rounded-2xl shadow-lg hover:bg-brand-green/90 transition-colors"
-        >
-          ☀️ Agendar limpeza
-        </Link>
-      </div>
     </div>
   );
 }

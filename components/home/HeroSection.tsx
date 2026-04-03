@@ -6,7 +6,6 @@ import Link from "next/link";
 export default function HeroSection() {
   const [count, setCount] = useState(0);
 
-  // Hero is always the first thing visible — start counter on mount
   useEffect(() => {
     const TARGET = 30;
     const DURATION = 2000;
@@ -26,98 +25,104 @@ export default function HeroSection() {
     return () => clearInterval(timer);
   }, []);
 
+  const trustItems = [
+    { icon: "✅", label: "Técnicos certificados"  },
+    { icon: "⚡", label: "Agendamento em minutos" },
+    { icon: "📸", label: "Relatório fotográfico"  },
+    { icon: "🛡️", label: "Seguro contra danos"    },
+    { icon: "💰", label: "Preço transparente"     },
+  ];
+
   return (
     <section
       id="hero"
-      className="relative min-h-[640px] flex items-center"
+      className="relative flex items-center"
       style={{
+        minHeight: "580px",
         backgroundImage:
           "linear-gradient(rgba(27, 58, 45, 0.85), rgba(27, 58, 45, 0.70)), url('/hero-solar.jpg')",
         backgroundSize: "cover",
-        backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
       }}
     >
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-28">
-        {/* Badge */}
-        <span className="inline-flex items-center gap-1.5 bg-white/10 text-brand-green border border-brand-green/40 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mb-6">
+      {/* background-position changes between mobile and desktop via JS-injected style */}
+      <style>{`
+        #hero { background-position: center 30%; }
+        @media (min-width: 640px) { #hero { background-position: center center; } }
+      `}</style>
+
+      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:py-28">
+
+        {/* Badge — hidden on mobile, shown on sm+ */}
+        <span className="hidden sm:inline-flex items-center gap-1.5 bg-white/10 text-brand-green border border-brand-green/40 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mb-6">
           ☀️ Plataforma de limpeza solar profissional
         </span>
 
         {/* Headline */}
         <h1
-          className="font-heading text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-6 max-w-3xl text-white"
+          className="font-heading text-[28px] sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-5 max-w-3xl text-white"
           style={{ textShadow: "0 2px 4px rgba(0,0,0,0.3)" }}
         >
           Suas placas solares estão produzindo menos do que poderiam
         </h1>
 
-        {/* Subtitle with animated counter */}
+        {/* Subtitle */}
         <p
-          className="text-white/85 text-lg sm:text-xl mb-10 max-w-xl leading-relaxed"
+          className="text-white/85 text-[15px] sm:text-xl mb-8 max-w-xl leading-relaxed"
           style={{ textShadow: "0 1px 3px rgba(0,0,0,0.25)" }}
         >
           A sujeira pode reduzir até{" "}
           <span
             className="font-extrabold text-brand-green"
-            style={{ fontSize: "2.5rem", lineHeight: "1" }}
+            style={{ fontSize: "2rem", lineHeight: "1" }}
           >
             {count}%
           </span>{" "}
           da eficiência dos seus painéis. Agende uma limpeza profissional em minutos.
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        {/* CTAs — stacked on mobile, row on sm+ */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
           <Link
             href="/cadastro"
-            className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg"
+            className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg w-full sm:w-auto"
           >
             Agendar limpeza →
           </Link>
           <a
             href="#calculadora"
-            className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-white/10 transition-colors"
+            className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-white/10 transition-colors w-full sm:w-auto"
           >
             Calcular economia
           </a>
         </div>
 
-        {/* Trust signals — inline row with subtle dividers, no button appearance */}
-        <div className="mt-10">
-          {/* Desktop: single row with | dividers */}
-          <div className="hidden sm:flex items-center gap-5 flex-wrap">
-            {[
-              { icon: "✅", label: "Técnicos certificados"  },
-              { icon: "⚡", label: "Agendamento em minutos" },
-              { icon: "📸", label: "Relatório fotográfico"  },
-              { icon: "🛡️", label: "Seguro contra danos"    },
-              { icon: "💰", label: "Preço transparente"     },
-            ].map(({ icon, label }, idx, arr) => (
-              <div key={label} className="flex items-center gap-5">
+        {/* Trust signals */}
+        <div className="mt-8 sm:mt-10">
+          {/* Desktop: single nowrap row — 5 items with dividers, font-size 12px to fit */}
+          <div className="hidden sm:flex items-center gap-4 flex-nowrap overflow-hidden">
+            {trustItems.map(({ icon, label }, idx, arr) => (
+              <div key={label} className="flex items-center gap-4 flex-shrink-0">
                 <span className="flex items-center gap-1.5">
-                  <span style={{ fontSize: "16px", lineHeight: 1 }}>{icon}</span>
-                  <span className="text-white font-medium text-[13px]">{label}</span>
+                  <span style={{ fontSize: "14px", lineHeight: 1 }}>{icon}</span>
+                  <span className="text-white font-medium text-[12px] whitespace-nowrap">{label}</span>
                 </span>
                 {idx < arr.length - 1 && (
-                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "16px", userSelect: "none" }}>|</span>
+                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "14px", userSelect: "none" }}>|</span>
                 )}
               </div>
             ))}
           </div>
 
-          {/* Mobile: 2x2 grid, no dividers */}
-          <div className="sm:hidden grid grid-cols-2 gap-x-6 gap-y-3">
-            {[
-              { icon: "✅", label: "Técnicos certificados"  },
-              { icon: "⚡", label: "Agendamento em minutos" },
-              { icon: "📸", label: "Relatório fotográfico"  },
-              { icon: "🛡️", label: "Seguro contra danos"    },
-              { icon: "💰", label: "Preço transparente"     },
-            ].map(({ icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5">
-                <span style={{ fontSize: "16px", lineHeight: 1 }}>{icon}</span>
-                <span className="text-white font-medium text-[13px]">{label}</span>
+          {/* Mobile: 2-col grid, last item spans full width to center it */}
+          <div className="sm:hidden grid grid-cols-2 gap-x-4 gap-y-2.5">
+            {trustItems.map(({ icon, label }, idx) => (
+              <span
+                key={label}
+                className={`flex items-center gap-1.5 ${idx === trustItems.length - 1 && trustItems.length % 2 !== 0 ? "col-span-2 justify-center" : ""}`}
+              >
+                <span style={{ fontSize: "13px", lineHeight: 1 }}>{icon}</span>
+                <span className="text-white font-medium text-[12px]">{label}</span>
               </span>
             ))}
           </div>
