@@ -28,19 +28,21 @@ interface ConclusaoClienteProps {
   previsto: PrevistoData;
 }
 
-type GeneralCondition = "bom" | "regular" | "necessita_atencao";
+type GeneralCondition = "excelente" | "bom" | "regular" | "necessita_atencao";
 
 const CHECKLIST_ITEMS = [
   { key: "visual_inspection",  label: "Inspeção visual das placas" },
   { key: "connector_check",    label: "Verificação de conectores" },
   { key: "cleaning_complete",  label: "Limpeza concluída" },
   { key: "damage_test",        label: "Teste visual de danos" },
+  { key: "post_generation",    label: "Teste de geração pós-limpeza" },
 ] as const;
 
 const CONDITION_OPTIONS: { value: GeneralCondition; label: string; color: string }[] = [
-  { value: "bom",               label: "Bom",               color: "bg-brand-green text-white border-brand-green" },
-  { value: "regular",           label: "Regular",            color: "bg-yellow-400 text-white border-yellow-400" },
-  { value: "necessita_atencao", label: "Necessita atenção",  color: "bg-red-500 text-white border-red-500" },
+  { value: "excelente",        label: "Excelente",         color: "bg-emerald-500 text-white border-emerald-500" },
+  { value: "bom",              label: "Boa",               color: "bg-brand-green text-white border-brand-green" },
+  { value: "regular",          label: "Regular",            color: "bg-yellow-400 text-white border-yellow-400" },
+  { value: "necessita_atencao",label: "Necessita manutenção", color: "bg-red-500 text-white border-red-500" },
 ];
 
 function fmt(v: number) {
@@ -149,6 +151,13 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
   const [condition, setCondition]   = useState<GeneralCondition>("bom");
   const [observacoes, setObservacoes] = useState("");
 
+  // Desempenho energético
+  const [geracaoAntes,  setGeracaoAntes]  = useState<string>("");
+  const perdaSujeira = 0.20; // 20% de perda estimada
+  const geracaoDepois = geracaoAntes
+    ? Math.round(parseFloat(geracaoAntes) / (1 - perdaSujeira))
+    : null;
+
   // Custos reais
   const [realCombustivel, setRealCombustivel] = useState(previsto.custoCombustivel);
   const [realPedagio,     setRealPedagio]     = useState(previsto.custoPedagio);
@@ -241,6 +250,9 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
           checklist,
           observations:       observacoes.trim() || null,
           general_condition:  condition,
+          geracao_antes:      geracaoAntes ? parseFloat(geracaoAntes) : null,
+          geracao_depois:     geracaoDepois ?? null,
+          condicao_geral:     condition,
         });
 
       if (reportError) {
@@ -393,6 +405,38 @@ export default function ConclusaoCliente({ servicoId, modulos, endereco, previst
             rows={3}
             className={`${inputBase} resize-none`}
           />
+        </div>
+
+        {/* Geração energética */}
+        <div className="border-t border-brand-border pt-4">
+          <label className="block text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">
+            ⚡ Geração antes da limpeza (kWh/mês)
+          </label>
+          <input
+            type="number"
+            min={0}
+            step={1}
+            value={geracaoAntes}
+            onChange={(e) => setGeracaoAntes(e.target.value)}
+            placeholder="Ex: 850"
+            className={numInput}
+          />
+          <p className="text-xs text-brand-muted mt-1">
+            Informe o valor mostrado no inversor (opcional — melhora o relatório do cliente)
+          </p>
+          {geracaoDepois && (
+            <div className="mt-3 bg-brand-light border border-brand-border rounded-xl px-4 py-3 flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <div>
+                <p className="text-sm font-bold text-brand-dark">Geração estimada após limpeza</p>
+                <p className="text-brand-green font-heading font-extrabold text-xl">{geracaoDepois} kWh/mês</p>
+                <p className="text-xs text-brand-muted mt-0.5">
+                  Ganho estimado: +{geracaoDepois - parseInt(geracaoAntes)} kWh/mês
+                  (+R$ {Math.round((geracaoDepois - parseInt(geracaoAntes)) * 0.85).toLocaleString("pt-BR")}/mês)
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

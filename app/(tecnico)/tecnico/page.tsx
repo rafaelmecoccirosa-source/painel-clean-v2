@@ -89,14 +89,27 @@ export default async function TecnicoDashboardPage() {
           <span className="text-2xl flex-shrink-0">💰</span>
           <div>
             <p className="text-sm font-bold text-brand-dark">
-              ✅ Sem mensalidade — apenas 15% de comissão por serviço realizado
+              ✅ Sem mensalidade — apenas 25% de comissão por serviço realizado
             </p>
             <p className="text-xs text-brand-muted mt-0.5">
-              Exemplo: num serviço de R$ 600, você recebe R$ 510 via PIX automático.
+              Exemplo: num serviço de R$ 600, você recebe R$ 450 via PIX automático.
             </p>
           </div>
         </div>
       )}
+
+      {/* ── Banner seguro contra danos ── */}
+      <div className="flex items-start gap-3 bg-white border border-brand-border rounded-2xl px-4 py-3.5">
+        <span className="text-2xl flex-shrink-0">🛡️</span>
+        <div>
+          <p className="text-sm font-bold text-brand-dark">
+            Seguro contra danos — todos os serviços
+          </p>
+          <p className="text-xs text-brand-muted mt-0.5">
+            Todos os serviços realizados pela plataforma incluem cobertura contra danos acidentais durante a limpeza. Trabalhe com tranquilidade.
+          </p>
+        </div>
+      </div>
 
       {/* ── Seção 1: Cards de resumo ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

@@ -181,7 +181,7 @@ function ServiceDetailsGrid({ service }: { service: ServiceRequestDB }) {
 
 function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
   const tempo = tempoByModulos(service.module_count);
-  const repasse = service.price_estimate * 0.85;
+  const repasse = service.price_estimate * 0.75;
 
   const statusLabel: Record<string, string> = {
     accepted:    "🔵 Técnico confirmado",
@@ -255,7 +255,7 @@ function ServiceInfoCard({ service }: { service: ServiceRequestDB }) {
       <div className="bg-brand-dark rounded-xl px-5 py-4 space-y-2">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs text-white/50 mb-0.5">Seu repasse (85%)</p>
+            <p className="text-xs text-white/50 mb-0.5">Seu repasse (75%)</p>
             <p className="font-heading font-extrabold text-2xl text-brand-green">{fmt(repasse)}</p>
           </div>
           <div className="text-right">
@@ -284,8 +284,8 @@ function Calculator({
   modulos: number;
   distanciaKm: number;
 }) {
-  const repasse  = valorServico * 0.85;
-  const comissao = valorServico * 0.15;
+  const repasse  = valorServico * 0.75;
+  const comissao = valorServico * 0.25;
   const tempo    = tempoByModulos(modulos);
 
   const [distancia, setDistancia]       = useState(distanciaKm);
@@ -368,11 +368,11 @@ function Calculator({
           <span className="text-red-400 font-semibold">− {fmt(totalCustos)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-white/70">Repasse bruto (85%)</span>
+          <span className="text-white/70">Repasse bruto (75%)</span>
           <span className="text-white font-medium">{fmt(repasse)}</span>
         </div>
         <div className="flex justify-between text-sm">
-          <span className="text-white/70">Comissão plataforma (15%)</span>
+          <span className="text-white/70">Comissão plataforma (25%)</span>
           <span className="text-red-400 font-medium">− {fmt(comissao)}</span>
         </div>
 
@@ -655,15 +655,15 @@ export default function ChamadoDetalheCliente({ id }: Props) {
 
             <div className="flex items-center justify-between bg-brand-bg rounded-xl px-4 py-3">
               <div>
-                <span className="text-sm text-brand-muted">Seu repasse (85%)</span>
-                {currentFinalPrice * 0.85 < REPASSE_MINIMO_TECNICO * 1.2 && (
+                <span className="text-sm text-brand-muted">Seu repasse (75%)</span>
+                {currentFinalPrice * 0.75 < REPASSE_MINIMO_TECNICO * 1.2 && (
                   <p className="text-[10px] text-brand-muted mt-0.5">
                     💰 Mínimo garantido: R$ {REPASSE_MINIMO_TECNICO.toFixed(0)}
                   </p>
                 )}
               </div>
               <span className="font-heading font-extrabold text-xl text-brand-green">
-                {fmt(currentFinalPrice * 0.85)}
+                {fmt(currentFinalPrice * 0.75)}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -677,6 +677,14 @@ export default function ChamadoDetalheCliente({ id }: Props) {
             </div>
           </div>
         </>
+      )}
+
+      {/* ── Insurance badge ── */}
+      {["accepted", "in_progress", "completed"].includes(status) && isMyService && (
+        <div className="flex items-center gap-2 bg-brand-light border border-brand-border rounded-xl px-4 py-2.5">
+          <span className="text-base">🛡️</span>
+          <p className="text-xs font-medium text-brand-dark">Serviço coberto por seguro contra danos</p>
+        </div>
       )}
 
       {/* ── ACCEPTED (my service): show full info + Start button ── */}

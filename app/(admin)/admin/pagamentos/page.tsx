@@ -377,8 +377,8 @@ function PaymentRow({
   onReject: () => void;
   onRelease: () => void;
 }) {
-  const repasse = s.price_estimate * 0.85;
-  const comissao = s.price_estimate * 0.15;
+  const repasse = s.price_estimate * 0.75;
+  const comissao = s.price_estimate * 0.25;
 
   function fmt(v: number) {
     return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });

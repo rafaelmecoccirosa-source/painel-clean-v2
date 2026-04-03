@@ -125,7 +125,7 @@ export default function ChamadosPage() {
   }
 
   function renderCard(c: ServiceRequestDB, isAvailable: boolean) {
-    const repasse = c.price_estimate * 0.85;
+    const repasse = c.price_estimate * 0.75;
     const horas = estimateHours(c.module_count);
     const displayAddress = isAvailable
       ? c.address.split(",")[0] + " (endereço completo após aceitar)"

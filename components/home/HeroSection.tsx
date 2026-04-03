@@ -91,6 +91,7 @@ export default function HeroSection() {
               { icon: "✅", label: "Técnicos certificados"  },
               { icon: "⚡", label: "Agendamento em minutos" },
               { icon: "📸", label: "Relatório fotográfico"  },
+              { icon: "🛡️", label: "Seguro contra danos"    },
               { icon: "💰", label: "Preço transparente"     },
             ].map(({ icon, label }, idx, arr) => (
               <div key={label} className="flex items-center gap-5">
@@ -111,6 +112,7 @@ export default function HeroSection() {
               { icon: "✅", label: "Técnicos certificados"  },
               { icon: "⚡", label: "Agendamento em minutos" },
               { icon: "📸", label: "Relatório fotográfico"  },
+              { icon: "🛡️", label: "Seguro contra danos"    },
               { icon: "💰", label: "Preço transparente"     },
             ].map(({ icon, label }) => (
               <span key={label} className="flex items-center gap-1.5">

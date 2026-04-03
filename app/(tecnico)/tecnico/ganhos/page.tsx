@@ -99,7 +99,7 @@ export default function GanhosPage() {
           <div className="flex items-center justify-between py-3 border-b border-white/10">
             <div>
               <p className="text-sm font-medium text-white/70">Comissão da plataforma</p>
-              <p className="text-xs text-white/40 mt-0.5">15% retido pela Painel Clean</p>
+              <p className="text-xs text-white/40 mt-0.5">25% retido pela Painel Clean</p>
             </div>
             <p className="font-heading font-bold text-red-400 text-lg">
               − {fmt(resumo.comissao)}
@@ -110,7 +110,7 @@ export default function GanhosPage() {
           <div className="flex items-center justify-between bg-white/5 rounded-xl px-4 py-4 mt-2">
             <div>
               <p className="text-sm font-semibold text-white">Repasse líquido</p>
-              <p className="text-xs text-white/50 mt-0.5">85% · pago via PIX automático</p>
+              <p className="text-xs text-white/50 mt-0.5">75% · pago via PIX automático</p>
             </div>
             <p className="font-heading font-extrabold text-brand-green text-2xl">
               {fmt(resumo.totalRepasse)}
@@ -190,7 +190,7 @@ export default function GanhosPage() {
                     {fmt(p.bruto)}
                   </td>
                   <td className="px-6 py-4 text-right text-red-500 font-medium">
-                    − {fmt(p.bruto * 0.15)}
+                    − {fmt(p.bruto * 0.25)}
                   </td>
                   <td className="px-6 py-4 text-right font-bold text-brand-dark">
                     {fmt(p.repasse)}
@@ -225,7 +225,7 @@ export default function GanhosPage() {
               <div className="text-right flex-shrink-0">
                 <p className="text-xs text-brand-muted">Repasse</p>
                 <p className="font-heading font-bold text-brand-dark text-base">{fmt(p.repasse)}</p>
-                <p className="text-xs text-red-400 mt-0.5">−{fmt(p.bruto * 0.15)}</p>
+                <p className="text-xs text-red-400 mt-0.5">−{fmt(p.bruto * 0.25)}</p>
               </div>
             </div>
           ))}

@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Calendar, Clock, Sun } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { ServiceRequestDB } from "@/lib/types";
+import type { ReportData } from "@/components/shared/ServiceReport";
 import ChatBox from "@/components/shared/ChatBox";
 import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
+
+const ServiceReport = dynamic(() => import("@/components/shared/ServiceReport"), { ssr: false });
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -58,6 +62,8 @@ export default function ClienteServicoPage() {
   const [userId,      setUserId]      = useState("");
   const [userName,    setUserName]    = useState("Você");
   const [loading,     setLoading]     = useState(true);
+  const [report,      setReport]      = useState<any>(null);
+  const [showReport,  setShowReport]  = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -71,6 +77,16 @@ export default function ClienteServicoPage() {
       setUserId(user?.id ?? "");
       setUserName(profile?.full_name?.split(" ")[0] ?? "Você");
       setService(svc as ServiceRequestDB | null);
+
+      // Load report if service is completed
+      if (svc?.status === "completed") {
+        const { data: rp } = await supabase
+          .from("service_reports")
+          .select("*")
+          .eq("service_request_id", id)
+          .single();
+        setReport(rp);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -103,6 +119,28 @@ export default function ClienteServicoPage() {
   }
 
   const chatAvailable = CHAT_AVAILABLE.includes(service.status);
+
+  const reportData: ReportData | null = service && service.status === "completed" ? {
+    serviceId: service.id ?? id,
+    clientName: userName,
+    address: service.address ?? "—",
+    city: service.city ?? "—",
+    date: service.preferred_date ?? service.created_at ?? "",
+    techName: service.technician_id ? "Técnico Painel Clean" : "—",
+    moduleCount: service.module_count ?? 0,
+    tipoInstalacao: (service as any).tipo_instalacao,
+    nivelSujeira: (service as any).nivel_sujeira,
+    valorServico: service.price_estimate ?? 0,
+    paymentStatus: service.payment_status,
+    paidAt: service.paid_at ?? undefined,
+    photosBefore: report?.photos_before ?? [],
+    photosAfter: report?.photos_after ?? [],
+    checklist: report?.checklist,
+    observations: report?.observations,
+    generalCondition: report?.general_condition ?? report?.condicao_geral,
+    geracaoAntes: report?.geracao_antes ?? null,
+    geracaoDepois: report?.geracao_depois ?? null,
+  } : null;
 
   return (
     <div className="page-container max-w-2xl space-y-6">
@@ -183,6 +221,21 @@ export default function ClienteServicoPage() {
             A conversa com o técnico é liberada após a aceitação do chamado.
           </p>
         </div>
+      )}
+
+      {/* Ver relatório (serviço concluído) */}
+      {service.status === "completed" && reportData && (
+        <button
+          onClick={() => setShowReport(true)}
+          className="w-full bg-brand-dark text-white font-heading font-bold text-sm py-3.5 rounded-2xl hover:bg-brand-dark/90 transition-colors flex items-center justify-center gap-2"
+        >
+          📄 Ver relatório do serviço
+        </button>
+      )}
+
+      {/* Report modal */}
+      {showReport && reportData && (
+        <ServiceReport data={reportData} onClose={() => setShowReport(false)} />
       )}
     </div>
   );

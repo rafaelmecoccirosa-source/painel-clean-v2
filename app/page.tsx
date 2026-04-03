@@ -339,8 +339,47 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 7: CTA Final — simple fade-in ─────────────────────────── */}
-      <section className="bg-brand-dark py-20">
+      {/* ── Seção 7: Seja um técnico ───────────────────────────────────── */}
+      <section className="bg-brand-dark py-20 animate-on-scroll">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center gap-12">
+            <div className="flex-1">
+              <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+                🔧 Para profissionais
+              </p>
+              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
+                Seja um técnico Painel Clean
+              </h2>
+              <p className="text-white/70 text-lg mb-8">
+                Cadastre-se na plataforma e comece a atender clientes na sua região. Cadastro gratuito, sem mensalidade.
+              </p>
+              <Link
+                href="/cadastro?role=tecnico"
+                className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg"
+              >
+                Cadastrar como técnico →
+              </Link>
+            </div>
+            <div className="flex-1 grid grid-cols-2 gap-4 w-full">
+              {[
+                { icon: "✅", titulo: "Sem mensalidade",      texto: "Cadastro gratuito. Você paga apenas 25% de comissão por serviço realizado." },
+                { icon: "💰", titulo: "Receba 75% do valor",  texto: "Num serviço de R$ 600, você recebe R$ 450 via PIX automático após conclusão." },
+                { icon: "📱", titulo: "Gerencie pelo app",    texto: "Aceite chamados, registre relatórios e acompanhe seus ganhos em tempo real." },
+                { icon: "🛡️", titulo: "Seguro incluso",       texto: "Todos os serviços incluem cobertura contra danos acidentais durante a limpeza." },
+              ].map(({ icon, titulo, texto }) => (
+                <div key={titulo} className="bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <span className="text-2xl">{icon}</span>
+                  <p className="font-heading font-bold text-white text-sm mt-2 mb-1">{titulo}</p>
+                  <p className="text-white/50 text-xs leading-relaxed">{texto}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Seção 8: CTA Final — simple fade-in ─────────────────────────── */}
+      <section className="bg-brand-dark py-20 border-t border-white/10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-on-scroll">
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
             Suas placas merecem render 100%
