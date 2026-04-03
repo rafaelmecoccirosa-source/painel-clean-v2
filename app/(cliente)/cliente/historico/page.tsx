@@ -223,7 +223,7 @@ function HistoricoCard({ item }: { item: HistoricoItem }) {
               <span className="font-mono">{item.id.slice(0, 8).toUpperCase()}</span>
             </div>
             <p className="font-semibold text-brand-dark">
-              {item.module_count} placa{item.module_count !== 1 ? "s" : ""} — {item.city}
+              {item.module_count ?? item.panel_count ?? "?"} placa{(item.module_count ?? item.panel_count ?? 0) !== 1 ? "s" : ""} — {item.city}
             </p>
           </div>
           <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 whitespace-nowrap">

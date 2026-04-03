@@ -138,7 +138,7 @@ export default async function AdminDashboardPage() {
         cidade:   s.city,
         cliente:  s.client_id.slice(0, 8),
         tecnico:  s.technician_id ? s.technician_id.slice(0, 8) : "—",
-        modulos:  s.module_count,
+        modulos:  s.module_count ?? s.panel_count ?? 0,
         valor:    s.status === "completed" ? s.price_estimate : 0,
         comissao: s.status === "completed" ? s.price_estimate * 0.25 : 0,
         status:   s.status === "completed" ? "concluido"

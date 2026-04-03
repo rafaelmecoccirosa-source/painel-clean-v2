@@ -543,6 +543,7 @@ export default function SolicitarPage() {
         city,
         address:         address.trim() || (useMap ? `Pin no mapa: ${lat?.toFixed(5)}, ${lng?.toFixed(5)}` : ""),
         module_count:    numPlacas,
+        panel_count:     numPlacas,   // compatibilidade com schema.sql legado
         price_estimate:  pricing.precoCliente,   // preço que o cliente paga (com desconto MVP se ativo)
         preco_min:       pricing.precoMin,
         preco_max:       pricing.precoMax,

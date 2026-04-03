@@ -311,7 +311,7 @@ function ServicoCard({
             #{s.id.slice(0, 8).toUpperCase()}
           </p>
           <p className="font-semibold text-brand-dark">
-            {s.module_count} placa{s.module_count !== 1 ? "s" : ""} — {s.city}
+            {s.module_count ?? s.panel_count ?? "?"} placa{(s.module_count ?? s.panel_count ?? 0) !== 1 ? "s" : ""} — {s.city}
           </p>
         </div>
         <StatusBadge status={s.status} paymentStatus={payStatus} />
@@ -326,7 +326,7 @@ function ServicoCard({
         <p>📍 {s.address}</p>
         <p>📅 {fmtDate(s.preferred_date)} · {s.preferred_time}</p>
         {s.tipo_instalacao && (
-          <p>🔧 {TIPO_LABEL[s.tipo_instalacao] ?? s.tipo_instalacao} · {s.module_count} placa{s.module_count !== 1 ? "s" : ""}</p>
+          <p>🔧 {TIPO_LABEL[s.tipo_instalacao] ?? s.tipo_instalacao} · {s.module_count ?? s.panel_count ?? "?"} placa{(s.module_count ?? s.panel_count ?? 0) !== 1 ? "s" : ""}</p>
         )}
         {(() => {
           const hasRange = s.preco_min && s.preco_max && s.preco_min > 0;
@@ -524,6 +524,9 @@ export default function ClienteHomePage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
+
+      // Set email as immediate fallback so the banner never shows "Usuário"
+      setUserName(user.email?.split("@")[0] ?? "Usuário");
 
       const [profileRes, servicesRes, reviewsRes] = await Promise.all([
         supabase.from("profiles").select("full_name").eq("user_id", user.id).single(),

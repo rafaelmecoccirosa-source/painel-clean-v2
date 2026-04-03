@@ -76,7 +76,7 @@ export default async function ServicosPage() {
         cidade: s.city ?? "—",
         cliente: s.client_id?.slice(0, 8) ?? "—",
         tecnico: s.technician_id ? s.technician_id.slice(0, 8) : "—",
-        modulos: s.module_count ?? 0,
+        modulos: s.module_count ?? s.panel_count ?? 0,
         valor: s.price_estimate ?? 0,
         comissao: (s.price_estimate ?? 0) * 0.25,
         status: s.status ?? "pending",
