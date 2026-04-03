@@ -63,7 +63,7 @@ const beneficios = [
   { emoji: "⚡", titulo: "Agendamento dinâmico",       texto: "Sem espera. Você escolhe a data e o técnico mais próximo aceita rapidamente." },
   { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada placa." },
   { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de placas. Sem surpresas na hora de pagar." },
-  { emoji: "🔒", titulo: "Pagamento seguro",           texto: "PIX, cartão ou boleto. Pagamento só após o serviço concluído." },
+  { emoji: "🛡️", titulo: "Garantia e seguro",           texto: "Todos os serviços incluem seguro contra danos acidentais. Pagamento via PIX, cartão ou boleto — só após o serviço concluído." },
   { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
 ];
 
