@@ -173,14 +173,14 @@ export default function CalculadoraEconomia() {
             {/* Top half — perda (fundo branco, valores vermelhos) */}
             <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4">
               <h3 className="font-heading font-bold text-brand-dark text-base">
-                ⚡ O que você está perdendo
+                ⚡ O que você pode estar perdendo
               </h3>
 
               <p className="text-sm text-brand-muted">
                 Suas <span className="font-bold text-brand-dark">{placas} placas</span> geram{" "}
                 <span className="font-bold text-brand-dark">~{fmtKwh(geracaoMensal)}/mês</span>
               </p>
-              <p className="text-sm text-brand-muted">Com sujeira, você perde:</p>
+              <p className="text-sm text-brand-muted">Com sujeira acumulada, você pode perder até:</p>
 
               <div className="space-y-2">
                 <p
@@ -191,10 +191,10 @@ export default function CalculadoraEconomia() {
                 </p>
                 <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
                   = {fmt(dinheiroPerdidoMes)}/mês{" "}
-                  <em className="font-normal" style={{ color: "#E24B4A" }}>jogados fora</em>
+                  <em className="font-normal" style={{ color: "#E24B4A" }}>desperdiçados por mês</em>
                 </p>
                 <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
-                  = {fmt(dinheiroPerdidoAno)}/ano de prejuízo
+                  = {fmt(dinheiroPerdidoAno)}/ano em energia desperdiçada
                 </p>
               </div>
             </div>

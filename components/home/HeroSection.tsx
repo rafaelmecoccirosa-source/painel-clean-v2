@@ -99,18 +99,13 @@ export default function HeroSection() {
 
         {/* Trust signals */}
         <div className="mt-8 sm:mt-10">
-          {/* Desktop: single nowrap row — 5 items with dividers, font-size 12px to fit */}
-          <div className="hidden sm:flex items-center gap-4 flex-nowrap overflow-hidden">
-            {trustItems.map(({ icon, label }, idx, arr) => (
-              <div key={label} className="flex items-center gap-4 flex-shrink-0">
-                <span className="flex items-center gap-1.5">
-                  <span style={{ fontSize: "14px", lineHeight: 1 }}>{icon}</span>
-                  <span className="text-white font-medium text-[12px] whitespace-nowrap">{label}</span>
-                </span>
-                {idx < arr.length - 1 && (
-                  <span style={{ color: "rgba(255,255,255,0.3)", fontSize: "14px", userSelect: "none" }}>|</span>
-                )}
-              </div>
+          {/* Desktop: flex-wrap so all 5 items are always visible */}
+          <div className="hidden sm:flex items-center gap-x-6 gap-y-2 flex-wrap justify-start">
+            {trustItems.map(({ icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 whitespace-nowrap">
+                <span style={{ fontSize: "13px", lineHeight: 1 }}>{icon}</span>
+                <span className="text-white font-medium text-[12px]">{label}</span>
+              </span>
             ))}
           </div>
 
