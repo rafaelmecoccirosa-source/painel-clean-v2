@@ -60,7 +60,13 @@ export async function middleware(request: NextRequest) {
       .eq("user_id", user.id)
       .single();
 
-    const role = profile?.role ?? "cliente";
+    // If we can't read the profile (RLS not applied, table missing, etc.)
+    // let the request through — don't assume a wrong role.
+    if (!profile) {
+      return supabaseResponse;
+    }
+
+    const role = profile.role as string;
 
     const correctRoot: Record<string, string> = {
       admin:   "/admin",

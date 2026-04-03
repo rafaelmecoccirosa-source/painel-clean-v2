@@ -343,8 +343,17 @@ export default function HistoricoPage() {
         .eq("status", "completed")
         .order("completed_at", { ascending: false });
 
-      if (svcError || !services || services.length === 0) {
+      // Only fall back to mock data on a real query error (e.g. table doesn't exist).
+      // An empty array means the user has no completed services — show empty state.
+      if (svcError) {
         setItems(MOCK_HISTORICO);
+        setLoading(false);
+        return;
+      }
+
+      if (!services || services.length === 0) {
+        setItems([]);
+        setIsReal(true);
         setLoading(false);
         return;
       }
@@ -376,7 +385,7 @@ export default function HistoricoPage() {
       setIsReal(true);
     } catch (err) {
       console.error(err);
-      setItems(MOCK_HISTORICO);
+      setItems([]);
     } finally {
       setLoading(false);
     }
