@@ -76,9 +76,9 @@ export default function CalculadoraEconomia() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           {/* ── Inputs ── */}
-          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8">
+          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8 flex flex-col justify-between">
             {/* Quantidade de placas */}
             <div>
               <div className="flex items-center justify-between mb-3">
