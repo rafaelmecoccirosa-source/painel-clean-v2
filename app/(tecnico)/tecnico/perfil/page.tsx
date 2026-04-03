@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { User, MapPin, Phone, Mail, Star, CheckCircle2 } from "lucide-react";
 import { MOCK_TECNICO } from "@/lib/mock-data";
 
@@ -12,7 +13,8 @@ export default async function TecnicoPerfilPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase
+      const admin = createServiceClient();
+      const { data } = await admin
         .from("profiles")
         .select("full_name, phone, city")
         .eq("user_id", user.id)

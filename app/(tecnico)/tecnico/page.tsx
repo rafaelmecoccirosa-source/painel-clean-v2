@@ -5,6 +5,7 @@ import DisponibilidadeToggle from "@/components/tecnico/DisponibilidadeToggle";
 import GanhosChart from "@/components/tecnico/GanhosChart";
 import { MOCK_TECNICO } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { SUBSCRIPTION_ENABLED } from "@/lib/config";
 
 export const metadata: Metadata = { title: "Dashboard — Técnico | Painel Clean" };
@@ -19,12 +20,14 @@ export default async function TecnicoDashboardPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase
+      userName = user.email?.split("@")[0] ?? "Técnico";
+      const admin = createServiceClient();
+      const { data: profile } = await admin
         .from("profiles")
         .select("full_name")
         .eq("user_id", user.id)
         .single();
-      userName = profile?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "Técnico";
+      if (profile?.full_name) userName = profile.full_name.split(" ")[0];
     }
   } catch { /* fallback */ }
 
@@ -143,7 +146,65 @@ export default async function TecnicoDashboardPage() {
         ))}
       </div>
 
-      {/* ── Seção 1b: Ranking + Fluxo de clientes ── */}
+      {/* ── Seção 1b: Próximos chamados ── */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-heading font-bold text-brand-dark text-base">
+            📅 Próximos chamados
+          </h2>
+          <Link
+            href="/tecnico/chamados"
+            className="text-xs text-brand-green font-semibold hover:underline flex items-center gap-1"
+          >
+            Ver todos <ArrowRight size={12} />
+          </Link>
+        </div>
+
+        {proximosChamados.length === 0 ? (
+          <div className="card flex flex-col items-center py-10 text-center gap-3">
+            <span className="text-4xl">📭</span>
+            <p className="font-heading font-bold text-brand-dark text-sm">Nenhum chamado agendado</p>
+            <p className="text-xs text-brand-muted max-w-xs">
+              Fique online para receber novos chamados na sua região!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {proximosChamados.map((c) => (
+              <div
+                key={c.id}
+                className="card flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+              >
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-heading font-bold text-brand-dark text-sm">
+                      📍 {c.cidade}
+                    </span>
+                    {"urgente" in c && c.urgente && (
+                      <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">
+                        🚨 Urgente
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-brand-muted">
+                    <span>📅 {c.data} · {c.hora}</span>
+                    <span>🔋 {c.modulos} placas</span>
+                    <span>💰 {fmt(c.valorServico)} (repasse: <strong className="text-brand-green">{fmt(c.repasse)}</strong>)</span>
+                  </div>
+                </div>
+                <Link
+                  href={`/tecnico/chamados/${c.id}`}
+                  className="flex-shrink-0 text-xs font-semibold text-brand-dark border border-brand-border rounded-xl px-4 py-2 hover:bg-brand-light transition-colors flex items-center gap-1"
+                >
+                  Ver detalhes <ArrowRight size={12} />
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Seção 2: Ranking + Fluxo de clientes ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Ranking card */}
         <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
@@ -273,64 +334,6 @@ export default async function TecnicoDashboardPage() {
         <p className="text-[10px] text-brand-muted mt-4">
           ✅ Acima da meta &nbsp;|&nbsp; ⚠️ Abaixo da meta
         </p>
-      </div>
-
-      {/* ── Seção 4: Próximos chamados ── */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-heading font-bold text-brand-dark text-base">
-            📅 Próximos chamados
-          </h2>
-          <Link
-            href="/tecnico/chamados"
-            className="text-xs text-brand-green font-semibold hover:underline flex items-center gap-1"
-          >
-            Ver todos <ArrowRight size={12} />
-          </Link>
-        </div>
-
-        {proximosChamados.length === 0 ? (
-          <div className="card flex flex-col items-center py-10 text-center gap-3">
-            <span className="text-4xl">📭</span>
-            <p className="font-heading font-bold text-brand-dark text-sm">Nenhum chamado agendado</p>
-            <p className="text-xs text-brand-muted max-w-xs">
-              Fique online para receber novos chamados na sua região!
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {proximosChamados.map((c) => (
-              <div
-                key={c.id}
-                className="card flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-heading font-bold text-brand-dark text-sm">
-                      📍 {c.cidade}
-                    </span>
-                    {"urgente" in c && c.urgente && (
-                      <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">
-                        🚨 Urgente
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-brand-muted">
-                    <span>📅 {c.data} · {c.hora}</span>
-                    <span>🔋 {c.modulos} placas</span>
-                    <span>💰 {fmt(c.valorServico)} (repasse: <strong className="text-brand-green">{fmt(c.repasse)}</strong>)</span>
-                  </div>
-                </div>
-                <Link
-                  href={`/tecnico/chamados/${c.id}`}
-                  className="flex-shrink-0 text-xs font-semibold text-brand-dark border border-brand-border rounded-xl px-4 py-2 hover:bg-brand-light transition-colors flex items-center gap-1"
-                >
-                  Ver detalhes <ArrowRight size={12} />
-                </Link>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
 
       {/* ── Seção 5: Histórico rápido ── */}
