@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/layout/Logo";
 import Button from "@/components/ui/Button";
@@ -10,10 +10,20 @@ import { CheckCircle2, AlertCircle } from "lucide-react";
 
 const CIDADES = ["Jaraguá do Sul", "Pomerode", "Florianópolis"];
 
-export default function CadastroPage() {
+function CadastroInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<"cliente" | "tecnico" | null>(null);
+
+  // Pre-select role from query param (e.g. /cadastro?role=tecnico)
+  useEffect(() => {
+    const r = searchParams.get("role");
+    if (r === "tecnico" || r === "cliente") {
+      setRole(r);
+      setStep(2);
+    }
+  }, [searchParams]);
 
   // Step 2 fields
   const [nome, setNome] = useState("");
@@ -63,7 +73,7 @@ export default function CadastroPage() {
     setLoading(true);
 
     const supabase = createClient();
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -77,9 +87,8 @@ export default function CadastroPage() {
       },
     });
 
-    setLoading(false);
-
     if (signUpError) {
+      setLoading(false);
       if (signUpError.message.includes("already registered")) {
         setError("Este e-mail já está cadastrado. Tente fazer login.");
       } else {
@@ -88,6 +97,23 @@ export default function CadastroPage() {
       return;
     }
 
+    // Manually insert profile (in case the DB trigger isn't set up yet)
+    if (signUpData.user) {
+      console.log("[cadastro] inserting profile for user:", signUpData.user.id);
+      const { error: profileError } = await supabase.from("profiles").upsert({
+        user_id: signUpData.user.id,
+        full_name: nome,
+        role,
+        city: cidade,
+        phone: telefone,
+        email: signUpData.user.email,
+      }, { onConflict: "user_id" });
+      if (profileError) {
+        console.warn("[cadastro] profile upsert warning:", profileError.message);
+      }
+    }
+
+    setLoading(false);
     setSuccess(true);
     setTimeout(() => router.push("/login"), 3000);
   }
@@ -128,32 +154,6 @@ export default function CadastroPage() {
           <div className="card">
             <h1 className="text-xl font-bold text-brand-dark mb-1">Criar conta</h1>
             <p className="text-sm text-brand-muted mb-6">Como você quer usar a plataforma?</p>
-
-            {/* Google OAuth */}
-            <button
-              type="button"
-              onClick={handleGoogleSignUp}
-              disabled={loadingGoogle}
-              className="w-full flex items-center justify-center gap-3 bg-white border border-brand-border hover:border-brand-green hover:bg-brand-light text-brand-dark font-semibold text-sm rounded-xl px-4 py-3 transition-colors mb-4 disabled:opacity-50"
-            >
-              <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-                <path fill="#4285F4" d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
-                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
-                <path fill="#FBBC05" d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z"/>
-                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
-              </svg>
-              {loadingGoogle ? "Redirecionando…" : "Continuar com Google"}
-            </button>
-
-            <div className="flex items-center gap-3 mb-4">
-              <div className="flex-1 h-px bg-brand-border" />
-              <span className="text-xs text-brand-muted">ou</span>
-              <div className="flex-1 h-px bg-brand-border" />
-            </div>
-
-            <p className="text-xs font-semibold text-brand-muted uppercase tracking-widest mb-3">
-              Cadastro com e-mail
-            </p>
 
             <div className="space-y-3">
               <button
@@ -214,14 +214,6 @@ export default function CadastroPage() {
                 ? "Crie sua conta para agendar serviços."
                 : "Crie sua conta para receber chamados na sua cidade."}
             </p>
-
-            {role === "tecnico" && (
-              <div className="bg-brand-light border border-brand-border rounded-xl px-4 py-3 mb-4">
-                <p className="text-xs font-semibold text-brand-green">
-                  Sem mensalidade — apenas 15% de comissão por serviço realizado
-                </p>
-              </div>
-            )}
 
             {/* Google OAuth */}
             <button
@@ -370,5 +362,13 @@ export default function CadastroPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function CadastroPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-brand-bg" />}>
+      <CadastroInner />
+    </Suspense>
   );
 }

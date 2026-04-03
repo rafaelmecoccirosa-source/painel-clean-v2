@@ -855,6 +855,15 @@ export default function SolicitarPage() {
           </div>
         </div>
 
+        {/* Seguro contra danos */}
+        <div className="flex items-start gap-2.5 bg-brand-light border border-brand-border rounded-xl px-4 py-3">
+          <span className="text-lg flex-shrink-0">🛡️</span>
+          <p className="text-xs text-brand-dark leading-snug">
+            <strong>Seguro contra danos incluso.</strong> Se houver qualquer problema durante a limpeza
+            (telhado, placas, equipamentos), você está coberto.
+          </p>
+        </div>
+
         {disponibilidade && !disponibilidade.disponivel ? (
           <div className="space-y-2">
             <button

@@ -251,7 +251,7 @@ export default function RelatoriosPage() {
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <div>
             <h2 className="font-heading font-bold text-brand-dark text-base">💰 Receita da Plataforma</h2>
-            <p className="text-brand-muted text-xs mt-0.5">Comissão 15% — receita diária no período</p>
+            <p className="text-brand-muted text-xs mt-0.5">Comissão 25% — receita diária no período</p>
           </div>
           <div className="text-right">
             <p className="font-heading font-bold text-brand-dark text-xl">{fmt(totalReceita)}</p>

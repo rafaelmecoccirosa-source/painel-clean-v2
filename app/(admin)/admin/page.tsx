@@ -30,7 +30,7 @@ const STATIC_ALERTAS = [
   },
   {
     icon: "📈",
-    texto: "Receita 15% acima da meta esta semana",
+    texto: "Receita 25% acima da meta esta semana",
     href: "#receita",
     cor: "text-emerald-700",
   },
@@ -82,7 +82,7 @@ export default async function AdminDashboardPage() {
 
   // Derived real metrics
   const realCompleted  = realServices.filter((s) => s.status === "completed");
-  const realReceita    = realCompleted.reduce((a, s) => a + s.price_estimate * 0.15, 0);
+  const realReceita    = realCompleted.reduce((a, s) => a + s.price_estimate * 0.25, 0);
   const realTotal      = realServices.length;
   const realCities     = Array.from(new Set(realServices.map((s) => s.city)));
 
@@ -94,7 +94,7 @@ export default async function AdminDashboardPage() {
       value: fmt(hasReal ? realReceita : MOCK_ADMIN.receitaMes),
       trend: `+${MOCK_ADMIN.tendencia.receita}%`,
       up: true,
-      sub: hasReal ? "dados reais · comissão 15%" : "vs mês anterior · comissão 15%",
+      sub: hasReal ? "dados reais · comissão 25%" : "vs mês anterior · comissão 25%",
     },
     {
       emoji: "📋",
@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
         tecnico:  s.technician_id ? s.technician_id.slice(0, 8) : "—",
         modulos:  s.module_count,
         valor:    s.status === "completed" ? s.price_estimate : 0,
-        comissao: s.status === "completed" ? s.price_estimate * 0.15 : 0,
+        comissao: s.status === "completed" ? s.price_estimate * 0.25 : 0,
         status:   s.status === "completed" ? "concluido"
                 : s.status === "in_progress" ? "andamento"
                 : s.status === "accepted"    ? "agendado"

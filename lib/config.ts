@@ -4,7 +4,7 @@
 /**
  * SUBSCRIPTION_ENABLED
  * Controla se a assinatura mensal de técnicos está ativa.
- * - false (MVP): cadastro gratuito, só comissão de 15% por serviço
+ * - false (MVP): cadastro gratuito, só comissão de 25% por serviço
  * - true (futuro): mensalidade ativa + comissão
  */
 export const SUBSCRIPTION_ENABLED = false;

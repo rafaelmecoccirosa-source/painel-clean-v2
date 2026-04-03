@@ -163,7 +163,7 @@ export default function CompletarCadastroPage() {
             {role === "tecnico" && (
               <div className="bg-brand-light border border-brand-border rounded-xl px-4 py-3 mb-4">
                 <p className="text-xs font-semibold text-brand-green">
-                  Sem mensalidade — apenas 15% de comissão por serviço realizado
+                  Sem mensalidade — apenas 25% de comissão por serviço realizado
                 </p>
               </div>
             )}

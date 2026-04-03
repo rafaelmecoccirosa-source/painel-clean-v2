@@ -24,6 +24,8 @@ export const PRECO_POR_PLACA       = 15;    // mantido para compatibilidade, nã
 export const PRECO_MINIMO          = 300;   // mínimo R$ 300 por visita (mercado SC)
 export const CUSTO_KM              = 2;     // R$ por km de deslocamento
 export const BOOST_MVP             = 1.15;  // 15% boost para atrair técnicos no MVP
+export const COMISSAO_PLATAFORMA   = 0.25;  // 25% para a plataforma
+export const REPASSE_TECNICO_PCT   = 0.75;  // 75% para o técnico
 export const REPASSE_MINIMO_TECNICO = 200;  // técnico nunca recebe menos que R$ 200
 export const DESCONTO_MVP_CLIENTE  = 0.85;  // 15% desconto pro cliente no MVP (SUBSCRIPTION_ENABLED=false)
 export const BOOST_MVP_TECNICO     = 1.15;  // mesma taxa que BOOST_MVP — documentado para clareza
@@ -135,10 +137,10 @@ export function calcularPreco(dados: DadosServico): ResultadoPrecificacao {
   precoEstimado *= BOOST_MVP;
 
   // 7. Garantia de repasse mínimo pro técnico
-  const repasseBruto = precoEstimado * 0.85;
+  const repasseBruto = precoEstimado * REPASSE_TECNICO_PCT;
   if (repasseBruto < REPASSE_MINIMO_TECNICO) {
     // Ajustar preço para cima para garantir repasse mínimo
-    precoEstimado = Math.ceil(REPASSE_MINIMO_TECNICO / 0.85);
+    precoEstimado = Math.ceil(REPASSE_MINIMO_TECNICO / REPASSE_TECNICO_PCT);
   }
 
   // 8. Arredondar preço interno
@@ -150,9 +152,9 @@ export function calcularPreco(dados: DadosServico): ResultadoPrecificacao {
     ? Math.round(precoEstimado * DESCONTO_MVP_CLIENTE)
     : precoEstimado;
 
-  // 10. Repasse ao técnico = 85% do preço INTERNO (não do preço com desconto)
+  // 10. Repasse ao técnico = 75% do preço INTERNO (não do preço com desconto)
   //     Isso garante o boost pro técnico mesmo com desconto pro cliente
-  const repasseTecnico = Math.round(precoEstimado * 0.85);
+  const repasseTecnico = Math.round(precoEstimado * REPASSE_TECNICO_PCT);
 
   // 11. Faixa exibida baseada no precoCliente (±10% min, +20% max)
   const precoMin = Math.round(precoCliente * 0.9);

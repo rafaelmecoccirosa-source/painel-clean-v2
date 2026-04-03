@@ -99,10 +99,10 @@ export default function AgendaPage() {
   const diasComChamado = new Set(monthChamados.map((c) => c.data)).size;
   const ganhosPrevisto = monthChamados
     .filter((c) => c.status !== "concluido")
-    .reduce((a, c) => a + c.valor * 0.85, 0);
+    .reduce((a, c) => a + c.valor * 0.75, 0);
   const ganhosConcluidos = monthChamados
     .filter((c) => c.status === "concluido")
-    .reduce((a, c) => a + c.valor * 0.85, 0);
+    .reduce((a, c) => a + c.valor * 0.75, 0);
 
   // Most busy day
   let maxDay = "";
@@ -261,7 +261,7 @@ export default function AgendaPage() {
                     <div className="flex items-center gap-4 text-xs pt-2 border-t border-brand-border">
                       <span className="text-brand-muted">🔋 {c.modulos} placas</span>
                       <span className="font-bold text-brand-green">
-                        💰 {fmt(c.valor * 0.85)} <span className="font-normal text-brand-muted">(repasse 85%)</span>
+                        💰 {fmt(c.valor * 0.75)} <span className="font-normal text-brand-muted">(repasse 75%)</span>
                       </span>
                     </div>
                     <Link
