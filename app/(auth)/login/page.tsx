@@ -7,12 +7,6 @@ import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { AlertCircle } from "lucide-react";
 
-const ROLE_REDIRECT: Record<string, string> = {
-  cliente: "/cliente",
-  tecnico: "/tecnico",
-  admin: "/admin",
-};
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,7 +37,7 @@ export default function LoginPage() {
 
     const supabase = createClient();
 
-    const { data: authData, error: signInError } =
+    const { error: signInError } =
       await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
@@ -61,18 +55,9 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch role — use service_role key if possible; anon key as fallback
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", authData.user.id)
-      .single();
-
-    const role = profile?.role ?? "cliente";
-    const destination = ROLE_REDIRECT[role] ?? "/cliente";
-
-    // Hard navigation — avoids any client-side re-render flash
-    window.location.href = destination;
+    // Redirect via server-side route that reads role with service_role key (bypasses RLS).
+    // Hard navigation ensures no client-side flash.
+    window.location.href = "/api/auth/redirect";
   }
 
   return (
