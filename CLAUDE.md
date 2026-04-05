@@ -1,7 +1,7 @@
 # CLAUDE.md — Painel Clean Plataforma
 
 > Contexto completo do projeto para o Claude Code.
-> Atualizado em: 2026-04-04
+> Atualizado em: 2026-04-05
 > Leia este arquivo inteiro antes de qualquer implementação.
 
 ---
@@ -55,6 +55,7 @@ Marketplace de limpeza de placas solares no modelo Uber/iFood. Conecta **donos d
 ```
 app/
   (auth)/login, cadastro, completar-cadastro
+  api/auth/redirect/route.ts  <- route handler server-side para redirect por role
   (cliente)/layout.tsx
   (cliente)/cliente/
     page.tsx                    <- dashboard cliente (Client Component)
@@ -102,6 +103,10 @@ components/
   tecnico/DisponibilidadeToggle, GanhosChart
   admin/ServicosEscalationAlert, AdminDonut, AdminReceitaChart
   ui/Button, Badge, Toast
+
+scripts/
+  seed-users-demo.sql   <- insere usuários demo no banco (12 users + profiles)
+  seed-location.sql     <- atualiza lat/lng dos técnicos por cidade
 ```
 
 ---
@@ -227,6 +232,19 @@ escalation_level     -> quantas vezes admin aumentou o preco
 escalated_at         -> ultima escalacao manual
 ```
 
+### Join client_id -> profiles
+- `service_requests.client_id` é FK para `auth.users`, não para `profiles`
+- PostgREST **nao** atravessa `auth.users -> profiles` automaticamente
+- Para buscar nome do cliente junto com o serviço: fazer join em JS no Server Component
+```typescript
+// No Server Component — buscar profiles separado e fazer merge em JS
+const clienteMap = new Map(clientes.map(c => [c.user_id, c]))
+const servicosComCliente = servicos.map(s => ({
+  ...s,
+  client_name: clienteMap.get(s.client_id)?.full_name ?? null,
+}))
+```
+
 ---
 
 ## RLS (Row Level Security) — regras vigentes
@@ -274,6 +292,23 @@ USING (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role 
 - **NAO FAZ:** verificacao de role
 - **Motivo:** middleware roda no Edge Runtime (V8), queries ao Supabase falham silenciosamente
 
+### Login — redirect server-side (CRITICO)
+
+Apos `signInWithPassword` bem-sucedido, o `login/page.tsx` faz hard navigate para
+`/api/auth/redirect` — uma route handler que le o role via `createServiceClient()`
+e retorna 302 direto para `/admin`, `/tecnico` ou `/cliente`.
+
+```typescript
+// login/page.tsx — CORRETO
+window.location.href = '/api/auth/redirect'
+
+// login/page.tsx — ERRADO (gera flash visual)
+router.push('/cliente')
+```
+
+**Motivo:** `router.push()` renderiza o componente cliente antes do redirect de role
+acontecer, causando flash visual da tela errada.
+
 ### Redirect por role — nos layouts
 
 ```typescript
@@ -309,6 +344,12 @@ if (userRole === 'tecnico') redirect('/tecnico')
 - Online = `last_seen` nos ultimos 5 minutos
 - `PresencePing` esta incluido no `app/(tecnico)/layout.tsx`
 
+### Tabs e filtro
+- Ordem: Técnicos / Clientes / Serviços / Todos
+- Default: Técnicos
+- Ao trocar tab: LayerGroup.clearLayers() + recria markers da tab ativa
+- Tab Clientes: agrupa service_requests por client_id, mostra total placas, badge "X usinas", clique faz pan/zoom
+
 ### Leaflet — regra critica
 ```typescript
 // CORRETO — importar APENAS dentro de useEffect
@@ -318,6 +359,33 @@ useEffect(() => {
 
 // ERRADO — quebra o build (window is not defined no SSR)
 import L from 'leaflet'
+```
+
+---
+
+## Dados demo no banco
+
+Emails demo no formato `nome.sobrenome@demo.painelclean.com.br` — fácil identificar.
+Scripts em `scripts/` para recriar ou limpar os dados demo.
+
+Técnicos demo e suas cidades:
+- `carlos.souza@demo.painelclean.com.br` — Jaraguá do Sul
+- `lucas.martins@demo.painelclean.com.br` — Jaraguá do Sul
+- `pedro.santos@demo.painelclean.com.br` — Pomerode
+- `diego.ferreira@demo.painelclean.com.br` — Pomerode
+- `roberto.lima@demo.painelclean.com.br` — Florianópolis
+- `amanda.reis@demo.painelclean.com.br` — Florianópolis
+
+Para resetar presença antes de demos — rodar no Supabase SQL Editor:
+```sql
+UPDATE profiles SET last_seen = NOW()
+FROM auth.users u WHERE profiles.user_id = u.id
+AND u.email IN (
+  'rafu@porteiradoalto.com.br',
+  'carlos.souza@demo.painelclean.com.br',
+  'pedro.santos@demo.painelclean.com.br',
+  'roberto.lima@demo.painelclean.com.br'
+);
 ```
 
 ---
