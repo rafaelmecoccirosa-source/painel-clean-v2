@@ -19,7 +19,7 @@ export default function TecnicoPerfilPage() {
   const [profile, setProfile]     = useState<Profile>({ full_name: null, email: null, phone: null, city: null, cep: null, lat: null, lng: null })
   const [editing, setEditing]     = useState(false)
   const [saving, setSaving]       = useState(false)
-  const [saveMsg, setSaveMsg]     = useState<string | null>(null)
+  const [saveMsg, setSaveMsg]     = useState<{ msg: string; ok: boolean } | null>(null)
   const [userId, setUserId]       = useState<string | null>(null)
 
   // Edit fields
@@ -77,10 +77,14 @@ export default function TecnicoPerfilPage() {
     } catch { /* silently fail */ }
   }
 
+  const showToast = (msg: string, ok: boolean) => {
+    setSaveMsg({ msg, ok })
+    setTimeout(() => setSaveMsg(null), 3500)
+  }
+
   const handleSave = async () => {
     if (!userId) return
     setSaving(true)
-    setSaveMsg(null)
     try {
       const supabase = createClient()
       const { error } = await supabase
@@ -90,10 +94,10 @@ export default function TecnicoPerfilPage() {
 
       if (error) throw error
       setProfile(prev => ({ ...prev, full_name: fullName, phone, city, cep, lat, lng }))
-      setSaveMsg('Perfil atualizado com sucesso!')
       setEditing(false)
+      showToast('Perfil atualizado com sucesso!', true)
     } catch {
-      setSaveMsg('Erro ao salvar. Tente novamente.')
+      showToast('Erro ao salvar. Tente novamente.', false)
     } finally {
       setSaving(false)
     }
@@ -148,11 +152,11 @@ export default function TecnicoPerfilPage() {
 
       {saveMsg && (
         <div className={`text-sm px-4 py-3 rounded-xl font-medium ${
-          saveMsg.startsWith('Erro')
-            ? 'bg-red-50 text-red-700 border border-red-200'
-            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          saveMsg.ok
+            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+            : 'bg-red-50 text-red-700 border border-red-200'
         }`}>
-          {saveMsg}
+          {saveMsg.msg}
         </div>
       )}
 

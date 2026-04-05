@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
     .eq("user_id", data.user.id)
     .single();
 
-  if (!profile) {
-    // New Google user — needs to complete profile
+  if (!profile || !profile.role) {
+    // New user or profile without role — needs to complete registration
     return NextResponse.redirect(`${origin}/completar-cadastro`);
   }
 
