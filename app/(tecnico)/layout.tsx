@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import HeaderTecnico from "@/components/layout/HeaderTecnico";
 import { createClient } from "@/lib/supabase/server";
+import { PresencePing } from "@/components/PresencePing";
 
 export const metadata: Metadata = {
   title: "Área do Técnico",
@@ -28,6 +29,7 @@ export default async function TecnicoLayout({
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col">
+      <PresencePing />
       <HeaderTecnico userName={userName} notificationCount={3} />
       <main className="flex-1">{children}</main>
       <footer className="bg-brand-dark text-white/50 py-6 mt-auto">

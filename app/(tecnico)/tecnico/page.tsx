@@ -16,6 +16,7 @@ function fmt(v: number) {
 
 export default async function TecnicoDashboardPage() {
   let userName = "Técnico";
+  let hasLocation = false;
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -24,10 +25,11 @@ export default async function TecnicoDashboardPage() {
       const admin = createServiceClient();
       const { data: profile } = await admin
         .from("profiles")
-        .select("full_name")
+        .select("full_name, lat")
         .eq("user_id", user.id)
         .single();
       if (profile?.full_name) userName = profile.full_name.split(" ")[0];
+      hasLocation = profile?.lat != null;
     }
   } catch { /* fallback */ }
 
@@ -145,6 +147,21 @@ export default async function TecnicoDashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* ── Banner: completar perfil com CEP ── */}
+      {!hasLocation && (
+        <div className="bg-brand-light border border-brand-border rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-brand-dark">Complete seu perfil</p>
+            <p className="text-xs text-brand-muted mt-0.5">
+              Informe seu CEP para aparecer no mapa de cobertura
+            </p>
+          </div>
+          <a href="/tecnico/perfil" className="text-sm font-medium text-brand-dark underline whitespace-nowrap">
+            Adicionar CEP →
+          </a>
+        </div>
+      )}
 
       {/* ── Seção 1b: Próximos chamados ── */}
       <div>
