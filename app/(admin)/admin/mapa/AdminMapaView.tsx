@@ -237,9 +237,9 @@ export function AdminMapaView({
       </div>
 
       {/* Mapa + lista lateral */}
-      <div className="flex gap-4 h-[580px]">
+      <div className="flex gap-4 h-[580px] w-full min-w-0">
         {/* Mapa */}
-        <div className="flex-1 bg-gray-100 rounded-2xl overflow-hidden border border-brand-border">
+        <div className="flex-1 min-w-0 bg-gray-100 rounded-2xl overflow-hidden border border-brand-border">
           <div ref={mapRef} className="w-full h-full" />
         </div>
 
