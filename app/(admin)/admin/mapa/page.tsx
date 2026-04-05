@@ -6,7 +6,7 @@ export const metadata = { title: 'Mapa de Cobertura — Admin | Painel Clean' }
 export default async function AdminMapaPage() {
   const supabase = createServiceClient()
 
-  const [{ data: tecnicos }, { data: servicos }] = await Promise.all([
+  const [{ data: tecnicos }, { data: servicos }, { data: clienteProfiles }] = await Promise.all([
     supabase
       .from('profiles')
       .select('user_id, full_name, city, cep, lat, lng, last_seen')
@@ -18,8 +18,27 @@ export default async function AdminMapaPage() {
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
       .order('created_at', { ascending: false }),
+    // client_id é FK para auth.users, não profiles — buscamos profiles de clientes
+    // separadamente e fazemos o join em JS via profiles.user_id = service_requests.client_id
+    supabase
+      .from('profiles')
+      .select('user_id, full_name, city')
+      .eq('role', 'cliente'),
   ])
 
+  // Mapa rápido client_id → dados do cliente
+  const clienteMap = new Map(
+    (clienteProfiles ?? []).map(p => [p.user_id, { full_name: p.full_name, city: p.city }])
+  )
+
+  // Enriquecer servicos com nome/cidade do cliente
+  const servicosEnriquecidos: ServicosItem[] = (servicos ?? []).map(s => ({
+    ...s,
+    client_name: clienteMap.get(s.client_id)?.full_name ?? null,
+    client_city: clienteMap.get(s.client_id)?.city ?? s.city ?? null,
+  }))
+
+  // Status online: threshold 5 minutos (não alterar)
   const agora = new Date()
   const tecnicosComStatus = (tecnicos ?? []).map(t => ({
     ...t,
@@ -32,10 +51,10 @@ export default async function AdminMapaPage() {
     tecnicosOnline:  tecnicosComStatus.filter(t => t.online).length,
     tecnicosOffline: tecnicosComStatus.filter(t => !t.online).length,
     tecnicosSemCEP:  tecnicosComStatus.filter(t => !t.lat).length,
-    totalServicos:   servicos?.length ?? 0,
-    servicosAtivos:  servicos?.filter(s =>
+    totalServicos:   servicosEnriquecidos.length,
+    servicosAtivos:  servicosEnriquecidos.filter(s =>
       ['pending', 'accepted', 'in_progress'].includes(s.status)
-    ).length ?? 0,
+    ).length,
   }
 
   return (
@@ -79,16 +98,17 @@ export default async function AdminMapaPage() {
 
       <AdminMapaView
         tecnicos={tecnicosComStatus}
-        servicos={(servicos ?? []) as ServicosItem[]}
+        servicos={servicosEnriquecidos}
       />
     </div>
   )
 }
 
-// Re-export type so AdminMapaView can import it
 export type ServicosItem = {
   id: string
   client_id: string
+  client_name: string | null
+  client_city: string | null
   city: string | null
   address: string | null
   module_count: number | null
