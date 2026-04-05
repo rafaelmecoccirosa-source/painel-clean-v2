@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import HeaderTecnico from "@/components/layout/HeaderTecnico";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { PresencePing } from "@/components/PresencePing";
 
 export const metadata: Metadata = {
@@ -13,19 +15,30 @@ export default async function TecnicoLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let userName = "Técnico";
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  let userName = user.email?.split("@")[0] ?? "Técnico";
+  let userRole: string | null = null;
+
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("user_id", user.id)
-        .single();
-      userName = profile?.full_name ?? user.email?.split("@")[0] ?? "Técnico";
+    const admin = createServiceClient();
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("full_name, role")
+      .eq("user_id", user.id)
+      .single();
+    if (profile) {
+      userRole = profile.role ?? null;
+      userName = profile.full_name ?? userName;
     }
-  } catch { /* fallback to default */ }
+  } catch { /* fallback — don't block render */ }
+
+  // redirect() OUTSIDE try/catch so NEXT_REDIRECT isn't swallowed
+  if (userRole === "cliente") redirect("/cliente");
+  if (userRole === "admin")   redirect("/admin");
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col">

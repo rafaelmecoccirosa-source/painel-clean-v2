@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/layout/Logo";
 import Button from "@/components/ui/Button";
@@ -15,7 +14,6 @@ const ROLE_REDIRECT: Record<string, string> = {
 };
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -63,7 +61,7 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch role from profiles table
+    // Fetch role — use service_role key if possible; anon key as fallback
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -73,8 +71,8 @@ export default function LoginPage() {
     const role = profile?.role ?? "cliente";
     const destination = ROLE_REDIRECT[role] ?? "/cliente";
 
-    router.push(destination);
-    router.refresh();
+    // Hard navigation — avoids any client-side re-render flash
+    window.location.href = destination;
   }
 
   return (

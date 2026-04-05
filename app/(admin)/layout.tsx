@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import HeaderAdmin from "@/components/layout/HeaderAdmin";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export const metadata: Metadata = {
   title: "Painel Admin",
@@ -12,19 +14,30 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let userName = "Administrador";
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  let userName = user.email?.split("@")[0] ?? "Administrador";
+  let userRole: string | null = null;
+
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("user_id", user.id)
-        .single();
-      userName = profile?.full_name ?? user.email?.split("@")[0] ?? "Administrador";
+    const admin = createServiceClient();
+    const { data: profile } = await admin
+      .from("profiles")
+      .select("full_name, role")
+      .eq("user_id", user.id)
+      .single();
+    if (profile) {
+      userRole = profile.role ?? null;
+      userName = profile.full_name ?? userName;
     }
-  } catch { /* fallback to default */ }
+  } catch { /* fallback — don't block render */ }
+
+  // redirect() OUTSIDE try/catch so NEXT_REDIRECT isn't swallowed
+  if (userRole === "cliente") redirect("/cliente");
+  if (userRole === "tecnico") redirect("/tecnico");
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col">

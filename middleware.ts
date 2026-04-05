@@ -12,28 +12,27 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           );
         },
       },
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh session (required by @supabase/ssr)
+  const { data: { user } } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
   // Public routes — always allow
   const publicRoutes = ["/", "/login", "/cadastro", "/completar-cadastro", "/termos"];
-  const publicPrefixes = ["/auth/"];
+  const publicPrefixes = ["/auth/", "/_next/", "/favicon"];
   if (
     publicRoutes.includes(pathname) ||
     publicPrefixes.some((p) => pathname.startsWith(p))
@@ -41,41 +40,13 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // Unauthenticated — redirect to login
+  // Unauthenticated → login
+  // Role-based protection is handled in Server Component layouts (Node.js runtime),
+  // where createServiceClient() can reliably query Supabase.
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);
-  }
-
-  // Role-based protection: fetch role from profiles
-  const isAdminRoute  = pathname.startsWith("/admin");
-  const isClienteRoute = pathname.startsWith("/cliente");
-  const isTecnicoRoute = pathname.startsWith("/tecnico");
-
-  if (isAdminRoute || isClienteRoute || isTecnicoRoute) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single();
-
-    const role = profile?.role ?? "cliente";
-
-    const correctRoot: Record<string, string> = {
-      admin:   "/admin",
-      tecnico: "/tecnico",
-      cliente: "/cliente",
-    };
-
-    const expectedPrefix = correctRoot[role] ?? "/cliente";
-    const currentPrefix  = isAdminRoute ? "/admin" : isClienteRoute ? "/cliente" : "/tecnico";
-
-    if (currentPrefix !== expectedPrefix) {
-      const url = request.nextUrl.clone();
-      url.pathname = expectedPrefix;
-      return NextResponse.redirect(url);
-    }
   }
 
   return supabaseResponse;
