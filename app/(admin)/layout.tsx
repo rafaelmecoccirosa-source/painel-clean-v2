@@ -33,7 +33,7 @@ export default async function AdminLayout({
       .single();
 
     if (profile) {
-      userRole = profile.role;
+      userRole = profile.role ?? null;
       userName = profile.full_name ?? userName;
     }
   } catch { /* service client unavailable — proceed without role guard */ }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import HeaderTecnico from "@/components/layout/HeaderTecnico";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
+import { PresencePing } from "@/components/PresencePing";
 
 export const metadata: Metadata = {
   title: "Área do Técnico",
@@ -33,7 +34,7 @@ export default async function TecnicoLayout({
       .single();
 
     if (profile) {
-      userRole = profile.role;
+      userRole = profile.role ?? null;
       userName = profile.full_name ?? userName;
     }
   } catch { /* service client unavailable — proceed without role guard */ }
@@ -44,6 +45,7 @@ export default async function TecnicoLayout({
 
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col">
+      <PresencePing />
       <HeaderTecnico userName={userName} notificationCount={3} />
       <main className="flex-1">{children}</main>
       <footer className="bg-brand-dark text-white/50 py-6 mt-auto">

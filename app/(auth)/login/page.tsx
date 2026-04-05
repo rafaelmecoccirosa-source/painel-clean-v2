@@ -1,21 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/layout/Logo";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { AlertCircle } from "lucide-react";
 
-const ROLE_REDIRECT: Record<string, string> = {
-  cliente: "/cliente",
-  tecnico: "/tecnico",
-  admin: "/admin",
-};
-
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -45,7 +37,7 @@ export default function LoginPage() {
 
     const supabase = createClient();
 
-    const { data: authData, error: signInError } =
+    const { error: signInError } =
       await supabase.auth.signInWithPassword({ email, password });
 
     if (signInError) {
@@ -63,18 +55,9 @@ export default function LoginPage() {
       return;
     }
 
-    // Fetch role from profiles table
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", authData.user.id)
-      .single();
-
-    const role = profile?.role ?? "cliente";
-    const destination = ROLE_REDIRECT[role] ?? "/cliente";
-
-    router.push(destination);
-    router.refresh();
+    // Redirect via server-side route that reads role with service_role key (bypasses RLS).
+    // Hard navigation ensures no client-side flash.
+    window.location.href = "/api/auth/redirect";
   }
 
   return (

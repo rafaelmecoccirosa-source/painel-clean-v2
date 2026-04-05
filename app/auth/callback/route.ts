@@ -1,17 +1,17 @@
 import { createServerClient } from "@supabase/ssr";
+import { createServiceClient } from "@/lib/supabase/service";
 import { cookies } from "next/headers";
 import { NextResponse, type NextRequest } from "next/server";
 
 const ROLE_REDIRECT: Record<string, string> = {
   cliente: "/cliente",
   tecnico: "/tecnico",
-  admin: "/admin",
+  admin:   "/admin",
 };
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
 
   const cookieStore = await cookies();
 
+  // Exchange OAuth code for session (needs anon client with cookie handling)
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -42,15 +43,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  // Check if user has a profile
-  const { data: profile } = await supabase
+  // Use service client to read profile — bypasses RLS so it always works
+  const serviceClient = createServiceClient();
+  const { data: profile } = await serviceClient
     .from("profiles")
     .select("role")
     .eq("user_id", data.user.id)
     .single();
 
   if (!profile) {
-    // New Google user — send to complete profile
+    // New Google user — needs to complete profile
     return NextResponse.redirect(`${origin}/completar-cadastro`);
   }
 

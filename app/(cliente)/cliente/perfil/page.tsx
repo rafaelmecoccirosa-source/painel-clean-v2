@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import { User, MapPin, Phone, Mail } from "lucide-react";
 
 export const metadata: Metadata = { title: "Meu Perfil — Cliente" };
@@ -11,7 +12,8 @@ export default async function ClientePerfilPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      const { data } = await supabase
+      const admin = createServiceClient();
+      const { data } = await admin
         .from("profiles")
         .select("full_name, phone, city")
         .eq("user_id", user.id)

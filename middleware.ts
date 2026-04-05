@@ -12,28 +12,27 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           );
           supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
+            supabaseResponse.cookies.set(name, value, options as Parameters<typeof supabaseResponse.cookies.set>[2])
           );
         },
       },
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refresh session (required by @supabase/ssr)
+  const { data: { user } } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
   // Public routes — always allow
   const publicRoutes = ["/", "/login", "/cadastro", "/completar-cadastro", "/termos"];
-  const publicPrefixes = ["/auth/"];
+  const publicPrefixes = ["/auth/", "/_next/", "/favicon"];
   if (
     publicRoutes.includes(pathname) ||
     publicPrefixes.some((p) => pathname.startsWith(p))
