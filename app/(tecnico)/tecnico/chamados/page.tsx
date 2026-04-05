@@ -66,7 +66,7 @@ export default function ChamadosPage() {
           .from("service_requests")
           .select("*")
           .eq("status", "pending")
-          .eq("payment_status", "confirmed")  // Only show paid+confirmed requests
+          .is("technician_id", null)   // sem técnico atribuído
           .order("preferred_date", { ascending: true }),
         supabase
           .from("service_requests")
@@ -126,7 +126,7 @@ export default function ChamadosPage() {
 
   function renderCard(c: ServiceRequestDB, isAvailable: boolean) {
     const repasse = c.price_estimate * 0.75;
-    const horas = estimateHours(c.module_count);
+    const horas = estimateHours(c.module_count ?? c.panel_count ?? 0);
     const displayAddress = isAvailable
       ? c.address.split(",")[0] + " (endereço completo após aceitar)"
       : c.address;
@@ -149,7 +149,7 @@ export default function ChamadosPage() {
                 <MapPin size={13} /> {displayAddress} — {c.city}
               </span>
               <span className="flex items-center gap-1.5">
-                <Sun size={13} /> {c.module_count} placas
+                <Sun size={13} /> {c.module_count ?? c.panel_count ?? "?"} placas
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={13} /> {fmtDate(c.preferred_date)}, {c.preferred_time}
@@ -169,9 +169,16 @@ export default function ChamadosPage() {
         {/* Badges row for available chamados */}
         {isAvailable && (
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
-              💰 Pagamento confirmado
-            </span>
+            {c.payment_status === "confirmed" && (
+              <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700">
+                💰 Pagamento confirmado
+              </span>
+            )}
+            {(!c.payment_status || c.payment_status === "pending") && (
+              <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                ⏳ Aguardando pagamento
+              </span>
+            )}
             {c.latitude != null && c.longitude != null && (
               <span className="inline-block text-[10px] font-bold px-2.5 py-1 rounded-full bg-blue-100 text-blue-700">
                 📍 Localização no mapa

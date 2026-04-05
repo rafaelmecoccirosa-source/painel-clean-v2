@@ -32,6 +32,7 @@ export interface ServiceRequestDB {
   city: string;
   address: string;
   module_count: number;
+  panel_count?: number | null;   // alias usado pelo schema.sql legado
   price_estimate: number;
   preferred_date: string;       // "YYYY-MM-DD"
   preferred_time: string;       // "Manhã (8h-12h)" | "Tarde (13h-17h)" | "Qualquer horário"

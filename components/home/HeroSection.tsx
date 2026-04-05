@@ -99,12 +99,12 @@ export default function HeroSection() {
 
         {/* Trust signals */}
         <div className="mt-8 sm:mt-10">
-          {/* Desktop: single row — no dividers, gap-6 between items, flex-wrap fallback */}
-          <div className="hidden sm:flex items-center gap-6 flex-wrap justify-center sm:justify-start">
+          {/* Desktop: flex-wrap so all 5 items are always visible */}
+          <div className="hidden sm:flex items-center gap-x-6 gap-y-2 flex-wrap justify-start">
             {trustItems.map(({ icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5 flex-shrink-0">
+              <span key={label} className="flex items-center gap-1.5 whitespace-nowrap">
                 <span style={{ fontSize: "13px", lineHeight: 1 }}>{icon}</span>
-                <span className="text-white font-medium text-[12px] whitespace-nowrap">{label}</span>
+                <span className="text-white font-medium text-[12px]">{label}</span>
               </span>
             ))}
           </div>

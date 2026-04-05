@@ -15,11 +15,13 @@ export default async function TecnicoLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 1. Get the authenticated user (session client, safe)
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
 
+  // 2. Fetch profile via service role (bypasses RLS — server-side only)
   let userName = user.email?.split("@")[0] ?? "Técnico";
   let userRole: string | null = null;
 
@@ -30,13 +32,14 @@ export default async function TecnicoLayout({
       .select("full_name, role")
       .eq("user_id", user.id)
       .single();
+
     if (profile) {
       userRole = profile.role ?? null;
       userName = profile.full_name ?? userName;
     }
-  } catch { /* fallback — don't block render */ }
+  } catch { /* service client unavailable — proceed without role guard */ }
 
-  // redirect() OUTSIDE try/catch so NEXT_REDIRECT isn't swallowed
+  // 3. Role guard OUTSIDE try/catch so redirect() exception is not swallowed
   if (userRole === "cliente") redirect("/cliente");
   if (userRole === "admin")   redirect("/admin");
 

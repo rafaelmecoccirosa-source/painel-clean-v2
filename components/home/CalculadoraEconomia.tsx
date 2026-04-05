@@ -78,7 +78,7 @@ export default function CalculadoraEconomia() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           {/* ── Inputs ── */}
-          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8 h-full">
+          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8 flex flex-col justify-between">
             {/* Quantidade de placas */}
             <div>
               <div className="flex items-center justify-between mb-3">
@@ -168,10 +168,10 @@ export default function CalculadoraEconomia() {
           </div>
 
           {/* ── Result card ── */}
-          <div className="rounded-2xl overflow-hidden shadow-lg h-full flex flex-col">
+          <div className="rounded-2xl overflow-hidden shadow-lg">
 
             {/* Top half — perda (fundo branco, valores vermelhos) */}
-            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4 flex-1">
+            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4">
               <h3 className="font-heading font-bold text-brand-dark text-base">
                 ⚡ O que você pode estar perdendo
               </h3>
@@ -191,7 +191,7 @@ export default function CalculadoraEconomia() {
                 </p>
                 <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
                   = {fmt(dinheiroPerdidoMes)}/mês{" "}
-                  <em className="font-normal" style={{ color: "#E24B4A" }}>que podem estar sendo desperdiçados</em>
+                  <em className="font-normal" style={{ color: "#E24B4A" }}>desperdiçados por mês</em>
                 </p>
                 <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
                   = {fmt(dinheiroPerdidoAno)}/ano em energia desperdiçada

@@ -40,9 +40,8 @@ export async function middleware(request: NextRequest) {
     return supabaseResponse;
   }
 
-  // Unauthenticated → login
-  // Role-based protection is handled in Server Component layouts (Node.js runtime),
-  // where createServiceClient() can reliably query Supabase.
+  // Unauthenticated — redirect to login
+  // Role-based guards are handled in each layout (Server Components, not Edge Runtime)
   if (!user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

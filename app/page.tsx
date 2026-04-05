@@ -62,8 +62,8 @@ const beneficios = [
   { emoji: "✅", titulo: "Técnicos certificados",      texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
   { emoji: "⚡", titulo: "Agendamento dinâmico",       texto: "Sem espera. Você escolhe a data e o técnico mais próximo aceita rapidamente." },
   { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada placa." },
+  { emoji: "🛡️", titulo: "Seguro contra danos",        texto: "Todos os serviços incluem cobertura contra danos acidentais às suas placas e telhado." },
   { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de placas. Sem surpresas na hora de pagar." },
-  { emoji: "🛡️", titulo: "Garantia e seguro",           texto: "Todos os serviços incluem seguro contra danos acidentais. Pagamento via PIX, cartão ou boleto — só após o serviço concluído." },
   { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
 ];
 
@@ -362,8 +362,8 @@ export default function HomePage() {
             </div>
             <div className="flex-1 grid grid-cols-2 gap-4 w-full">
               {[
-                { icon: "✅", titulo: "Sem mensalidade",      texto: "Cadastro gratuito. Você paga apenas 25% de comissão por serviço realizado." },
-                { icon: "💰", titulo: "Receba 75% do valor",  texto: "Num serviço de R$ 600, você recebe R$ 450 via PIX automático após conclusão." },
+                { icon: "✅", titulo: "Sem mensalidade",      texto: "Cadastro gratuito. Você não paga nada para entrar na plataforma — o modelo é por comissão sobre serviços realizados." },
+                { icon: "💰", titulo: "Repasse simplificado",  texto: "Receba via PIX automaticamente após a conclusão de cada serviço. Sem burocracia." },
                 { icon: "📱", titulo: "Gerencie pelo app",    texto: "Aceite chamados, registre relatórios e acompanhe seus ganhos em tempo real." },
                 { icon: "🛡️", titulo: "Seguro incluso",       texto: "Todos os serviços incluem cobertura contra danos acidentais durante a limpeza." },
               ].map(({ icon, titulo, texto }) => (
@@ -378,13 +378,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 8: CTA Final — simple fade-in ─────────────────────────── */}
-      <section className="bg-brand-dark py-20 border-t border-white/10">
+      {/* ── Seção 8: CTA Final — fundo claro para separar do footer ────── */}
+      <section className="bg-brand-light py-20 border-t border-brand-border">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-on-scroll">
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-4 leading-tight">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4 leading-tight">
             Suas placas merecem render 100%
           </h2>
-          <p className="text-white/70 text-lg mb-10">
+          <p className="text-gray-500 text-lg mb-10">
             Agende agora e receba seu relatório técnico após a limpeza
           </p>
           <Link
@@ -393,7 +393,7 @@ export default function HomePage() {
           >
             Quero agendar minha limpeza →
           </Link>
-          <p className="text-white/40 text-sm mt-5">
+          <p className="text-gray-400 text-sm mt-5">
             Sem compromisso. Cancele a qualquer momento.
           </p>
         </div>
