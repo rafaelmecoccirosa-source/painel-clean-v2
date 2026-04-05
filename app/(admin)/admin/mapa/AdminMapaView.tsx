@@ -215,11 +215,16 @@ export function AdminMapaView({
 
       const servicosHtml = grupo.map(g => `
         <div style="border-top:1px solid #eee;padding-top:6px;margin-top:6px;font-size:11px;color:#555;">
-          ${g.module_count ?? g.panel_count ?? '?'} placas ·
-          <span style="color:${g.status === 'completed' ? '#3DC45A' : g.status === 'cancelled' ? '#ef4444' : '#f59e0b'}">
-            ${STATUS_LABEL[g.status] ?? g.status}
-          </span>
-          ${g.preferred_date ? `· ${new Date(g.preferred_date + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <span>
+              ${g.module_count ?? g.panel_count ?? '?'} placas ·
+              <span style="color:${g.status === 'completed' ? '#3DC45A' : g.status === 'cancelled' ? '#ef4444' : '#f59e0b'}">
+                ${STATUS_LABEL[g.status] ?? g.status}
+              </span>
+              ${g.preferred_date ? `· ${new Date(g.preferred_date + 'T00:00:00').toLocaleDateString('pt-BR')}` : ''}
+            </span>
+            <a href="/admin/servicos/${g.id}" style="color:#1B3A2D;font-weight:600;font-size:11px;white-space:nowrap;text-decoration:none;" onclick="event.stopPropagation()">Ver →</a>
+          </div>
         </div>`).join('')
 
       _L.marker([s.latitude, s.longitude], { icon })
@@ -400,7 +405,7 @@ export function AdminMapaView({
             {tab === 'servicos' && (
               <>
                 {servicos.slice(0, 30).map(s => (
-                  <div key={s.id} className="flex items-center gap-3 px-4 py-3 hover:bg-brand-bg transition-colors">
+                  <a key={s.id} href={`/admin/servicos/${s.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-brand-bg transition-colors">
                     <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                       <span className="text-sm">☀️</span>
                     </div>
@@ -412,7 +417,7 @@ export function AdminMapaView({
                         {s.module_count ?? s.panel_count ?? '?'} placas · {STATUS_LABEL[s.status] ?? s.status}
                       </p>
                     </div>
-                  </div>
+                  </a>
                 ))}
                 {servicos.length === 0 && (
                   <p className="px-4 py-6 text-xs text-brand-muted text-center">Nenhum serviço com pin no mapa</p>
@@ -456,7 +461,7 @@ export function AdminMapaView({
                   Serviços
                 </p>
                 {servicos.slice(0, 20).map(s => (
-                  <div key={s.id} className="flex items-center gap-3 px-4 py-3 hover:bg-brand-bg transition-colors">
+                  <a key={s.id} href={`/admin/servicos/${s.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-brand-bg transition-colors">
                     <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
                       <span className="text-sm">☀️</span>
                     </div>
@@ -468,7 +473,7 @@ export function AdminMapaView({
                         {s.module_count ?? s.panel_count ?? '?'} placas · {STATUS_LABEL[s.status] ?? s.status}
                       </p>
                     </div>
-                  </div>
+                  </a>
                 ))}
                 {servicos.length === 0 && (
                   <p className="px-4 py-4 text-xs text-brand-muted text-center">Nenhum serviço</p>
