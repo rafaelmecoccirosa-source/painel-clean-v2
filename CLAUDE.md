@@ -439,6 +439,7 @@ Configurar no Vercel -> Settings -> Environment Variables -> All Environments.
 7. `20260403_profiles_rls.sql` — RLS com user_id
 8. `20260403_fix_technician_rls.sql`
 9. `20260404_technician_presence_location.sql` — last_seen, cep, lat, lng em profiles
+10. `20260405_fix_profiles_update_rls.sql` — WITH CHECK adicionado nas policies UPDATE de profiles
 
 ---
 

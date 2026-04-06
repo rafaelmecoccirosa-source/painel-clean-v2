@@ -8,18 +8,15 @@
 ## PENDENTES (a fazer)
 
 ### Funcionais
-- [ ] Google OAuth — integração completa com Supabase
 - [ ] Fluxo completo end-to-end com dados reais: cliente cria → paga → técnico aceita → executa → relatório → admin libera → repasse
-- [ ] Página de detalhe do chamado (`/tecnico/chamados/[id]`) — verificar se existe
-- [ ] Agenda técnico (`/tecnico/agenda`) — 100% mock data (`MOCK_AGENDA_TECNICO`), integrar com DB real
-
-### Visuais
-- [ ] Calculadora: boxes de mesma altura (pode ter ficado pendente ainda)
-- [ ] Trust badges desktop: verificar se "Preço transparente" ainda corta em alguma resolução
+- [ ] Agenda técnico (`/tecnico/agenda`) — 100% mock, integrar com DB real
 
 ### Dados / Banco
-- [ ] `last_seen` dos técnicos demo expira após 5min — rodar SQL de presença antes de demos/reuniões (ver SQL útil abaixo)
-- [ ] Expandir de 3 cidades piloto para corredor completo quando pronto para fase 2
+- [ ] `last_seen` dos técnicos demo expira após 5min — rodar `scripts/reset-presenca-demo.sql` antes de demos
+- [ ] Expandir para corredor completo de 13 cidades na fase 2
+
+### Próximas sessões
+- [ ] Discutir com o cunhado: certificação dos técnicos, política de cancelamento, SLA sem técnico, reativar assinatura pós-MVP
 
 ---
 
@@ -31,49 +28,34 @@ Nada em andamento — sessão 2026-04-05 concluída e mergeada na `main`.
 
 ## CONCLUÍDO — Sessão 2026-04-05
 
-### Mapa Admin (`/admin/mapa`) — continuação + fixes gerais
-- [x] Merge da branch `claude/update-visual-identity-7zvCM` na `main` — produção atualizada
-- [x] Fix flash de login — `login/page.tsx` agora faz hard navigate para `/api/auth/redirect` (server-side role redirect, sem flash visual)
-- [x] Fix 404 `/admin/mapa` — era o middleware redirecionando admin para `/cliente`, resolvido com role check nos layouts
-- [x] Chamados disponíveis no topo do dashboard do técnico — busca dados reais de `service_requests`
-- [x] Layout do mapa corrigido — `page-container` + `min-w-0` no flex, mapa respeita container do admin
-- [x] Zoom inicial ajustado para mostrar corredor completo
-- [x] Tabs reordenadas: Técnicos / Clientes / Serviços / Todos — default "Técnicos"
-- [x] Filtro real no mapa ao trocar tab — LayerGroup limpo e recriado por tab
-- [x] Tab Clientes — avatar, nome, cidade, total de placas, badge "X usinas", clique faz pan/zoom nos serviços do cliente
-- [x] Dados seed inseridos no banco via SQL direto:
-  - 8 técnicos com lat/lng espalhados nas 3 cidades piloto
-  - 11 clientes demo com city preenchida
-  - 6 service_requests com latitude/longitude reais
-- [x] `scripts/seed-users-demo.sql` e `scripts/seed-location.sql` no repo para referência
+### Google OAuth
+- [x] Redirect URI corrigida no Google Cloud Console (`/auth/v1/callback`)
+- [x] Site URL e Redirect URLs atualizados no Supabase para domínio Vercel
+- [x] Fluxo de completar cadastro após OAuth — redireciona para `/completar-cadastro` quando `role` é null
+- [x] `full_name` digitado pelo usuário no step 2, nunca pego do metadata do Google
+- [x] `/cliente/perfil` convertido para Client Component editável com botão Editar/Salvar/Cancelar
+- [x] Toast auto-dismiss em 3.5s no perfil do técnico e cliente
+
+### RLS e Banco
+- [x] Migration `20260405_fix_profiles_update_rls.sql` — policies UPDATE criadas corretamente
+- [x] Recursão infinita (erro 42P17) corrigida — todas as policies admin agora usam `auth.jwt() -> 'user_metadata' ->> 'role'` em vez de subquery em `profiles`
+- [x] Migration `20260404_technician_presence_location.sql` aplicada — colunas `last_seen`, `cep`, `lat`, `lng` criadas em `profiles`
+- [x] `NOTIFY pgrst, 'reload schema'` executado após migrations
+
+### Chamados do técnico
+- [x] Link `→` na lista de chamados agora usa UUID real (`service_requests.id`)
+- [x] `/tecnico/chamados/[id]` — botão "Aceitar chamado" para chamados `pending` sem técnico
+- [x] `/tecnico/chamados/[id]` — seção de relatório visível para chamados `completed`
+- [x] Agenda: badge "Dados demonstrativos" + "Ver detalhes" redireciona para `/tecnico/chamados`
+
+### Mapa admin
+- [x] Pins de serviço clicáveis — link "Ver →" no popup aponta para `/admin/servicos/[id]`
+- [x] `scripts/reset-presenca-demo.sql` criado — 4 online / 4 offline
 
 ### Decisões desta sessão
-- **Join client_id → profiles:** PostgREST não atravessa `auth.users → profiles` via FK — join feito em JS no Server Component
-- **Técnicos demo online/offline:** `last_seen` setado manualmente via SQL — expiram após 5min sem login real
-- **Mock vs banco real:** decidido inserir dados demo diretamente no banco (não mock no código) — mais realista, testável, deletável via ROLLBACK no `seed-users-demo.sql`
-
-### SQL útil — resetar presença dos técnicos demo
-```sql
--- Online: Rafu, Carlos Souza, Pedro Santos, Roberto Lima
-UPDATE profiles SET last_seen = NOW()
-FROM auth.users u WHERE profiles.user_id = u.id
-AND u.email IN (
-  'rafu@porteiradoalto.com.br',
-  'carlos.souza@demo.painelclean.com.br',
-  'pedro.santos@demo.painelclean.com.br',
-  'roberto.lima@demo.painelclean.com.br'
-);
-
--- Offline: Lucas Martins, Diego Ferreira, Amanda Reis, Tio Luís
-UPDATE profiles SET last_seen = NOW() - INTERVAL '2 hours'
-FROM auth.users u WHERE profiles.user_id = u.id
-AND u.email IN (
-  'lucas.martins@demo.painelclean.com.br',
-  'diego.ferreira@demo.painelclean.com.br',
-  'amanda.reis@demo.painelclean.com.br',
-  'luis@painelclean.com.br'
-);
-```
+- **RLS admin sem recursão:** usar `auth.jwt() -> 'user_metadata' ->> 'role'` — nunca subquery em `profiles`
+- **Colunas de presença/localização:** migration aplicada manualmente no Supabase SQL Editor
+- **Agenda:** permanece mock por enquanto, integração com banco fica para próxima sessão
 
 ---
 
