@@ -80,21 +80,21 @@ function normalizeProfile(p: RealProfile, idx: number) {
 
 interface Props {
   profiles: RealProfile[];
-  isReal: boolean;
+  hasError: boolean;
 }
 
-export default function UsuariosClient({ profiles, isReal }: Props) {
+export default function UsuariosClient({ profiles, hasError }: Props) {
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("Todas");
 
-  // Use real data if available, otherwise fall back to mock
+  // Use mock ONLY on query error; empty real data stays empty
   const usuarios = useMemo(() => {
-    if (isReal && profiles.length > 0) {
-      return profiles.map(normalizeProfile);
+    if (hasError) {
+      return MOCK_USUARIOS.map((u) => ({ ...u, id: u.id }));
     }
-    return MOCK_USUARIOS.map((u) => ({ ...u, id: u.id }));
-  }, [profiles, isReal]);
+    return profiles.map(normalizeProfile);
+  }, [profiles, hasError]);
 
   const inicioMes = new Date("2026-03-01");
 
@@ -134,13 +134,11 @@ export default function UsuariosClient({ profiles, isReal }: Props) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h1 className="font-heading text-2xl font-bold text-brand-dark">👥 Usuários</h1>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              isReal
-                ? "bg-emerald-100 text-emerald-700"
-                : "bg-amber-100 text-amber-700"
-            }`}>
-              {isReal ? "✅ Dados reais" : "📊 Dados demonstrativos"}
-            </span>
+            {hasError && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
+                📊 Dados demonstrativos
+              </span>
+            )}
           </div>
           <p className="text-brand-muted text-sm mt-0.5">Clientes, técnicos e admins cadastrados na plataforma</p>
         </div>
