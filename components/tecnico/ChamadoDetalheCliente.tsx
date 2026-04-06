@@ -10,9 +10,17 @@ import {
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
-import type { ServiceRequestDB } from "@/lib/types";
+import type { ServiceRequestDB, ServiceReport, Review } from "@/lib/types";
 import ChatBox, { insertSystemMessage } from "@/components/shared/ChatBox";
 import { REPASSE_MINIMO_TECNICO } from "@/lib/pricing";
+
+const CHECKLIST_LABELS: Record<string, string> = {
+  visual_inspection: "Verificação visual das placas",
+  connector_check:   "Verificação de conectores",
+  cleaning_complete: "Limpeza com escova profissional",
+  damage_test:       "Verificação de conexões",
+  post_generation:   "Teste de geração pós-limpeza",
+};
 
 // Leaflet map (no SSR)
 const MapViewLeaflet = dynamic(
@@ -414,16 +422,30 @@ export default function ChamadoDetalheCliente({ id }: Props) {
   const [busy,          setBusy]          = useState(false);
   const [finalPrice,    setFinalPrice]    = useState<number | null>(null);
   const [justificativa, setJustificativa] = useState("");
+  const [report,        setReport]        = useState<ServiceReport | null>(null);
+  const [review,        setReview]        = useState<Review | null>(null);
 
   const fetchService = useCallback(async () => {
     try {
       const supabase = createClient();
-      const [{ data: { user } }, { data }] = await Promise.all([
+      const [
+        { data: { user } },
+        { data },
+        { data: reportData, error: reportError },
+        { data: reviewData },
+      ] = await Promise.all([
         supabase.auth.getUser(),
         supabase.from("service_requests").select("*").eq("id", id).single(),
+        supabase.from("service_reports").select("*").eq("service_request_id", id).maybeSingle(),
+        supabase.from("reviews").select("*").eq("service_request_id", id).maybeSingle(),
       ]);
       setUserId(user?.id ?? null);
       setService(data as ServiceRequestDB | null);
+      // PGRST116 = table not found; ignore silently
+      if (!reportError || reportError.code === "PGRST116") {
+        setReport((reportData as ServiceReport | null) ?? null);
+      }
+      setReview((reviewData as Review | null) ?? null);
     } catch (err) {
       console.error(err);
     } finally {
@@ -474,7 +496,7 @@ export default function ChamadoDetalheCliente({ id }: Props) {
       } else {
         showToast("Chamado aceito! O cliente foi notificado.", "success");
         await insertSystemMessage(id, userId ?? "", "✅ Técnico aceitou o chamado. Em breve entrará em contato.");
-        setTimeout(() => router.push("/tecnico/chamados"), 1600);
+        setTimeout(() => router.push(`/tecnico/chamados/${id}`), 1600);
       }
     } catch {
       showToast("Erro inesperado. Tente novamente.", "error");
@@ -726,11 +748,100 @@ export default function ChamadoDetalheCliente({ id }: Props) {
 
       {/* ── COMPLETED ── */}
       {status === "completed" && (
-        <div className="card text-center py-8 space-y-2">
-          <CheckCircle2 size={36} className="text-brand-green mx-auto" />
-          <p className="font-semibold text-brand-dark">Serviço concluído</p>
-          <p className="text-xs text-brand-muted">Obrigado pelo excelente trabalho!</p>
-        </div>
+        <>
+          {isMyService && <ServiceInfoCard service={service} />}
+          {!isMyService && (
+            <div className="card text-center py-8 space-y-2">
+              <CheckCircle2 size={36} className="text-brand-green mx-auto" />
+              <p className="font-semibold text-brand-dark">Serviço concluído</p>
+            </div>
+          )}
+
+          {/* Report section */}
+          <div className="card space-y-4">
+            <h2 className="font-heading font-bold text-brand-dark text-base">📄 Relatório do serviço</h2>
+
+            {report ? (
+              <div className="space-y-4">
+                {/* Checklist */}
+                {report.checklist && Object.keys(report.checklist).length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">Checklist</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      {Object.entries(report.checklist).map(([key, done]) => (
+                        <div key={key} className="flex items-center gap-2 text-sm">
+                          <span className="flex-shrink-0">{done ? "✅" : "⬜"}</span>
+                          <span className={done ? "text-brand-dark" : "text-brand-muted"}>
+                            {CHECKLIST_LABELS[key] ?? key}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {report.general_condition && (
+                      <p className="text-xs text-brand-muted mt-2">
+                        Condição geral: <strong className="text-brand-dark">{report.general_condition.replace(/_/g, " ")}</strong>
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Photos before */}
+                {report.photos_before?.filter(Boolean).length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">Fotos — Antes</p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {report.photos_before.filter(Boolean).map((url, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img key={i} src={url} alt={`Antes ${i+1}`} className="w-full aspect-square object-cover rounded-xl" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Photos after */}
+                {report.photos_after?.filter(Boolean).length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide mb-2">Fotos — Depois</p>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                      {report.photos_after.filter(Boolean).map((url, i) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img key={i} src={url} alt={`Depois ${i+1}`} className="w-full aspect-square object-cover rounded-xl" />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Observations */}
+                {report.observations && (
+                  <div className="bg-brand-bg rounded-xl px-4 py-3 text-sm text-brand-muted">
+                    <span className="font-semibold text-brand-dark">Observações: </span>
+                    {report.observations}
+                  </div>
+                )}
+
+                {/* Client rating */}
+                {review && (
+                  <div className="bg-brand-light rounded-xl px-4 py-3 space-y-1">
+                    <p className="text-xs font-semibold text-brand-muted uppercase tracking-wide">Avaliação do cliente</p>
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} className={`text-lg ${i < review.rating ? "text-amber-400" : "text-gray-200"}`}>★</span>
+                      ))}
+                      <span className="text-sm font-bold text-brand-dark ml-1">{review.rating}/5</span>
+                    </div>
+                    {review.comment && (
+                      <p className="text-sm text-brand-muted italic">"{review.comment}"</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-gray-50 border border-gray-200 rounded-xl px-4 py-6 text-center text-sm text-brand-muted">
+                Nenhum relatório registrado para este serviço.
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {/* ── ACCEPTED/IN_PROGRESS but not this technician's service ── */}

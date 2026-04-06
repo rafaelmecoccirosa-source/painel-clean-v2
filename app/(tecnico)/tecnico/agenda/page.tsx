@@ -125,6 +125,9 @@ export default function AgendaPage() {
       <div>
         <h1 className="font-heading text-2xl font-bold text-brand-dark">📅 Minha Agenda</h1>
         <p className="text-brand-muted text-sm mt-0.5">Chamados agendados e histórico do mês</p>
+        <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 uppercase tracking-wide">
+          Dados demonstrativos
+        </span>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -265,10 +268,10 @@ export default function AgendaPage() {
                       </span>
                     </div>
                     <Link
-                      href={`/tecnico/chamados/${c.id}`}
+                      href="/tecnico/chamados"
                       className="block text-center text-xs font-semibold text-brand-green hover:underline"
                     >
-                      Ver detalhes →
+                      Ver chamados →
                     </Link>
                   </div>
                 ))
