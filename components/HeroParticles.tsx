@@ -79,7 +79,18 @@ export function HeroParticles() {
       }
     }
 
-    const particles = Array.from({ length: 300 }, () => new Particle())
+    const particles = Array.from({ length: 300 }, (_, i) => {
+      const p = new Particle()
+      if (i < 210) {
+        // 70% já espalhadas — simular que saíram há algum tempo
+        const preTravel = rand(30, cv.width * 0.75)
+        p.traveled = preTravel
+        p.x = cv.width * 0.97 + Math.cos(rand(Math.PI * 0.72, Math.PI * 1.28)) * preTravel
+        p.y = cv.height * -0.02 + Math.sin(rand(Math.PI * 0.72, Math.PI * 1.28)) * preTravel
+        p.alpha = p.maxAlpha * rand(0.5, 1.0)
+      }
+      return p
+    })
 
     function drawGlow() {
       const sx = SUN_X(), sy = SUN_Y()
