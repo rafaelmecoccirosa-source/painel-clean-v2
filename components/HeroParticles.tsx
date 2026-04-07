@@ -79,16 +79,18 @@ export function HeroParticles() {
       }
     }
 
-    const particles = Array.from({ length: 300 }, (_, i) => {
+    const particles = Array.from({ length: 300 }, () => {
       const p = new Particle()
-      if (i < 210) {
-        // 70% já espalhadas — simular que saíram há algum tempo
-        const preTravel = rand(30, cv.width * 0.75)
-        p.traveled = preTravel
-        p.x = cv.width * 0.97 + Math.cos(rand(Math.PI * 0.72, Math.PI * 1.28)) * preTravel
-        p.y = cv.height * -0.02 + Math.sin(rand(Math.PI * 0.72, Math.PI * 1.28)) * preTravel
-        p.alpha = p.maxAlpha * rand(0.5, 1.0)
-      }
+      // cada partícula nasce em ponto aleatório do seu próprio ciclo
+      const preTravel = rand(0, cv.width * 1.1)
+      const angle = rand(Math.PI * 0.72, Math.PI * 1.28)
+      const speed = rand(1.0, 3.5)
+      p.traveled = preTravel
+      p.x = cv.width * 0.97 + Math.cos(angle) * preTravel
+      p.y = cv.height * -0.02 + Math.sin(angle) * preTravel
+      p.vx = Math.cos(angle) * speed
+      p.vy = Math.sin(angle) * speed
+      p.alpha = p.maxAlpha * rand(0.3, 1.0)
       return p
     })
 
