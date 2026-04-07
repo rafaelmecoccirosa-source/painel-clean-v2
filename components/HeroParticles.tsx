@@ -23,7 +23,7 @@ export function HeroParticles() {
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a)
     const SUN_X = () => cv.width * 0.95
-    const SUN_Y = () => cv.height * 0.05
+    const SUN_Y = () => cv.height * -0.02
 
     class Particle {
       x = 0; y = 0; vx = 0; vy = 0
@@ -36,7 +36,7 @@ export function HeroParticles() {
         const angle = rand(Math.PI * 0.72, Math.PI * 1.28)
         const speed = rand(1.0, 3.5)
         this.x = cv.width * 0.97 + rand(-10, 10)
-        this.y = cv.height * 0.04 + rand(-10, 10)
+        this.y = cv.height * -0.02 + rand(-10, 10)
         this.vx = Math.cos(angle) * speed
         this.vy = Math.sin(angle) * speed
         this.size = rand(1, 3)
@@ -88,7 +88,7 @@ export function HeroParticles() {
       outer.addColorStop(1, "rgba(61,196,90,0)")
       c.fillStyle = outer
       c.fillRect(0, 0, cv.width, cv.height)
-      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 90)
+      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 126)
       inner.addColorStop(0, "rgba(235,243,232,1.0)")
       inner.addColorStop(0.4, "rgba(61,196,90,0.7)")
       inner.addColorStop(1, "rgba(61,196,90,0)")
