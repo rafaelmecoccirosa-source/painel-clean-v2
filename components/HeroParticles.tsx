@@ -33,17 +33,17 @@ export function HeroParticles() {
       constructor() { this.init(true) }
 
       init(initial: boolean) {
-        const angle = rand(Math.PI * 0.83, Math.PI * 1.17)
-        const speed = rand(0.4, 1.6)
-        this.x = cv.width * 0.95 + rand(-20, 20)
-        this.y = cv.height * 0.05 + rand(-20, 20)
+        const angle = rand(Math.PI * 0.75, Math.PI * 1.25)
+        const speed = rand(0.8, 2.8)
+        this.x = cv.width * 0.95 + rand(-15, 15)
+        this.y = cv.height * 0.05 + rand(-15, 15)
         this.vx = Math.cos(angle) * speed
         this.vy = Math.sin(angle) * speed
-        this.size = rand(1, 3)
-        this.maxAlpha = rand(0.4, 0.95)
+        this.size = rand(1, 3.5)
+        this.maxAlpha = rand(0.35, 0.9)
         this.alpha = initial ? rand(0, this.maxAlpha) : 0
         this.life = initial ? rand(0, 1) : 0
-        this.decay = rand(0.002, 0.006)
+        this.decay = rand(0.0008, 0.003)
         this.green = Math.random() > 0.35
       }
 
@@ -57,7 +57,7 @@ export function HeroParticles() {
         else if (this.life > 0.65) this.alpha = ((1 - this.life) / 0.35) * this.maxAlpha
         else this.alpha = this.maxAlpha
         this.size *= 0.998
-        if (this.life >= 1) this.init(false)
+        if (this.life >= 1 || this.x < -10 || this.y > cv.height + 10) this.init(false)
       }
 
       draw(c2: CanvasRenderingContext2D) {
@@ -71,20 +71,20 @@ export function HeroParticles() {
       }
     }
 
-    const particles = Array.from({ length: 220 }, () => new Particle())
+    const particles = Array.from({ length: 280 }, () => new Particle())
 
     function drawGlow() {
       const sx = SUN_X(), sy = SUN_Y()
-      // brilho externo largo
-      const outer = c.createRadialGradient(sx, sy, 0, sx, sy, cv.width * 0.6)
-      outer.addColorStop(0, "rgba(61,196,90,0.12)")
+      // brilho externo — cobre a tela inteira a partir do canto
+      const outer = c.createRadialGradient(sx, sy, 0, sx, sy, cv.width * 1.2)
+      outer.addColorStop(0, "rgba(61,196,90,0.25)")
       outer.addColorStop(1, "rgba(61,196,90,0)")
       c.fillStyle = outer
       c.fillRect(0, 0, cv.width, cv.height)
       // núcleo do brilho
-      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 55)
+      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 80)
       inner.addColorStop(0, "rgba(235,243,232,1.0)")
-      inner.addColorStop(0.3, "rgba(61,196,90,0.85)")
+      inner.addColorStop(0.4, "rgba(61,196,90,0.7)")
       inner.addColorStop(1, "rgba(61,196,90,0)")
       c.fillStyle = inner
       c.fillRect(0, 0, cv.width, cv.height)
