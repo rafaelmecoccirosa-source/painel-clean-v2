@@ -28,43 +28,56 @@ export function HeroParticles() {
     class Particle {
       x = 0; y = 0; vx = 0; vy = 0
       size = 0; alpha = 0; maxAlpha = 0
-      traveled = 0; green = false
+      traveled = 0; maxDist = 0; green = false
+      angle = 0; speed = 0
 
-      constructor() { this.init() }
+      constructor() { this.init(true) }
 
-      init() {
-        const angle = rand(Math.PI * 0.72, Math.PI * 1.28)
-        const speed = rand(1.0, 3.5)
-        this.x = cv.width * 0.97 + rand(-10, 10)
-        this.y = cv.height * -0.02 + rand(-10, 10)
-        this.vx = Math.cos(angle) * speed
-        this.vy = Math.sin(angle) * speed
+      init(random: boolean) {
+        this.angle = rand(Math.PI * 0.72, Math.PI * 1.28)
+        this.speed = rand(1.0, 3.5)
         this.size = rand(1, 3)
         this.maxAlpha = rand(0.4, 0.95)
-        this.alpha = 0
-        this.traveled = 0
         this.green = Math.random() > 0.35
+        this.maxDist = cv.width * 1.1
+
+        // sempre nasce em ponto aleatório do trajeto, nunca acumula na origem
+        const startDist = random ? rand(0, this.maxDist) : rand(0, 40)
+        this.traveled = startDist
+        this.x = cv.width * 0.97 + Math.cos(this.angle) * startDist
+        this.y = cv.height * -0.02 + Math.sin(this.angle) * startDist
+        this.vx = Math.cos(this.angle) * this.speed
+        this.vy = Math.sin(this.angle) * this.speed
+
+        const fadeInDist = 30
+        const fadeOutStart = this.maxDist * 0.65
+        if (startDist < fadeInDist) {
+          this.alpha = (startDist / fadeInDist) * this.maxAlpha
+        } else if (startDist > fadeOutStart) {
+          this.alpha = ((this.maxDist - startDist) / (this.maxDist - fadeOutStart)) * this.maxAlpha
+        } else {
+          this.alpha = this.maxAlpha * rand(0.5, 1.0)
+        }
       }
 
       update() {
         this.x += this.vx
         this.y += this.vy
-        this.traveled += Math.sqrt(this.vx * this.vx + this.vy * this.vy)
+        this.traveled += this.speed
 
         const fadeInDist = 30
-        const fadeOutStart = cv.width * 0.7
-        const maxDist = cv.width * 1.1
+        const fadeOutStart = this.maxDist * 0.65
 
         if (this.traveled < fadeInDist) {
           this.alpha = (this.traveled / fadeInDist) * this.maxAlpha
         } else if (this.traveled > fadeOutStart) {
-          this.alpha = ((maxDist - this.traveled) / (maxDist - fadeOutStart)) * this.maxAlpha
+          this.alpha = ((this.maxDist - this.traveled) / (this.maxDist - fadeOutStart)) * this.maxAlpha
         } else {
           this.alpha = this.maxAlpha
         }
 
-        if (this.x < -20 || this.y > cv.height + 20 || this.y < -20 || this.traveled > maxDist) {
-          this.init()
+        if (this.x < -20 || this.y > cv.height + 20 || this.y < -20 || this.traveled > this.maxDist) {
+          this.init(false)
         }
       }
 
@@ -79,20 +92,8 @@ export function HeroParticles() {
       }
     }
 
-    const particles = Array.from({ length: 300 }, () => {
-      const p = new Particle()
-      // cada partícula nasce em ponto aleatório do seu próprio ciclo
-      const preTravel = rand(0, cv.width * 1.1)
-      const angle = rand(Math.PI * 0.72, Math.PI * 1.28)
-      const speed = rand(1.0, 3.5)
-      p.traveled = preTravel
-      p.x = cv.width * 0.97 + Math.cos(angle) * preTravel
-      p.y = cv.height * -0.02 + Math.sin(angle) * preTravel
-      p.vx = Math.cos(angle) * speed
-      p.vy = Math.sin(angle) * speed
-      p.alpha = p.maxAlpha * rand(0.3, 1.0)
-      return p
-    })
+    // criação — todas com random=true para nascerem espalhadas
+    const particles = Array.from({ length: 300 }, () => new Particle())
 
     function drawGlow() {
       const sx = SUN_X(), sy = SUN_Y()
