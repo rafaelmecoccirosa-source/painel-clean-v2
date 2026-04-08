@@ -32,10 +32,10 @@ export function TecnicoParticles() {
       init(random: boolean) {
         this.x = rand(0, cv.width)
         this.y = random ? rand(0, cv.height) : cv.height + 5
-        this.speed = rand(0.3, 0.9)
-        this.vx = rand(-0.1, 0.1)
-        this.size = rand(1, 2.5)
-        this.maxAlpha = rand(0.2, 0.55)
+        this.speed = rand(0.3, 1.1)
+        this.vx = rand(-0.15, 0.15)
+        this.size = rand(1, 2.8)
+        this.maxAlpha = rand(0.25, 0.7)
         this.alpha = random ? rand(0, this.maxAlpha) : 0
         this.green = Math.random() > 0.4
       }
@@ -66,8 +66,19 @@ export function TecnicoParticles() {
 
     const particles = Array.from({ length: 120 }, () => new Particle())
 
+    function drawGlow() {
+      const gx = cv.width * 0.75
+      const gy = cv.height * 0.1
+      const gr = c.createRadialGradient(gx, gy, 0, gx, gy, cv.width * 0.55)
+      gr.addColorStop(0, "rgba(61,196,90,0.13)")
+      gr.addColorStop(1, "rgba(61,196,90,0)")
+      c.fillStyle = gr
+      c.fillRect(0, 0, cv.width, cv.height)
+    }
+
     function loop() {
       c.clearRect(0, 0, cv.width, cv.height)
+      drawGlow()
       particles.forEach(p => { p.update(); p.draw(c) })
       animId = requestAnimationFrame(loop)
     }
