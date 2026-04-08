@@ -3,6 +3,7 @@ import Logo from "@/components/layout/Logo";
 import HeroSection from "@/components/home/HeroSection";
 import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
+import { TecnicoParticles } from "@/components/TecnicoParticles";
 
 // ── Seção 2 — Por que limpar? ──────────────────────────────────────────────
 
@@ -340,8 +341,9 @@ export default function HomePage() {
       </section>
 
       {/* ── Seção 7: Seja um técnico ───────────────────────────────────── */}
-      <section className="bg-brand-dark py-20 animate-on-scroll">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="bg-brand-dark py-20 animate-on-scroll relative overflow-hidden">
+        <TecnicoParticles />
+        <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center gap-12">
             <div className="flex-1">
               <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
