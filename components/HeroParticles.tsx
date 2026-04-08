@@ -14,6 +14,8 @@ export function HeroParticles() {
     const c = ctx
     let animId: number
 
+    const rand = (a: number, b: number) => a + Math.random() * (b - a)
+
     const resize = () => {
       cv.width = cv.offsetWidth
       cv.height = cv.offsetHeight
@@ -21,8 +23,7 @@ export function HeroParticles() {
     resize()
     window.addEventListener("resize", resize)
 
-    const rand = (a: number, b: number) => a + Math.random() * (b - a)
-    const SUN_X = () => cv.width * 0.95
+    const SUN_X = () => cv.width * 0.97
     const SUN_Y = () => cv.height * -0.02
 
     class Particle {
@@ -41,11 +42,10 @@ export function HeroParticles() {
         this.green = Math.random() > 0.35
         this.maxDist = cv.width * 1.1
 
-        // sempre nasce em ponto aleatório do trajeto, nunca acumula na origem
         const startDist = random ? rand(0, this.maxDist) : rand(0, 40)
         this.traveled = startDist
-        this.x = cv.width * 0.97 + Math.cos(this.angle) * startDist
-        this.y = cv.height * -0.02 + Math.sin(this.angle) * startDist
+        this.x = SUN_X() + Math.cos(this.angle) * startDist
+        this.y = SUN_Y() + Math.sin(this.angle) * startDist
         this.vx = Math.cos(this.angle) * this.speed
         this.vy = Math.sin(this.angle) * this.speed
 
@@ -92,7 +92,6 @@ export function HeroParticles() {
       }
     }
 
-    // criação — todas com random=true para nascerem espalhadas
     const particles = Array.from({ length: 300 }, () => new Particle())
 
     function drawGlow() {
@@ -102,7 +101,7 @@ export function HeroParticles() {
       outer.addColorStop(1, "rgba(61,196,90,0)")
       c.fillStyle = outer
       c.fillRect(0, 0, cv.width, cv.height)
-      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 126)
+      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 135)
       inner.addColorStop(0, "rgba(235,243,232,1.0)")
       inner.addColorStop(0.4, "rgba(61,196,90,0.7)")
       inner.addColorStop(1, "rgba(61,196,90,0)")
@@ -111,8 +110,6 @@ export function HeroParticles() {
     }
 
     function loop() {
-      cv.width = cv.offsetWidth
-      cv.height = cv.offsetHeight
       c.clearRect(0, 0, cv.width, cv.height)
       drawGlow()
       particles.forEach(p => { p.update(); p.draw(c) })

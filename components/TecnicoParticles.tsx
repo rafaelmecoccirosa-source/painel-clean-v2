@@ -69,8 +69,6 @@ export function TecnicoParticles() {
     const particles = Array.from({ length: 120 }, () => new Particle())
 
     function loop() {
-      cv.width = cv.offsetWidth
-      cv.height = cv.offsetHeight
       c.clearRect(0, 0, cv.width, cv.height)
       particles.forEach(p => { p.update(); p.draw(c) })
       animId = requestAnimationFrame(loop)
