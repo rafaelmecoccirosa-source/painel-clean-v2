@@ -58,8 +58,10 @@
    Uses only opacity + transform (GPU-accelerated, no layout reflow).
 ──────────────────────────────────────────────────────────────────────────── */
 @keyframes shimmer {
-  0%   { transform: translateX(-100%) skewX(-15deg); }
-  100% { transform: translateX(400%) skewX(-15deg); }
+  0%   { transform: translateX(-100%) skewX(-15deg); opacity: 1; }
+  19%  { transform: translateX(100%) skewX(-15deg); opacity: 1; }
+  20%  { opacity: 0; transform: translateX(100%) skewX(-15deg); }
+  100% { opacity: 0; transform: translateX(100%) skewX(-15deg); }
 }
 
 @keyframes kenburns {

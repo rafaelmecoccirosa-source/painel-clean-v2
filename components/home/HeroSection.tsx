@@ -70,11 +70,11 @@ export default function HeroSection() {
               position: "absolute",
               top: 0,
               left: 0,
-              width: "18%",
+              width: "100%",
               height: "100%",
               background: "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.07) 40%,rgba(255,255,255,0.13) 50%,rgba(255,255,255,0.07) 60%,transparent 100%)",
-              animation: "shimmer 5s ease-in-out infinite",
-              animationDelay: "1.5s",
+              animation: "shimmer 8s ease-in-out infinite",
+              animationDelay: "2s",
             }}
           />
         </div>
