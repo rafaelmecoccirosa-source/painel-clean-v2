@@ -23,62 +23,34 @@ export function HeroParticles() {
     resize()
     window.addEventListener("resize", resize)
 
-    const SUN_X = () => cv.width * 0.97
-    const SUN_Y = () => cv.height * -0.02
-
     class Particle {
-      x = 0; y = 0; vx = 0; vy = 0
-      size = 0; alpha = 0; maxAlpha = 0
-      traveled = 0; maxDist = 0; green = false
-      angle = 0; speed = 0
+      x = 0; y = 0; vy = 0; speed = 0
+      size = 0; alpha = 0; maxAlpha = 0; green = false
 
       constructor() { this.init(true) }
 
       init(random: boolean) {
-        this.angle = rand(Math.PI * 0.72, Math.PI * 1.28)
-        this.speed = rand(1.0, 3.5)
-        this.size = rand(1, 3)
-        this.maxAlpha = rand(0.4, 0.95)
-        this.green = Math.random() > 0.35
-        this.maxDist = cv.width * 1.1
-
-        const startDist = random ? rand(0, this.maxDist) : rand(0, 40)
-        this.traveled = startDist
-        this.x = SUN_X() + Math.cos(this.angle) * startDist
-        this.y = SUN_Y() + Math.sin(this.angle) * startDist
-        this.vx = Math.cos(this.angle) * this.speed
-        this.vy = Math.sin(this.angle) * this.speed
-
-        const fadeInDist = 30
-        const fadeOutStart = this.maxDist * 0.65
-        if (startDist < fadeInDist) {
-          this.alpha = (startDist / fadeInDist) * this.maxAlpha
-        } else if (startDist > fadeOutStart) {
-          this.alpha = ((this.maxDist - startDist) / (this.maxDist - fadeOutStart)) * this.maxAlpha
-        } else {
-          this.alpha = this.maxAlpha * rand(0.5, 1.0)
-        }
+        this.x = random ? rand(0, cv.width) : cv.width + 5
+        this.y = rand(0, cv.height)
+        this.speed = rand(0.3, 0.9)
+        this.vy = rand(-0.1, 0.1)
+        this.size = rand(1, 2.5)
+        this.maxAlpha = rand(0.2, 0.55)
+        this.alpha = random ? rand(0, this.maxAlpha) : 0
+        this.green = Math.random() > 0.4
       }
 
       update() {
-        this.x += this.vx
+        this.x -= this.speed
         this.y += this.vy
-        this.traveled += this.speed
-
-        const fadeInDist = 30
-        const fadeOutStart = this.maxDist * 0.65
-
-        if (this.traveled < fadeInDist) {
-          this.alpha = (this.traveled / fadeInDist) * this.maxAlpha
-        } else if (this.traveled > fadeOutStart) {
-          this.alpha = ((this.maxDist - this.traveled) / (this.maxDist - fadeOutStart)) * this.maxAlpha
+        if (this.x > cv.width - 60) {
+          this.alpha = ((cv.width - this.x) / 60) * this.maxAlpha
+        } else if (this.x < 60) {
+          this.alpha = (this.x / 60) * this.maxAlpha
         } else {
           this.alpha = this.maxAlpha
         }
-
-        if (this.x < -20 || this.y > cv.height + 20 || this.y < -20 || this.traveled > this.maxDist) {
-          this.init(false)
-        }
+        if (this.x < -5) this.init(false)
       }
 
       draw(c2: CanvasRenderingContext2D) {
@@ -86,32 +58,16 @@ export function HeroParticles() {
         c2.globalAlpha = Math.max(0, this.alpha)
         c2.fillStyle = this.green ? "#3DC45A" : "#EBF3E8"
         c2.beginPath()
-        c2.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2)
+        c2.arc(this.x, this.y, this.size, 0, Math.PI * 2)
         c2.fill()
         c2.restore()
       }
     }
 
-    const particles = Array.from({ length: 300 }, () => new Particle())
-
-    function drawGlow() {
-      const sx = SUN_X(), sy = SUN_Y()
-      const outer = c.createRadialGradient(sx, sy, 0, sx, sy, cv.width * 1.4)
-      outer.addColorStop(0, "rgba(61,196,90,0.3)")
-      outer.addColorStop(1, "rgba(61,196,90,0)")
-      c.fillStyle = outer
-      c.fillRect(0, 0, cv.width, cv.height)
-      const inner = c.createRadialGradient(sx, sy, 0, sx, sy, 135)
-      inner.addColorStop(0, "rgba(235,243,232,1.0)")
-      inner.addColorStop(0.4, "rgba(61,196,90,0.7)")
-      inner.addColorStop(1, "rgba(61,196,90,0)")
-      c.fillStyle = inner
-      c.fillRect(0, 0, cv.width, cv.height)
-    }
+    const particles = Array.from({ length: 180 }, () => new Particle())
 
     function loop() {
       c.clearRect(0, 0, cv.width, cv.height)
-      drawGlow()
       particles.forEach(p => { p.update(); p.draw(c) })
       animId = requestAnimationFrame(loop)
     }

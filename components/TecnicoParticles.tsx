@@ -16,43 +16,41 @@ export function TecnicoParticles() {
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a)
 
+    const resize = () => {
+      cv.width = cv.offsetWidth
+      cv.height = cv.offsetHeight
+    }
+    resize()
+    window.addEventListener("resize", resize)
+
     class Particle {
-      x = 0; y = 0; vx = 0; vy = 0
-      size = 0; alpha = 0; maxAlpha = 0
-      traveled = 0; maxDist = 0; green = false
+      x = 0; y = 0; vx = 0; speed = 0
+      size = 0; alpha = 0; maxAlpha = 0; green = false
 
       constructor() { this.init(true) }
 
       init(random: boolean) {
         this.x = rand(0, cv.width)
         this.y = random ? rand(0, cv.height) : cv.height + 5
-        this.vx = rand(-0.2, 0.2)
-        this.vy = rand(-0.5, -1.4)
+        this.speed = rand(0.3, 0.9)
+        this.vx = rand(-0.1, 0.1)
         this.size = rand(1, 2.5)
-        this.maxAlpha = rand(0.25, 0.7)
+        this.maxAlpha = rand(0.2, 0.55)
         this.alpha = random ? rand(0, this.maxAlpha) : 0
-        this.traveled = random ? rand(0, cv.height) : 0
-        this.maxDist = cv.height * rand(0.6, 1.1)
         this.green = Math.random() > 0.4
       }
 
       update() {
+        this.y -= this.speed
         this.x += this.vx
-        this.y += this.vy
-        this.traveled += Math.abs(this.vy)
-
-        const fadeIn = 30
-        const fadeOut = this.maxDist * 0.7
-
-        if (this.traveled < fadeIn) {
-          this.alpha = (this.traveled / fadeIn) * this.maxAlpha
-        } else if (this.traveled > fadeOut) {
-          this.alpha = ((this.maxDist - this.traveled) / (this.maxDist - fadeOut)) * this.maxAlpha
-        } else {
+        if (this.y < cv.height - 60 && this.y > 60) {
           this.alpha = this.maxAlpha
+        } else if (this.y >= cv.height - 60) {
+          this.alpha = ((cv.height - this.y) / 60) * this.maxAlpha
+        } else {
+          this.alpha = (this.y / 60) * this.maxAlpha
         }
-
-        if (this.y < -10 || this.traveled > this.maxDist) this.init(false)
+        if (this.y < -5) this.init(false)
       }
 
       draw(c2: CanvasRenderingContext2D) {
@@ -60,7 +58,7 @@ export function TecnicoParticles() {
         c2.globalAlpha = Math.max(0, this.alpha)
         c2.fillStyle = this.green ? "#3DC45A" : "#EBF3E8"
         c2.beginPath()
-        c2.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2)
+        c2.arc(this.x, this.y, this.size, 0, Math.PI * 2)
         c2.fill()
         c2.restore()
       }
@@ -76,7 +74,10 @@ export function TecnicoParticles() {
 
     loop()
 
-    return () => cancelAnimationFrame(animId)
+    return () => {
+      cancelAnimationFrame(animId)
+      window.removeEventListener("resize", resize)
+    }
   }, [])
 
   return (
