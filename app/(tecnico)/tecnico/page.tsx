@@ -7,6 +7,7 @@ import { MOCK_TECNICO } from "@/lib/mock-data";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/service";
 import { SUBSCRIPTION_ENABLED } from "@/lib/config";
+import { BannerParticles } from "@/components/BannerParticles";
 
 export const metadata: Metadata = { title: "Dashboard — Técnico | Painel Clean" };
 
@@ -265,7 +266,9 @@ export default async function TecnicoDashboardPage() {
 
       {/* ── Seção 3: Ranking + Fluxo de clientes ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-brand-dark rounded-2xl p-5 space-y-4">
+        <div className="bg-brand-dark rounded-2xl p-5 relative overflow-hidden">
+          <BannerParticles />
+          <div className="relative space-y-4" style={{ zIndex: 2 }}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🏆</span>
@@ -306,6 +309,7 @@ export default async function TecnicoDashboardPage() {
               </div>
             ))}
           </div>
+          </div>{/* end relative z-[2] wrapper */}
         </div>
 
         <div className="bg-white border border-brand-border rounded-2xl p-5 space-y-4">

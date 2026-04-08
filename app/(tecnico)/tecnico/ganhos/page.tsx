@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DollarSign, Star, CheckCircle2, Smartphone, TrendingUp } from "lucide-react";
+import { BannerParticles } from "@/components/BannerParticles";
 import { MOCK_TECNICO } from "@/lib/mock-data";
 
 export const metadata: Metadata = { title: "Ganhos — Técnico" };
@@ -75,7 +76,9 @@ export default function GanhosPage() {
       </div>
 
       {/* ── Breakdown financeiro ── */}
-      <div className="bg-brand-dark rounded-2xl p-6 sm:p-8">
+      <div className="bg-brand-dark rounded-2xl p-6 sm:p-8 relative overflow-hidden">
+        <BannerParticles />
+        <div style={{ position: "relative", zIndex: 2 }}>
         <div className="flex items-center gap-2 mb-6">
           <TrendingUp size={18} className="text-brand-green" />
           <h2 className="font-heading text-base font-bold text-white">
@@ -117,6 +120,7 @@ export default function GanhosPage() {
             </p>
           </div>
         </div>
+        </div>{/* end relative z-[2] wrapper */}
       </div>
 
       {/* ── Gráfico semanal ── */}

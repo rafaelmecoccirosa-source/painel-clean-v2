@@ -22,6 +22,7 @@ const TIPO_LABEL: Record<string, string> = {
 import PaymentCard from "@/components/cliente/PaymentCard";
 import ServiceProgressBar from "@/components/shared/ServiceProgressBar";
 import { Copy, Check, CheckCircle2 } from "lucide-react";
+import { BannerParticles } from "@/components/BannerParticles";
 
 function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -651,6 +652,7 @@ export default function ClienteHomePage() {
 
       {/* Welcome banner */}
       <div className="bg-gradient-brand rounded-2xl p-6 sm:p-8 mb-8 text-white overflow-hidden relative">
+        <BannerParticles />
         <div className="relative z-10">
           <p className="text-white/70 text-sm mb-1">Bem-vindo de volta</p>
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">{userName}</h1>
