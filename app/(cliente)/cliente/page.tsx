@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { PlusCircle, Sun, Zap, Star, X } from "lucide-react";
+import { PlusCircle, Sun, Star, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import Toast, { useToast } from "@/components/ui/Toast";
 import { createClient } from "@/lib/supabase/client";
@@ -666,9 +666,20 @@ export default function ClienteHomePage() {
             </Button>
           </Link>
         </div>
-        <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/5" />
-        <div className="absolute -right-4 -bottom-12 h-52 w-52 rounded-full bg-white/5" />
-        <Zap size={80} className="absolute right-12 top-1/2 -translate-y-1/2 text-white/10" />
+        {/* Decorative circles — SVG vetorial */}
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
+          style={{ position: "absolute", right: 0, top: 0, width: "260px", height: "260px", opacity: 0.08 }}>
+          <circle cx="150" cy="80" r="90" fill="white"/>
+          <circle cx="180" cy="160" r="50" fill="white"/>
+        </svg>
+        {/* Decorative lightning bolt — SVG vetorial */}
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+          className="absolute right-12 top-1/2 -translate-y-1/2"
+          style={{ width: "80px", height: "80px", opacity: 0.15 }}>
+          <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"
+            fill="white" stroke="white" strokeWidth="1.5"
+            strokeLinejoin="round" strokeLinecap="round"/>
+        </svg>
       </div>
 
       {/* Counters */}
