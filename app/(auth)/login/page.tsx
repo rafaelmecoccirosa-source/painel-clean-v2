@@ -6,6 +6,7 @@ import Logo from "@/components/layout/Logo";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { AlertCircle } from "lucide-react";
+import { LoginBackground } from "@/components/LoginBackground";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -61,10 +62,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+      <LoginBackground />
+      <div className="w-full max-w-sm" style={{ position: "relative", zIndex: 1 }}>
         <div className="flex justify-center mb-8">
-          <Logo size="lg" />
+          <Logo size="lg" inverted />
         </div>
 
         <div className="card">
@@ -146,7 +148,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-sm text-brand-muted mt-6">
+        <p className="text-center text-sm text-white/70 mt-6">
           Não tem conta?{" "}
           <Link href="/cadastro" className="text-brand-green font-medium hover:underline">
             Cadastre-se grátis
