@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { HeroParticles } from "@/components/HeroParticles";
 
 export default function HeroSection() {
   const [count, setCount] = useState(0);
@@ -71,8 +70,6 @@ export default function HeroSection() {
         #hero-bg { background-position: center 30%; }
         @media (min-width: 640px) { #hero-bg { background-position: center center; } }
       `}</style>
-
-      <HeroParticles />
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:py-28">
 
