@@ -57,6 +57,11 @@
    from overriding the animation state.
    Uses only opacity + transform (GPU-accelerated, no layout reflow).
 ──────────────────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(400%) skewX(-15deg); }
+}
+
 @keyframes kenburns {
   0%   { transform: scale(1); }
   100% { transform: scale(1.06); }

@@ -63,6 +63,21 @@ export default function HeroSection() {
             background: "linear-gradient(rgba(27, 58, 45, 0.85), rgba(27, 58, 45, 0.70))",
           }}
         />
+        {/* Shimmer sweep */}
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "18%",
+              height: "100%",
+              background: "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.07) 40%,rgba(255,255,255,0.13) 50%,rgba(255,255,255,0.07) 60%,transparent 100%)",
+              animation: "shimmer 5s ease-in-out infinite",
+              animationDelay: "1.5s",
+            }}
+          />
+        </div>
       </div>
 
       {/* Responsive background-position for the photo */}
