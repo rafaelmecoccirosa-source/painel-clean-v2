@@ -666,12 +666,6 @@ export default function ClienteHomePage() {
             </Button>
           </Link>
         </div>
-        {/* Decorative circles — SVG vetorial */}
-        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"
-          style={{ position: "absolute", right: 0, top: 0, width: "260px", height: "260px", opacity: 0.08 }}>
-          <circle cx="150" cy="80" r="90" fill="white"/>
-          <circle cx="180" cy="160" r="50" fill="white"/>
-        </svg>
         {/* Decorative lightning bolt — SVG vetorial */}
         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
           className="absolute right-12 top-1/2 -translate-y-1/2"
