@@ -66,7 +66,7 @@ export default function LoginPage() {
       <LoginBackground />
       <div className="w-full max-w-sm" style={{ position: "relative", zIndex: 1 }}>
         <div className="flex justify-center mb-8">
-          <Logo size="lg" />
+          <Logo size="lg" inverted />
         </div>
 
         <div className="card">

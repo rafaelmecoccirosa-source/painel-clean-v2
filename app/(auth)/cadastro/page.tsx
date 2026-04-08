@@ -7,6 +7,7 @@ import Logo from "@/components/layout/Logo";
 import Button from "@/components/ui/Button";
 import { createClient } from "@/lib/supabase/client";
 import { CheckCircle2, AlertCircle } from "lucide-react";
+import { LoginBackground } from "@/components/LoginBackground";
 
 const CIDADES = ["Jaraguá do Sul", "Pomerode", "Florianópolis"];
 
@@ -120,10 +121,10 @@ function CadastroInner() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-4 py-12">
-        <div className="w-full max-w-sm">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+        <div className="w-full max-w-sm" style={{ position: "relative", zIndex: 1 }}>
           <div className="flex justify-center mb-8">
-            <Logo size="lg" />
+            <Logo size="lg" inverted />
           </div>
           <div className="card text-center py-8">
             <div className="flex justify-center mb-4">
@@ -143,10 +144,10 @@ function CadastroInner() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+      <div className="w-full max-w-sm" style={{ position: "relative", zIndex: 1 }}>
         <div className="flex justify-center mb-8">
-          <Logo size="lg" />
+          <Logo size="lg" inverted />
         </div>
 
         {/* STEP 1 — Role selection */}
@@ -354,7 +355,7 @@ function CadastroInner() {
           </div>
         )}
 
-        <p className="text-center text-sm text-brand-muted mt-6">
+        <p className="text-center text-sm text-white/70 mt-6">
           Já tem conta?{" "}
           <Link href="/login" className="text-brand-green font-medium hover:underline">
             Entrar
@@ -367,8 +368,11 @@ function CadastroInner() {
 
 export default function CadastroPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-brand-bg" />}>
-      <CadastroInner />
-    </Suspense>
+    <>
+      <LoginBackground />
+      <Suspense fallback={<div className="min-h-screen" />}>
+        <CadastroInner />
+      </Suspense>
+    </>
   );
 }
