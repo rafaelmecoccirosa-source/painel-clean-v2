@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { calcularPreco, type TipoInstalacao, type NivelSujeira } from "@/lib/pricing";
+import { BannerParticles } from "@/components/BannerParticles";
 
 // === CONSTANTES DA CALCULADORA ===
 const KWH_POR_PLACA_MES  = 55;   // Média de geração por placa/mês em SC
@@ -200,7 +201,9 @@ export default function CalculadoraEconomia() {
             </div>
 
             {/* Bottom half — investimento (fundo brand-dark, valores verdes) */}
-            <div className="bg-brand-dark px-6 pt-5 pb-6 space-y-4">
+            <div className="bg-brand-dark px-6 pt-5 pb-6 relative overflow-hidden">
+              <BannerParticles />
+              <div className="relative space-y-4" style={{ zIndex: 2 }}>
               <h3 className="font-heading font-bold text-white text-base">
                 💰 Investimento na limpeza
               </h3>
@@ -248,6 +251,7 @@ export default function CalculadoraEconomia() {
               <p className="text-[11px] text-white/30 text-center leading-relaxed">
                 *Valor final confirmado pelo técnico certificado
               </p>
+              </div>{/* end relative z-[2] */}
             </div>
           </div>
         </div>
