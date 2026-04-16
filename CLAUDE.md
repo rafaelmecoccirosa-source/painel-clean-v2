@@ -1,17 +1,19 @@
-# CLAUDE.md — Painel Clean Plataforma
+markdown# CLAUDE.md — Painel Clean Plataforma v2
 
 > Contexto completo do projeto para o Claude Code.
-> Atualizado em: 2026-04-05
+> Atualizado em: 2026-04-16
 > Leia este arquivo inteiro antes de qualquer implementação.
+> **Esta é a v2 — modelo assinatura (Netflix). A v1 está em github.com/rafaelmecoccirosa-source/painel-clean-plataforma**
 
 ---
 
 ## O que é o projeto
 
-Marketplace de limpeza de placas solares no modelo Uber/iFood. Conecta **donos de painéis solares** com **técnicos certificados** em um corredor de 13 cidades entre Jaraguá do Sul e Florianópolis (SC). Operado pela Painel Clean (painelclean.com.br), empresa que vende escovas profissionais para limpeza de painéis.
+Plataforma de limpeza de placas solares no modelo **assinatura recorrente (Netflix)** com serviço avulso como opção secundária. Conecta **donos de painéis solares** com **técnicos certificados** em um corredor de 13 cidades entre Jaraguá do Sul e Florianópolis (SC). Operado pela Painel Clean (painelclean.com.br), empresa que vende escovas profissionais para limpeza de painéis.
 
-**App:** painel-clean-plataforma.vercel.app
-**Repo:** github.com/rafaelmecoccirosa-source/painel-clean-plataforma
+**App v2:** painel-clean-v2.vercel.app
+**Repo v2:** github.com/rafaelmecoccirosa-source/painel-clean-v2
+**App v1 (referência):** painel-clean-plataforma.vercel.app
 **Parceiro:** painelclean.com.br
 
 ---
@@ -44,89 +46,80 @@ Marketplace de limpeza de placas solares no modelo Uber/iFood. Conecta **donos d
 
 | Perfil | Route Group | Rota | O que faz |
 |--------|-------------|------|-----------|
-| `cliente` | `(cliente)` | `/cliente` | Solicita e paga o serviço |
-| `tecnico` | `(tecnico)` | `/tecnico` | Executa a limpeza |
-| `admin` | `(admin)` | `/admin` | Intermedia, confirma, libera repasse |
-
----
-
-## Estrutura de arquivos chave
-
-```
-app/
-  (auth)/login, cadastro, completar-cadastro
-  api/auth/redirect/route.ts  <- route handler server-side para redirect por role
-  (cliente)/layout.tsx
-  (cliente)/cliente/
-    page.tsx                    <- dashboard cliente (Client Component)
-    solicitar/page.tsx          <- formulário + MapPickerLeaflet
-    historico/page.tsx
-    perfil/page.tsx             <- usa createServiceClient()
-    servico/[id]/page.tsx
-  (tecnico)/layout.tsx          <- inclui <PresencePing />
-  (tecnico)/tecnico/
-    page.tsx                    <- dashboard (usa createServiceClient())
-    chamados/page.tsx
-    chamados/[id]/page.tsx
-    agenda/page.tsx             <- AVISO: 100% mock (MOCK_AGENDA_TECNICO), não integrado
-    ganhos/page.tsx
-    perfil/page.tsx             <- campo CEP com geocodificação
-    conclusao/[id]/page.tsx
-  (admin)/layout.tsx
-  (admin)/admin/
-    page.tsx
-    mapa/page.tsx               <- mapa de técnicos + serviços
-    mapa/AdminMapaView.tsx      <- Client Component com Leaflet
-    servicos/page.tsx, [id]/page.tsx
-    pagamentos/page.tsx
-    usuarios/page.tsx
-    relatorios/page.tsx
-  page.tsx                      <- landing page pública
-
-lib/
-  supabase/
-    server.ts     <- createClient() para Server Components (anon key, RLS aplica)
-    client.ts     <- createClient() para Client Components (browser, anon key)
-    service.ts    <- createServiceClient() para server-side bypass RLS
-  types/index.ts
-  pricing.ts      <- calcularPreco() com faixas regressivas e BOOST_MVP
-  config.ts       <- SUBSCRIPTION_ENABLED=false, MVP_PRICING_ACTIVE=true
-  mock-data.ts
-  availability.ts <- getTecnicosDisponiveis()
-  geocode.ts      <- geocodeCEP() via ViaCEP + Nominatim
-
-components/
-  PresencePing.tsx              <- pinga last_seen a cada 4min (no layout do técnico)
-  layout/HeaderCliente, HeaderTecnico, HeaderAdmin, Logo
-  shared/ServiceProgressBar, ChatBox, MapPickerLeaflet, MapViewLeaflet, ServiceReport
-  cliente/PaymentCard, ServicoCard, TecnicosRegiao
-  tecnico/DisponibilidadeToggle, GanhosChart
-  admin/ServicosEscalationAlert, AdminDonut, AdminReceitaChart
-  ui/Button, Badge, Toast
-
-scripts/
-  seed-users-demo.sql   <- insere usuários demo no banco (12 users + profiles)
-  seed-location.sql     <- atualiza lat/lng dos técnicos por cidade
-```
+| `cliente` | `(cliente)` | `/cliente` | Assina plano, agenda limpezas, vê relatórios |
+| `tecnico` | `(tecnico)` | `/tecnico` | Executa limpezas agendadas e avulsas |
+| `admin` | `(admin)` | `/admin` | Intermedia, confirma, libera repasse, gerencia assinaturas |
 
 ---
 
 ## Modelo financeiro
 
-```
-Comissão plataforma: 25%
-Repasse técnico:     75%
-Repasse mínimo:      R$ 200 (garantido)
-Preço mínimo:        R$ 300 por serviço
-Ticket médio SC:     R$ 618
-```
+### Planos de assinatura (mensalidade)
 
-**AVISO:** qualquer valor de 15% comissão / 85% repasse encontrado no código está DESATUALIZADO. Os valores corretos são 25% / 75%.
+| Plano | Mensalidade | Módulos | Limpezas/ano |
+|-------|-------------|---------|--------------|
+| Básico | R$ 30/mês | até 15 | 2 |
+| Padrão | R$ 50/mês | 16–30 | 2 |
+| Plus | R$ 100/mês | 31–60 | 2 |
+| Pro | sob consulta | 61–200 | customizado |
+| Business | sob consulta | 200+ usinas | customizado |
 
-**Flags MVP (`lib/config.ts`):**
+### Entrada no plano
+- 1ª limpeza com **50% do preço avulso equivalente**
+- Ao pagar entrada → contrato mínimo **12 meses com carência**
+- Cancelamento: paga saldo devedor do período restante
+- Limpeza não realizada no período → cliente perde, sem reembolso
+
+### Serviço avulso (secundário)
+- Preço cheio — objetivo estratégico é fazer assinatura parecer óbvia
+- Sem contrato, sem recorrência
+
+### Limpeza extra para assinantes
+- Gatilhada por alerta de queda de performance via API do inversor
+- **40% mais barata** que o preço avulso equivalente
+
+### Tabela de preços avulso (base para todos os cálculos)
+
+| Faixa | Preço/placa |
+|-------|-------------|
+| Até 30 módulos | R$ 30,00 |
+| 31–50 módulos | R$ 25,00 |
+| 51–100 módulos | R$ 20,00 |
+| 100+ módulos | sob consulta |
+
+### Margens
+- Custo técnico: R$ 10/placa
+- Margem bruta avulso faixa básica: ~67%
+- Margem assinatura: ~60% sobre mensalidade
+
+### Argumento de venda — "se paga em 4 dias"
+Premissas: módulo 550W, geração média SC 130 kWh/mês/kWp, tarifa R$ 0,85/kWh, perda por sujeira 30%
+
+| Plano | Módulos | Prejuízo/mês por sujeira | Assinatura | Payback |
+|-------|---------|--------------------------|------------|---------|
+| Básico | 12 | ~R$ 218/mês | R$ 30/mês | ~4 dias |
+| Padrão | 20 | ~R$ 365/mês | R$ 50/mês | ~4 dias |
+| Plus | 40 | ~R$ 729/mês | R$ 100/mês | ~4 dias |
+
+### Comparativo assinatura vs avulso (3 anos, 20 módulos)
+
+| | Avulso 2x/ano | Assinatura Padrão |
+|---|---|---|
+| Ano 1 | R$ 1.200 | R$ 300 entrada + R$ 600 = R$ 900 |
+| Ano 2 | R$ 1.200 | R$ 600 |
+| Ano 3 | R$ 1.200 | R$ 600 |
+| **Total** | **R$ 3.600** | **R$ 2.100** |
+| **Economia** | — | **R$ 1.500 (42%)** |
+
+---
+
+## Flags de config (`lib/config.ts`)
+
 ```typescript
-SUBSCRIPTION_ENABLED = false  // assinatura técnico desativada no MVP
-MVP_PRICING_ACTIVE = true     // desconto 15% pro cliente (plataforma absorve)
+SUBSCRIPTION_ENABLED = true       // modelo assinatura ativo
+AVULSO_ENABLED = true             // serviço avulso mantido como secundário
+INVERTER_API_ENABLED = false      // integração API inversores — pós-MVP
+FIRST_SERVICE_DISCOUNT = 0.50    // 50% desconto na 1ª limpeza
 ```
 
 ---
@@ -134,48 +127,57 @@ MVP_PRICING_ACTIVE = true     // desconto 15% pro cliente (plataforma absorve)
 ## Algoritmo de precificação (`lib/pricing.ts`)
 
 ```typescript
-// 1. Faixas por placa (médias do mercado SC)
-ate 30 placas  -> R$ 27,50/placa
-31-50 placas   -> R$ 20,00/placa
-51-100 placas  -> R$ 14,00/placa
-101-200 placas -> R$ 9,50/placa
-200+ placas    -> sob consulta
+// 1. Faixas por placa (preço avulso base)
+ate 30 placas  -> R$ 30,00/placa
+31-50 placas   -> R$ 25,00/placa
+51-100 placas  -> R$ 20,00/placa
+100+ placas    -> sob consulta
 
-// 2. Preco base
-preco_base = max(300, placas x valor_da_faixa)
+// 2. Preco avulso base
+preco_avulso = placas x valor_da_faixa
 
-// 3. Multiplicadores
+// 3. Entrada assinatura (1ª limpeza)
+preco_entrada = preco_avulso x 0.50
+
+// 4. Limpeza extra assinante
+preco_extra = preco_avulso x 0.60  // 40% desconto
+
+// 5. Multiplicadores
 mult_tipo  = solo(x1.0) | telhado_padrao(x1.25) | telhado_dificil(x1.5)
 mult_extra = 1.0 + (0.2 se sujeira pesada) + (0.2 se acesso dificil)
 deslocamento = km x R$2
-
-// 4. Preco final
-preco_estimado  = (preco_base x mult_tipo x mult_extra + deslocamento) x 1.15
-preco_cliente   = preco_estimado x 0.85   // desconto MVP
-repasse_tecnico = preco_estimado x 0.75   // 75% do interno
-faixa_exibida   = [preco_cliente x 0.9, preco_cliente x 1.2]
-
-// 5. Garantia de repasse minimo
-if (repasse_tecnico < 200) ajustar preco_estimado para cima
 ```
 
 ---
 
-## Fluxo do serviço
+## Fluxo do cliente (assinatura)
 
-```
-1.  Cliente preenche solicitacao (cidade, placas, tipo, sujeira, acesso, distancia)
-2.  Plataforma calcula preco e verifica disponibilidade de tecnicos
-3.  Cliente paga 100% via PIX antecipado
-4.  Cliente clica "Ja paguei" -> payment_status = 'awaiting_confirmation'
-5.  Admin confirma -> payment_status = 'confirmed' (SLA: 15min)
-6.  Chamado aparece para tecnicos elegiveis
-7.  Tecnico aceita (se nenhum aceitar em 30min -> alerta admin, >1h -> escalonamento +10%)
-8.  Tecnico executa e envia relatorio fotografico (antes/depois + checklist)
-9.  Admin revisa e aprova
-10. Cliente avalia (1-5 estrelas)
-11. Admin libera repasse via PIX para tecnico (75%)
-```
+Cliente cadastra → informa nº de módulos, cidade, modelo do inversor
+Plataforma sugere o plano (Básico / Padrão / Plus)
+Oferta: 1ª limpeza com 50% de desconto
+Cliente paga entrada (1ª limpeza)
+Técnico executa → relatório fotográfico + checkup
+Plataforma oferece assinatura mensal pós-serviço
+Cliente assina → contrato 12 meses mínimo
+Plataforma agenda próximas limpezas automaticamente (2x/ano)
+Relatório de performance chega todo mês (via API ou manual)
+Alertas de queda de performance → oferta de limpeza extra com 40% desconto
+
+
+## Fluxo avulso (secundário)
+
+Cliente solicita limpeza avulsa
+Plataforma calcula preço cheio
+Cliente paga 100% via PIX antecipado
+Cliente clica "Já paguei" -> payment_status = 'awaiting_confirmation'
+Admin confirma -> payment_status = 'confirmed' (SLA: 15min)
+Chamado aparece para técnicos elegíveis
+Técnico aceita (se nenhum aceitar em 30min -> alerta admin, >1h -> escalonamento +10%)
+Técnico executa e envia relatório fotográfico (antes/depois + checklist)
+Admin revisa e aprova
+Cliente avalia (1-5 estrelas)
+Admin libera repasse via PIX para técnico
+
 
 ---
 
@@ -188,56 +190,62 @@ if (repasse_tecnico < 200) ajustar preco_estimado para cima
 - O email fica em `auth.users`, não em `profiles`
 
 ### Colunas de `profiles`
-```
 id           -> UUID proprio
 user_id      -> FK auth.users  <- SEMPRE usar este em queries e RLS
 role         -> 'cliente' | 'tecnico' | 'admin'
 full_name    -> nome completo
 phone        -> telefone
-city         -> cidade (deve ser exatamente igual ao nome da cidade no sistema)
+city         -> cidade
 avatar_url
 cep          -> CEP do tecnico (varchar 9, ex: "89251-000")
 lat          -> latitude geocodificada (double precision)
 lng          -> longitude geocodificada (double precision)
 last_seen    -> ultimo ping de presenca do tecnico (timestamptz)
 created_at
-```
+
+### Tabela `subscriptions` (nova no v2)
+id               -> UUID PK
+client_id        -> FK auth.users
+plan_type        -> 'basic' | 'standard' | 'plus' | 'pro' | 'business'
+status           -> 'active' | 'cancelled' | 'paused'
+price_monthly    -> valor mensal
+modules_count    -> nr de módulos
+started_at       -> início da assinatura
+next_billing_at  -> próxima cobrança
+next_service_at  -> próxima limpeza agendada
+inverter_brand   -> marca do inversor
+inverter_api_key -> chave API inversor (pós-MVP)
+created_at
+
+### Tabela `monthly_reports` (nova no v2)
+id               -> UUID PK
+subscription_id  -> FK subscriptions
+client_id        -> FK auth.users
+period_month     -> mês de referência
+period_year      -> ano de referência
+kwh_generated    -> kWh gerados no período
+kwh_expected     -> kWh esperados para a região
+efficiency_pct   -> % de eficiência
+savings_estimated -> economia estimada na conta
+alert_message    -> alerta se painel caiu de performance
+report_pdf_url   -> URL do PDF gerado
+sent_at          -> quando foi enviado ao cliente
+created_at
+
+### Tabela `service_requests` — campos adicionados no v2
+origin           -> 'subscription' | 'avulso'
+subscription_id  -> FK subscriptions (nullable)
 
 ### Tabela `service_requests` — regra das placas
 - Coluna de placas: existe `panel_count` (schema original) E `module_count` (migrations)
 - **SEMPRE** salvar em ambas: `{ panel_count: n, module_count: n }`
 - **SEMPRE** ler com: `module_count ?? panel_count ?? 0`
 
-### Colunas importantes de `service_requests`
-```
-id                   -> UUID PK
-client_id            -> UUID do cliente (FK auth.users)
-technician_id        -> UUID do tecnico (FK auth.users), NULL quando disponivel
-city                 -> cidade
-address              -> endereco completo
-module_count         -> nr de placas (novo)
-panel_count          -> nr de placas (legado — manter por compatibilidade)
-price_estimate       -> preco final cobrado do cliente
-status               -> pending | accepted | in_progress | completed | cancelled
-payment_status       -> pending | awaiting_confirmation | confirmed | released
-payment_reported_at  -> quando cliente clicou "Ja paguei" (SLA)
-latitude             -> coordenada do servico (salva pelo MapPickerLeaflet)
-longitude            -> coordenada do servico (salva pelo MapPickerLeaflet)
-tipo_instalacao      -> solo | telhado_padrao | telhado_dificil
-nivel_sujeira        -> normal | pesada
-nivel_acesso         -> normal | dificil
-distancia_km         -> distancia em km
-preco_min, preco_max -> faixa exibida ao tecnico
-escalation_level     -> quantas vezes admin aumentou o preco
-escalated_at         -> ultima escalacao manual
-```
-
 ### Join client_id -> profiles
 - `service_requests.client_id` é FK para `auth.users`, não para `profiles`
 - PostgREST **nao** atravessa `auth.users -> profiles` automaticamente
 - Para buscar nome do cliente junto com o serviço: fazer join em JS no Server Component
 ```typescript
-// No Server Component — buscar profiles separado e fazer merge em JS
 const clienteMap = new Map(clientes.map(c => [c.user_id, c]))
 const servicosComCliente = servicos.map(s => ({
   ...s,
@@ -254,8 +262,8 @@ const servicosComCliente = servicos.map(s => ({
 -- Usuario le/atualiza o proprio profile
 USING (auth.uid() = user_id)
 
--- Admin le/atualiza todos
-USING (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role = 'admin'))
+-- Admin le/atualiza todos (usar JWT para evitar recursão)
+USING (auth.jwt() -> 'user_metadata' ->> 'role' = 'admin')
 ```
 
 ### Tabela `service_requests`
@@ -270,8 +278,10 @@ USING (
 )
 
 -- Admin ve tudo
-USING (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role = 'admin'))
+USING (auth.jwt() -> 'user_metadata' ->> 'role' = 'admin')
 ```
+
+**CRÍTICO — RLS admin:** usar `auth.jwt() -> 'user_metadata' ->> 'role'` em vez de subquery em `profiles` para evitar recursão infinita (erro 42P17).
 
 ---
 
@@ -293,11 +303,6 @@ USING (EXISTS (SELECT 1 FROM profiles p WHERE p.user_id = auth.uid() AND p.role 
 - **Motivo:** middleware roda no Edge Runtime (V8), queries ao Supabase falham silenciosamente
 
 ### Login — redirect server-side (CRITICO)
-
-Apos `signInWithPassword` bem-sucedido, o `login/page.tsx` faz hard navigate para
-`/api/auth/redirect` — uma route handler que le o role via `createServiceClient()`
-e retorna 302 direto para `/admin`, `/tecnico` ou `/cliente`.
-
 ```typescript
 // login/page.tsx — CORRETO
 window.location.href = '/api/auth/redirect'
@@ -306,27 +311,19 @@ window.location.href = '/api/auth/redirect'
 router.push('/cliente')
 ```
 
-**Motivo:** `router.push()` renderiza o componente cliente antes do redirect de role
-acontecer, causando flash visual da tela errada.
-
 ### Redirect por role — nos layouts
-
 ```typescript
-// CRITICO: redirect() lanca excecao NEXT_REDIRECT internamente
-// Se estiver dentro de try/catch, o catch engole e o redirect nao acontece
-// SEMPRE colocar redirect() FORA do try/catch
-
+// CRITICO: redirect() SEMPRE fora do try/catch
 let userRole: string | null = null
 try {
   const { data: profile } = await supabaseAdmin
     .from('profiles')
     .select('role, full_name')
-    .eq('user_id', user.id)   // <- SEMPRE user_id, nunca id
+    .eq('user_id', user.id)
     .single()
   userRole = profile?.role ?? null
 } catch {}
 
-// Fora do try/catch:
 if (userRole === 'admin') redirect('/admin')
 if (userRole === 'tecnico') redirect('/tecnico')
 ```
@@ -336,19 +333,12 @@ if (userRole === 'tecnico') redirect('/tecnico')
 ## Mapa de técnicos e serviços (`/admin/mapa`)
 
 ### Fonte das coordenadas
-- **Servicos/clientes:** `latitude`/`longitude` em `service_requests`, salvo pelo `MapPickerLeaflet` no fluxo de criacao — **ja existe, nao recriar**
+- **Servicos/clientes:** `latitude`/`longitude` em `service_requests`
 - **Tecnicos:** CEP no perfil -> geocodificado via `lib/geocode.ts` (ViaCEP + Nominatim) -> `lat`/`lng` em `profiles`
 
 ### Presenca online/offline
 - `last_seen` em `profiles` atualizado pelo `PresencePing` a cada 4min
 - Online = `last_seen` nos ultimos 5 minutos
-- `PresencePing` esta incluido no `app/(tecnico)/layout.tsx`
-
-### Tabs e filtro
-- Ordem: Técnicos / Clientes / Serviços / Todos
-- Default: Técnicos
-- Ao trocar tab: LayerGroup.clearLayers() + recria markers da tab ativa
-- Tab Clientes: agrupa service_requests por client_id, mostra total placas, badge "X usinas", clique faz pan/zoom
 
 ### Leaflet — regra critica
 ```typescript
@@ -357,7 +347,7 @@ useEffect(() => {
   import('leaflet').then(L => { ... })
 }, [])
 
-// ERRADO — quebra o build (window is not defined no SSR)
+// ERRADO — quebra o build
 import L from 'leaflet'
 ```
 
@@ -365,10 +355,9 @@ import L from 'leaflet'
 
 ## Dados demo no banco
 
-Emails demo no formato `nome.sobrenome@demo.painelclean.com.br` — fácil identificar.
-Scripts em `scripts/` para recriar ou limpar os dados demo.
+Emails demo no formato `nome.sobrenome@demo.painelclean.com.br` / senha `Demo@2026!`
 
-Técnicos demo e suas cidades:
+Técnicos demo:
 - `carlos.souza@demo.painelclean.com.br` — Jaraguá do Sul
 - `lucas.martins@demo.painelclean.com.br` — Jaraguá do Sul
 - `pedro.santos@demo.painelclean.com.br` — Pomerode
@@ -376,28 +365,7 @@ Técnicos demo e suas cidades:
 - `roberto.lima@demo.painelclean.com.br` — Florianópolis
 - `amanda.reis@demo.painelclean.com.br` — Florianópolis
 
-Para resetar presença antes de demos — rodar no Supabase SQL Editor (ou usar `scripts/reset-presenca-demo.sql`):
-```sql
--- Online: Rafu, Carlos Souza, Pedro Santos, Roberto Lima
-UPDATE profiles SET last_seen = NOW()
-FROM auth.users u WHERE profiles.user_id = u.id
-AND u.email IN (
-  'rafu@porteiradoalto.com.br',
-  'carlos.souza@demo.painelclean.com.br',
-  'pedro.santos@demo.painelclean.com.br',
-  'roberto.lima@demo.painelclean.com.br'
-);
-
--- Offline: Lucas Martins, Diego Ferreira, Amanda Reis, Tio Luís
-UPDATE profiles SET last_seen = NOW() - INTERVAL '2 hours'
-FROM auth.users u WHERE profiles.user_id = u.id
-AND u.email IN (
-  'lucas.martins@demo.painelclean.com.br',
-  'diego.ferreira@demo.painelclean.com.br',
-  'amanda.reis@demo.painelclean.com.br',
-  'luis@painelclean.com.br'
-);
-```
+Admin: `admin@painelclean.com.br` / `Demo@2026!`
 
 ---
 
@@ -406,9 +374,9 @@ AND u.email IN (
 ```typescript
 // CORRETO
 if (error?.code === 'PGRST116') return mockData  // tabela nao existe
-if (!data || data.length === 0) return []          // vazio = estado vazio real, nao mock
+if (!data || data.length === 0) return []          // vazio = estado vazio real
 
-// ERRADO — mistura erro com vazio
+// ERRADO
 if (error || !data || data.length === 0) return mockData
 ```
 
@@ -421,10 +389,8 @@ Sempre exibir badge "Dados demonstrativos" quando usando mock.
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=   <- necessaria para layouts e server components
+SUPABASE_SERVICE_ROLE_KEY=
 ```
-
-Configurar no Vercel -> Settings -> Environment Variables -> All Environments.
 
 ---
 
@@ -432,14 +398,22 @@ Configurar no Vercel -> Settings -> Environment Variables -> All Environments.
 
 1. `20260330_service_requests.sql`
 2. `20260330_payment_columns.sql`
-3. `20260331_location_columns.sql` — lat/lng em service_requests
-4. `20260331_pricing_columns.sql` — tipo_instalacao, nivel_sujeira, nivel_acesso, distancia_km, preco_min, preco_max
-5. `20260401_escalation_sla_columns.sql` — escalation_level, escalated_at, payment_reported_at
-6. `20260401_fix_rls_policies.sql`
-7. `20260403_profiles_rls.sql` — RLS com user_id
-8. `20260403_fix_technician_rls.sql`
-9. `20260404_technician_presence_location.sql` — last_seen, cep, lat, lng em profiles
-10. `20260405_fix_profiles_update_rls.sql` — WITH CHECK adicionado nas policies UPDATE de profiles
+3. `20260330_reviews.sql`
+4. `20260330_messages.sql`
+5. `20260330_service_reports.sql`
+6. `20260331_contact_attempt_logs.sql`
+7. `20260331_location_columns.sql`
+8. `20260331_pricing_columns.sql`
+9. `20260401_escalation_sla_columns.sql`
+10. `20260401_fix_rls_policies.sql`
+11. `20260403_profiles_rls.sql`
+12. `20260403_fix_technician_rls.sql`
+13. `20260403_report_columns.sql`
+14. `20260404_technician_presence_location.sql`
+15. `20260405_fix_profiles_update_rls.sql`
+16. `20260416_subscriptions.sql` — tabela subscriptions (v2)
+17. `20260416_monthly_reports.sql` — tabela monthly_reports (v2)
+18. `20260416_service_requests_v2.sql` — origin + subscription_id (v2)
 
 ---
 
@@ -453,23 +427,65 @@ Configurar no Vercel -> Settings -> Environment Variables -> All Environments.
 
 ---
 
+## Estrutura de arquivos chave
+app/
+(auth)/login, cadastro, completar-cadastro
+api/auth/redirect/route.ts
+(cliente)/layout.tsx
+(cliente)/cliente/
+page.tsx                    <- dashboard cliente — status plano + próxima limpeza
+meu-plano/page.tsx          <- detalhes assinatura, histórico pagamentos (v2)
+relatorios/page.tsx         <- relatórios mensais de performance (v2)
+solicitar/page.tsx          <- limpeza avulsa (secundário)
+historico/page.tsx
+perfil/page.tsx
+servico/[id]/page.tsx
+(tecnico)/layout.tsx
+(tecnico)/tecnico/
+page.tsx
+chamados/page.tsx           <- separado por origem: assinatura / avulso
+chamados/[id]/page.tsx
+agenda/page.tsx
+ganhos/page.tsx
+perfil/page.tsx
+conclusao/[id]/page.tsx
+(admin)/layout.tsx
+(admin)/admin/
+page.tsx
+assinaturas/page.tsx        <- MRR, assinantes ativos, churn (v2)
+relatorios/page.tsx         <- envios pendentes, status inversores (v2)
+mapa/page.tsx
+servicos/page.tsx, [id]/page.tsx
+pagamentos/page.tsx
+usuarios/page.tsx
+page.tsx                      <- landing page pública
+lib/
+supabase/server.ts, client.ts, service.ts
+types/index.ts
+pricing.ts                    <- faixas v2: R$30/R$25/R$20/sob consulta
+config.ts                     <- SUBSCRIPTION_ENABLED=true
+mock-data.ts
+availability.ts
+geocode.ts
+
+---
+
 ## Componentes notáveis
 
-- **`MapPickerLeaflet`** — mapa com pin arrastavel, salva lat/lng em service_requests. Importar com `dynamic(..., { ssr: false })`
-- **`MapViewLeaflet`** — visualizacao estatica de localizacao
-- **`PresencePing`** — client component invisivel, atualiza last_seen a cada 4min
-- **`ServiceProgressBar`** — barra de progresso 6 etapas (props: status, paymentStatus, role)
-- **`PaymentCard`** — instrucao PIX + botao "Ja paguei"
-- **`ChatBox`** — chat polling 5s, bloqueia telefone/email no input
-- **`ServicosEscalationAlert`** — alerta admin quando chamado sem tecnico >30min
-- **`DisponibilidadeToggle`** — toggle online/offline do tecnico
+- **`MapPickerLeaflet`** — mapa com pin arrastável, salva lat/lng. `dynamic(..., { ssr: false })`
+- **`PresencePing`** — atualiza last_seen a cada 4min
+- **`ServiceProgressBar`** — barra de progresso 6 etapas
+- **`PaymentCard`** — instrução PIX + botão "Já paguei"
+- **`ChatBox`** — chat polling 5s, bloqueia telefone/email
+- **`BannerParticles`** — partículas animadas para banners internos
+- **`TecnicoParticles`** — partículas subindo para seção técnico na landing
+- **`LoginBackground`** — fundo animado da tela de login
 
 ---
 
 ## O que NAO mostrar na landing page
 
-- Percentual de comissao (25%) ou repasse (75%) — so aparece no dashboard do tecnico apos login
-- Motivo: evitar objecao antes do cadastro
+- Percentual de comissão da plataforma — só no dashboard do técnico após login
 
 ---
 
@@ -479,5 +495,6 @@ Configurar no Vercel -> Settings -> Environment Variables -> All Environments.
 - [ ] Testado login com os 3 perfis (cliente, tecnico, admin)
 - [ ] Redirect por role funcionando sem flash
 - [ ] Dados reais aparecem quando existem no banco
-- [ ] Mock so aparece quando banco vazio, com badge "Dados demonstrativos"
-- [ ] Leaflet importado so dentro de useEffect (nunca no topo do arquivo)
+- [ ] Mock só aparece quando banco vazio, com badge "Dados demonstrativos"
+- [ ] Leaflet importado só dentro de useEffect
+- [ ] RLS admin usando `auth.jwt()` — nunca subquery em profiles
