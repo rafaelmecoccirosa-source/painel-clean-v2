@@ -1,22 +1,47 @@
 import { MVP_PRICING_ACTIVE } from "@/lib/config";
 
-// === FAIXAS DE PREÇO POR PLACA (média do mercado SC) ===
-// Economia de escala: quanto mais placas, menor o valor unitário
+// === FAIXAS DE PREÇO POR PLACA — v2 (tabela oficial Painel Clean) ===
 
 export function getValorPorPlaca(placas: number): number {
-  if (placas <= 30)  return 27.50; // Faixa: R$ 20-35, média R$ 27,50
-  if (placas <= 50)  return 20.00; // Faixa: R$ 15-25, média R$ 20,00
-  if (placas <= 100) return 14.00; // Faixa: R$ 10-18, média R$ 14,00
-  if (placas <= 200) return 9.50;  // Faixa: R$ 7-12, média R$ 9,50
-  return 0; // Acima de 200: sob consulta
+  if (placas <= 30)  return 30.00; // R$ 30,00/placa
+  if (placas <= 50)  return 25.00; // R$ 25,00/placa
+  if (placas <= 100) return 20.00; // R$ 20,00/placa
+  return 0; // 100+ módulos: sob consulta
 }
 
 export function getFaixaLabel(placas: number): string {
-  if (placas <= 30)  return "Até 30 placas (R$ 20–35/placa)";
-  if (placas <= 50)  return "31–50 placas (R$ 15–25/placa)";
-  if (placas <= 100) return "51–100 placas (R$ 10–18/placa)";
-  if (placas <= 200) return "101–200 placas (R$ 7–12/placa)";
-  return "Acima de 200 placas (sob consulta)";
+  if (placas <= 30)  return "Até 30 módulos (R$ 30,00/módulo)";
+  if (placas <= 50)  return "31–50 módulos (R$ 25,00/módulo)";
+  if (placas <= 100) return "51–100 módulos (R$ 20,00/módulo)";
+  return "100+ módulos (sob consulta)";
+}
+
+// === FUNÇÕES v2 — ASSINATURA ===
+
+/** Preço avulso base (sem multiplicadores) */
+export function calcularPrecoAvulso(modules: number): number {
+  const valorPorPlaca = getValorPorPlaca(modules);
+  if (valorPorPlaca === 0) throw new Error("sob_consulta");
+  return modules * valorPorPlaca;
+}
+
+/** 1ª limpeza: 50% do preço avulso */
+export function calcularEntrada(modules: number): number {
+  return calcularPrecoAvulso(modules) * 0.50;
+}
+
+/** Limpeza extra para assinante: 40% de desconto (60% do avulso) */
+export function calcularLimpezaExtra(modules: number): number {
+  return calcularPrecoAvulso(modules) * 0.60;
+}
+
+/** Sugere plano com base no nº de módulos */
+export function sugerirPlano(modules: number): 'basic' | 'standard' | 'plus' | 'pro' | 'business' {
+  if (modules <= 15)  return 'basic';
+  if (modules <= 30)  return 'standard';
+  if (modules <= 60)  return 'plus';
+  if (modules <= 200) return 'pro';
+  return 'business';
 }
 
 // === CONSTANTES DE PRECIFICAÇÃO ===
