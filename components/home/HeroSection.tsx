@@ -28,11 +28,11 @@ export default function HeroSection() {
   }, []);
 
   const trustItems = [
-    { icon: "✅", label: "Técnicos certificados"  },
-    { icon: "⚡", label: "Agendamento em minutos" },
-    { icon: "📸", label: "Relatório fotográfico"  },
-    { icon: "🛡️", label: "Seguro contra danos"    },
-    { icon: "💰", label: "Preço transparente"     },
+    { icon: "✔",  label: "2 limpezas/ano"          },
+    { icon: "⚡", label: "Relatório mensal"          },
+    { icon: "📋", label: "Checkup técnico"           },
+    { icon: "🛡️", label: "Seguro na limpeza"         },
+    { icon: "💳", label: "Sem fidelidade no 1º mês"  },
   ];
 
   return (
@@ -48,7 +48,7 @@ export default function HeroSection() {
           style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: "url('/hero-solar.jpg')",
+            backgroundImage: "url('/hero-solar-v2.png')",
             backgroundSize: "cover",
             backgroundRepeat: "no-repeat",
             animation: "kenburns 14s ease-out forwards",
@@ -88,12 +88,12 @@ export default function HeroSection() {
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:py-28">
 
-        {/* Badge — hidden on mobile, shown on sm+ */}
+        {/* Badge */}
         <span
           className="hidden sm:inline-flex items-center gap-1.5 bg-white/10 text-brand-green border border-brand-green/40 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest mb-6"
           style={{ animation: "fadeSlideUp 0.6s ease both", animationDelay: "0.2s" }}
         >
-          ☀️ Plataforma de limpeza solar profissional
+          ☀️ Plataforma de assinatura solar profissional
         </span>
 
         {/* Headline */}
@@ -105,10 +105,10 @@ export default function HeroSection() {
             animationDelay: "0.5s",
           }}
         >
-          Suas placas solares estão produzindo menos do que poderiam
+          Sua usina solar merece cuidado todo mês
         </h1>
 
-        {/* Subtitle */}
+        {/* Subtitle — counter animation mantida em "30%" */}
         <p
           className="text-white/85 text-[15px] sm:text-xl mb-8 max-w-xl leading-relaxed"
           style={{
@@ -117,7 +117,7 @@ export default function HeroSection() {
             animationDelay: "0.8s",
           }}
         >
-          A sujeira pode reduzir até{" "}
+          Placas sujas perdem até{" "}
           <span
             className="font-extrabold text-brand-green"
             style={{
@@ -128,25 +128,25 @@ export default function HeroSection() {
           >
             {count}%
           </span>{" "}
-          da eficiência dos seus painéis. Agende uma limpeza profissional em minutos.
+          de eficiência. Por R$ 30/mês garantimos limpeza, monitoramento e relatório mensal — a assinatura se paga em menos de 1 semana.
         </p>
 
-        {/* CTAs — stacked on mobile, row on sm+ */}
+        {/* CTAs */}
         <div
           className="flex flex-col sm:flex-row gap-3 sm:gap-4"
           style={{ animation: "fadeSlideUp 0.6s ease both", animationDelay: "1.1s" }}
         >
           <Link
-            href="/cadastro"
+            href="#planos"
             className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg w-full sm:w-auto"
           >
-            Agendar limpeza →
+            Ver planos →
           </Link>
           <a
             href="#calculadora"
             className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-white/10 transition-colors w-full sm:w-auto"
           >
-            Calcular economia
+            Calcular minha economia
           </a>
         </div>
 
@@ -155,7 +155,7 @@ export default function HeroSection() {
           className="mt-8 sm:mt-10"
           style={{ animation: "fadeSlideUp 0.6s ease both", animationDelay: "1.4s" }}
         >
-          {/* Desktop: flex-wrap so all 5 items are always visible */}
+          {/* Desktop */}
           <div className="hidden sm:flex items-center gap-x-6 gap-y-2 flex-wrap justify-start">
             {trustItems.map(({ icon, label }) => (
               <span key={label} className="flex items-center gap-1.5 whitespace-nowrap">
@@ -165,7 +165,7 @@ export default function HeroSection() {
             ))}
           </div>
 
-          {/* Mobile: 2-col grid, last item spans full width to center it */}
+          {/* Mobile: 2-col grid, último item centralizado se ímpar */}
           <div className="sm:hidden grid grid-cols-2 gap-x-4 gap-y-2.5">
             {trustItems.map(({ icon, label }, idx) => (
               <span

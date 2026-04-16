@@ -5,106 +5,109 @@ import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
 
-// ── Seção 2 — Por que limpar? ──────────────────────────────────────────────
+// ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
-const motivoCards = [
+const paybackCards = [
   {
-    emoji: "⚡",
-    titulo: "Mais energia, mais economia",
-    texto:
-      "Painéis limpos produzem até 30% mais energia. Isso significa menos conta de luz e retorno mais rápido do seu investimento.",
+    emoji: "☀️",
+    plano: "Plano Básico",
+    modulos: "até 15 módulos",
+    prejuizoMes: "R$ 218",
+    mensalidade: "R$ 30/mês",
   },
   {
-    emoji: "🛡️",
-    titulo: "Proteção do equipamento",
-    texto:
-      "Sujeira acumulada causa pontos quentes (hotspots) que podem danificar permanentemente seus placas.",
+    emoji: "☀️☀️",
+    plano: "Plano Padrão",
+    modulos: "16 a 30 módulos",
+    prejuizoMes: "R$ 365",
+    mensalidade: "R$ 50/mês",
   },
   {
-    emoji: "📊",
-    titulo: "Relatório técnico incluso",
-    texto:
-      "Cada limpeza inclui inspeção visual, verificação de conexões e relatório fotográfico com o estado das suas placas.",
+    emoji: "☀️☀️☀️",
+    plano: "Plano Plus",
+    modulos: "31 a 60 módulos",
+    prejuizoMes: "R$ 729",
+    mensalidade: "R$ 100/mês",
   },
 ];
 
-// ── Seção 4 — Como funciona ───────────────────────────────────────────────
+// ── Seção 4 — Como funciona (v2 — assinatura) ─────────────────────────────
 
 const passos = [
   {
     num: "1",
-    emoji: "📱",
-    titulo: "Solicite pelo app",
-    texto: "Informe sua cidade, quantidade de placas e escolha a melhor data.",
+    emoji: "📋",
+    titulo: "Escolha seu plano",
+    texto: "Selecione o plano conforme o tamanho da sua usina: Básico, Padrão ou Plus.",
   },
   {
     num: "2",
-    emoji: "🔍",
-    titulo: "Técnico certificado aceita",
-    texto: "Profissionais aprovados pela Painel Clean recebem seu pedido e aceitam em minutos.",
+    emoji: "🧹",
+    titulo: "1ª limpeza com 50% off",
+    texto: "Técnico certificado agenda a primeira limpeza em até 48h com metade do preço.",
   },
   {
     num: "3",
-    emoji: "🧹",
-    titulo: "Limpeza profissional",
-    texto: "O técnico realiza a limpeza com equipamentos especializados e faz a inspeção completa.",
+    emoji: "📊",
+    titulo: "Acompanhe todo mês",
+    texto: "Relatório de performance direto no app. Saiba exatamente o quanto sua usina está gerando.",
   },
   {
     num: "4",
-    emoji: "📋",
-    titulo: "Receba o relatório",
-    texto: "Relatório fotográfico com antes/depois e diagnóstico técnico das suas placas.",
+    emoji: "😌",
+    titulo: "Relaxe",
+    texto: "As próximas limpezas são agendadas automaticamente. Sem preocupação.",
   },
 ];
 
-// ── Seção 5 — Por que a Painel Clean? ────────────────────────────────────
+// ── Seção 5 — Diferenciais ────────────────────────────────────────────────
 
 const beneficios = [
-  { emoji: "✅", titulo: "Técnicos certificados",      texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
-  { emoji: "⚡", titulo: "Agendamento dinâmico",       texto: "Sem espera. Você escolhe a data e o técnico mais próximo aceita rapidamente." },
-  { emoji: "📸", titulo: "Relatório fotográfico",      texto: "Fotos antes e depois + diagnóstico técnico de cada placa." },
-  { emoji: "🛡️", titulo: "Seguro contra danos",        texto: "Todos os serviços incluem cobertura contra danos acidentais às suas placas e telhado." },
-  { emoji: "💰", titulo: "Preço justo e transparente", texto: "Valores claros por faixa de placas. Sem surpresas na hora de pagar." },
-  { emoji: "⭐", titulo: "Avaliação real",              texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
+  { emoji: "✅",  titulo: "Técnicos certificados",   texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
+  { emoji: "⚡",  titulo: "Agendamento automático",   texto: "Após assinar, suas próximas limpezas são agendadas sem que você precise fazer nada." },
+  { emoji: "📸",  titulo: "Relatório fotográfico",    texto: "Fotos antes e depois + diagnóstico técnico de cada limpeza." },
+  { emoji: "🛡️", titulo: "Seguro na limpeza",         texto: "Todos os serviços incluem cobertura contra danos acidentais às suas placas e telhado." },
+  { emoji: "📊",  titulo: "Monitoramento mensal",      texto: "Relatório de performance todo mês. Alertas automáticos se a produção cair abaixo do esperado." },
+  { emoji: "⭐",  titulo: "Avaliação real",            texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
 ];
 
-// ── Seção 6 — Faixas de preço ─────────────────────────────────────────────
+// ── Seção 6 — Planos de assinatura ────────────────────────────────────────
 
-const faixas = [
+const itensBase = [
+  "2 limpezas/ano",
+  "Relatório mensal",
+  "Checkup técnico",
+  "Seguro na limpeza",
+  "1ª limpeza com 50% off",
+];
+
+const planos = [
   {
-    faixa: "Até 30 placas",
-    valorPlaca: "R$ 20 a R$ 35/placa",
-    exemplo: "20 placas ≈ R$ 550*",
+    nome: "Básico",
+    preco: "R$ 30",
+    periodo: "/mês",
+    modulos: "até 15 módulos",
     destaque: false,
     tag: undefined as string | undefined,
+    extras: [] as string[],
   },
   {
-    faixa: "31–50 placas",
-    valorPlaca: "R$ 15 a R$ 25/placa",
-    exemplo: "40 placas ≈ R$ 800*",
-    destaque: false,
-    tag: undefined as string | undefined,
-  },
-  {
-    faixa: "51–100 placas",
-    valorPlaca: "R$ 10 a R$ 18/placa",
-    exemplo: "80 placas ≈ R$ 1.120*",
+    nome: "Padrão",
+    preco: "R$ 50",
+    periodo: "/mês",
+    modulos: "16 a 30 módulos",
     destaque: true,
-    tag: "Mais popular",
+    tag: "MAIS POPULAR",
+    extras: [] as string[],
   },
   {
-    faixa: "101–200 placas",
-    valorPlaca: "R$ 7 a R$ 12/placa",
-    exemplo: "150 placas ≈ R$ 1.425*",
+    nome: "Plus",
+    preco: "R$ 100",
+    periodo: "/mês",
+    modulos: "31 a 60 módulos",
     destaque: false,
     tag: undefined as string | undefined,
-  },
-  {
-    faixa: "200+ placas",
-    valorPlaca: "Sob consulta",
-    exemplo: "—",
-    destaque: false,
-    tag: undefined as string | undefined,
+    extras: ["Alertas de queda de performance"],
   },
 ];
 
@@ -138,33 +141,46 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ── Seção 1: Hero — sem animação de scroll, já visível ao carregar ── */}
+      {/* ── Seção 1: Hero ────────────────────────────────────────────────── */}
       <HeroSection />
 
-      {/* ── Seção 2: Por que limpar? ─────────────────────────────────────── */}
+      {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
       <section className="bg-brand-bg py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Heading fades in from below */}
           <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              ☀️ Importância da manutenção
+              💡 Investimento que se paga rápido
             </p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
-              Por que a limpeza é essencial?
+              Por que R$ 30/mês é o melhor investimento da sua usina?
             </h2>
           </div>
 
-          {/* Cards: stagger 150 ms each */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {motivoCards.map(({ emoji, titulo, texto }, idx) => (
+            {paybackCards.map(({ emoji, plano, modulos, prejuizoMes, mensalidade }, idx) => (
               <div
-                key={titulo}
+                key={plano}
                 className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col gap-4 hover:shadow-card-hover transition-shadow animate-on-scroll"
                 style={{ transitionDelay: `${idx * 150}ms` }}
               >
-                <span className="text-4xl">{emoji}</span>
-                <h3 className="font-heading text-lg font-bold text-brand-dark">{titulo}</h3>
-                <p className="text-brand-muted text-sm leading-relaxed">{texto}</p>
+                <span className="text-3xl">{emoji}</span>
+                <h3 className="font-heading text-lg font-bold text-brand-dark">{plano}</h3>
+                <p className="text-xs text-brand-muted">{modulos}</p>
+                <div className="border-t border-brand-border pt-4 space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-brand-muted">Prejuízo/mês por sujeira</span>
+                    <span className="font-bold text-red-500">{prejuizoMes}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-brand-muted">Mensalidade</span>
+                    <span className="font-bold text-brand-dark">{mensalidade}</span>
+                  </div>
+                </div>
+                <div className="mt-auto bg-brand-green/10 rounded-xl px-4 py-2.5 text-center">
+                  <span className="text-brand-green font-heading font-bold text-sm">
+                    ✅ Se paga em ~4 dias
+                  </span>
+                </div>
               </div>
             ))}
           </div>
@@ -179,13 +195,12 @@ export default function HomePage() {
       {/* ── Seção 4: Como funciona ──────────────────────────────────────── */}
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Heading */}
           <div className="text-center mb-14 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               🚀 Processo simples
             </p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
-              Simples, rápido e sem dor de cabeça
+              Comece em 4 passos
             </h2>
           </div>
 
@@ -197,16 +212,12 @@ export default function HomePage() {
                 className="flex-1 flex flex-col items-center relative animate-on-scroll"
                 style={{ transitionDelay: `${idx * 200}ms` }}
               >
-                {/* Connector line */}
                 {idx < passos.length - 1 && (
                   <div className="absolute top-8 left-1/2 w-full h-0.5 bg-brand-border" />
                 )}
-
-                {/* Circle */}
                 <div className="relative z-10 h-16 w-16 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-2xl shadow-lg mb-4">
                   {passo.num}
                 </div>
-
                 <span className="text-3xl mb-3">{passo.emoji}</span>
                 <h3 className="font-heading font-bold text-brand-dark text-center text-sm mb-2 px-4">
                   {passo.titulo}
@@ -242,10 +253,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 5: Por que a Painel Clean? ───────────────────────────── */}
+      {/* ── Seção 5: Diferenciais ───────────────────────────────────────── */}
       <section className="bg-brand-bg py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Heading */}
           <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               🏆 Nossos diferenciais
@@ -255,7 +265,6 @@ export default function HomePage() {
             </h2>
           </div>
 
-          {/* Grid: stagger 100 ms each */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {beneficios.map(({ emoji, titulo, texto }, idx) => (
               <div
@@ -265,9 +274,7 @@ export default function HomePage() {
               >
                 <span className="text-3xl flex-shrink-0">{emoji}</span>
                 <div>
-                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">
-                    {titulo}
-                  </h3>
+                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">{titulo}</h3>
                   <p className="text-brand-muted text-xs leading-relaxed">{texto}</p>
                 </div>
               </div>
@@ -276,67 +283,85 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 6: Faixas de preço ─────────────────────────────────────── */}
-      <section className="bg-white py-20">
+      {/* ── Seção 6: Planos de assinatura ────────────────────────────────── */}
+      <section id="planos" className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Heading */}
           <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              💰 Investimento acessível
+              💳 Planos de assinatura
             </p>
             <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-3">
-              Preço por placa — economia de escala
+              Escolha o plano ideal para sua usina
             </h2>
-            <p className="text-brand-muted text-base">Quanto mais placas, menor o custo unitário</p>
+            <p className="text-brand-muted text-base max-w-xl mx-auto">
+              Todos os planos incluem 2 limpezas/ano, relatório mensal, checkup técnico e seguro na limpeza.
+            </p>
           </div>
 
-          {/* Table: stagger 100 ms */}
-          <div className="overflow-x-auto animate-on-scroll">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-brand-bg">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide rounded-tl-xl">Faixa</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide">Valor por placa</th>
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-brand-muted uppercase tracking-wide rounded-tr-xl">Exemplo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {faixas.map(({ faixa, valorPlaca, exemplo, destaque, tag }, idx) => (
-                  <tr
-                    key={faixa}
-                    className={`border-b border-brand-border ${destaque ? "bg-brand-light" : "bg-white"}`}
-                  >
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-brand-dark text-sm">{faixa}</span>
-                        {tag && (
-                          <span className="bg-brand-green text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-                            {tag}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 font-heading font-bold text-brand-dark">{valorPlaca}</td>
-                    <td className="px-5 py-4 text-sm text-brand-muted">{exemplo}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+            {planos.map(({ nome, preco, periodo, modulos, destaque, tag, extras }, idx) => (
+              <div
+                key={nome}
+                className={`rounded-2xl border-2 p-8 flex flex-col gap-5 animate-on-scroll ${
+                  destaque
+                    ? "bg-brand-dark border-brand-dark"
+                    : "bg-white border-brand-border"
+                }`}
+                style={{ transitionDelay: `${idx * 150}ms` }}
+              >
+                {tag ? (
+                  <span className="self-start bg-brand-green text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    {tag}
+                  </span>
+                ) : (
+                  <span className="self-start h-6" />
+                )}
+
+                <div>
+                  <h3 className={`font-heading text-xl font-extrabold mb-1 ${destaque ? "text-white" : "text-brand-dark"}`}>
+                    {nome}
+                  </h3>
+                  <p className={`text-xs ${destaque ? "text-white/60" : "text-brand-muted"}`}>{modulos}</p>
+                </div>
+
+                <div className="flex items-baseline gap-1">
+                  <span className={`font-heading font-extrabold text-4xl ${destaque ? "text-white" : "text-brand-dark"}`}>
+                    {preco}
+                  </span>
+                  <span className={`text-sm ${destaque ? "text-white/60" : "text-brand-muted"}`}>{periodo}</span>
+                </div>
+
+                <ul className="flex flex-col gap-2.5 flex-1">
+                  {[...itensBase, ...extras].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <span className="text-brand-green font-bold mt-0.5">✓</span>
+                      <span className={destaque ? "text-white/80" : "text-brand-muted"}>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <Link
+                  href="/cadastro"
+                  className={`block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors ${
+                    destaque
+                      ? "bg-brand-green text-white hover:bg-brand-green/90"
+                      : "bg-brand-light text-brand-dark hover:bg-brand-border"
+                  }`}
+                >
+                  Começar com {nome}
+                </Link>
+              </div>
+            ))}
           </div>
 
-          <p className="text-center text-[11px] text-brand-muted mt-5">
-            *Valores médios estimados para instalação em solo com sujeira normal. Valor final varia conforme
-            tipo de telhado, nível de sujeira e acesso.
-          </p>
-
-          <div className="flex justify-center mt-6">
+          <p className="text-center mt-10 animate-on-scroll">
             <Link
               href="/cadastro"
-              className="bg-brand-green text-white font-heading font-bold text-sm px-8 py-3 rounded-xl hover:bg-brand-green/90 transition-colors"
+              className="text-brand-muted hover:text-brand-dark text-sm transition-colors"
             >
-              Calcular meu preço →
+              Usina com 60+ módulos? Fale conosco sobre o Plano Pro →
             </Link>
-          </div>
+          </p>
         </div>
       </section>
 
@@ -353,7 +378,7 @@ export default function HomePage() {
                 Seja um técnico Painel Clean
               </h2>
               <p className="text-white/70 text-lg mb-8">
-                Cadastre-se na plataforma e comece a atender clientes na sua região. Cadastro gratuito, sem mensalidade.
+                Atenda assinantes fixos na sua região. Agenda garantida, sem depender de chamados avulsos.
               </p>
               <Link
                 href="/cadastro?role=tecnico"
@@ -364,8 +389,8 @@ export default function HomePage() {
             </div>
             <div className="flex-1 grid grid-cols-2 gap-4 w-full">
               {[
-                { icon: "✅", titulo: "Sem mensalidade",      texto: "Cadastro gratuito. Você não paga nada para entrar na plataforma — o modelo é por comissão sobre serviços realizados." },
-                { icon: "💰", titulo: "Repasse simplificado",  texto: "Receba via PIX automaticamente após a conclusão de cada serviço. Sem burocracia." },
+                { icon: "📅", titulo: "Agenda previsível",    texto: "Atenda assinantes fixos com limpezas programadas. Saiba com antecedência quando vai trabalhar." },
+                { icon: "💰", titulo: "Repasse simplificado", texto: "Receba via PIX automaticamente após a conclusão de cada serviço. Sem burocracia." },
                 { icon: "📱", titulo: "Gerencie pelo app",    texto: "Aceite chamados, registre relatórios e acompanhe seus ganhos em tempo real." },
                 { icon: "🛡️", titulo: "Seguro incluso",       texto: "Todos os serviços incluem cobertura contra danos acidentais durante a limpeza." },
               ].map(({ icon, titulo, texto }) => (
@@ -380,28 +405,28 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 8: CTA Final — fundo claro para separar do footer ────── */}
+      {/* ── Seção 8: CTA Final ────────────────────────────────────────── */}
       <section className="bg-brand-light py-20 border-t border-brand-border">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-on-scroll">
           <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4 leading-tight">
-            Suas placas merecem render 100%
+            Comece sua assinatura hoje
           </h2>
           <p className="text-gray-500 text-lg mb-10">
-            Agende agora e receba seu relatório técnico após a limpeza
+            Primeira limpeza com 50% de desconto. Técnico certificado em até 48h.
           </p>
           <Link
             href="/cadastro"
             className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-lg px-10 py-5 rounded-2xl hover:bg-brand-green/90 transition-colors shadow-lg"
           >
-            Quero agendar minha limpeza →
+            Escolher meu plano →
           </Link>
           <p className="text-gray-400 text-sm mt-5">
-            Sem compromisso. Cancele a qualquer momento.
+            Sem fidelidade no 1º mês. Cancele a qualquer momento.
           </p>
         </div>
       </section>
 
-      {/* ── Seção 8: Footer ─────────────────────────────────────────────── */}
+      {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="bg-brand-dark border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
@@ -409,8 +434,7 @@ export default function HomePage() {
             <div>
               <Logo inverted size="sm" />
               <p className="text-white/50 text-xs mt-3 leading-relaxed max-w-xs">
-                Plataforma de limpeza profissional de placas solares. Conectando donos de usinas a
-                técnicos certificados.
+                Plataforma de assinatura para limpeza profissional de painéis solares. Conectando donos de usinas a técnicos certificados.
               </p>
             </div>
 
@@ -418,31 +442,12 @@ export default function HomePage() {
             <div>
               <p className="text-white/80 font-semibold text-sm mb-4">Links</p>
               <div className="space-y-2 text-white/50 text-sm">
-                <p>
-                  <a href="#hero" className="hover:text-white/80 transition-colors">
-                    Início
-                  </a>
-                </p>
-                <p>
-                  <a href="#calculadora" className="hover:text-white/80 transition-colors">
-                    Calculadora
-                  </a>
-                </p>
-                <p>
-                  <Link href="/login" className="hover:text-white/80 transition-colors">
-                    Entrar
-                  </Link>
-                </p>
-                <p>
-                  <Link href="/cadastro" className="hover:text-white/80 transition-colors">
-                    Cadastrar-se
-                  </Link>
-                </p>
-                <p>
-                  <Link href="/termos" className="hover:text-white/80 transition-colors">
-                    Termos de Uso
-                  </Link>
-                </p>
+                <p><a href="#hero" className="hover:text-white/80 transition-colors">Início</a></p>
+                <p><a href="#calculadora" className="hover:text-white/80 transition-colors">Calculadora</a></p>
+                <p><a href="#planos" className="hover:text-white/80 transition-colors">Planos</a></p>
+                <p><Link href="/login" className="hover:text-white/80 transition-colors">Entrar</Link></p>
+                <p><Link href="/cadastro" className="hover:text-white/80 transition-colors">Cadastrar-se</Link></p>
+                <p><Link href="/termos" className="hover:text-white/80 transition-colors">Termos de Uso</Link></p>
               </div>
             </div>
 
