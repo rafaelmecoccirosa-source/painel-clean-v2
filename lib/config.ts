@@ -1,21 +1,13 @@
-// ── Feature Flags do MVP ──────────────────────────────────────────────────────
-// Todas as flags de configuração ficam aqui. Mudar de false → true ao ativar.
+// ── Feature Flags ─────────────────────────────────────────────────────────────
 
-/**
- * SUBSCRIPTION_ENABLED
- * Controla se a assinatura mensal de técnicos está ativa.
- * - false (MVP): cadastro gratuito, só comissão de 25% por serviço
- * - true (futuro): mensalidade ativa + comissão
- */
-export const SUBSCRIPTION_ENABLED = false;
+export const SUBSCRIPTION_ENABLED  = true;   // modelo assinatura ativo (v2)
+export const AVULSO_ENABLED        = true;   // serviço avulso mantido como secundário
+export const INVERTER_API_ENABLED  = false;  // integração API inversores — pós-MVP
+export const FIRST_SERVICE_DISCOUNT = 0.50;  // 50% desconto na 1ª limpeza
 
 /**
  * MVP_PRICING_ACTIVE
  * Quando true, aplica desconto de 15% no preço exibido ao cliente
  * (reduzindo barreira de entrada no lançamento).
- * O repasse ao técnico mantém o BOOST_MVP embutido no cálculo interno.
- * A plataforma absorve a diferença como investimento em liquidez.
- * - true (MVP): precoCliente = precoEstimado × 0.85
- * - false (normal): precoCliente = precoEstimado (sem desconto extra)
  */
 export const MVP_PRICING_ACTIVE = true;
