@@ -4,6 +4,7 @@ import HeroSection from "@/components/home/HeroSection";
 import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
+import { BannerParticles } from "@/components/BannerParticles";
 
 // ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
@@ -79,36 +80,6 @@ const itensBase = [
   "Checkup técnico",
   "Seguro na limpeza",
   "1ª limpeza com 50% off",
-];
-
-const planos = [
-  {
-    nome: "Básico",
-    preco: "R$ 30",
-    periodo: "/mês",
-    modulos: "até 15 módulos",
-    destaque: false,
-    tag: undefined as string | undefined,
-    extras: [] as string[],
-  },
-  {
-    nome: "Padrão",
-    preco: "R$ 50",
-    periodo: "/mês",
-    modulos: "16 a 30 módulos",
-    destaque: true,
-    tag: "MAIS POPULAR",
-    extras: [] as string[],
-  },
-  {
-    nome: "Plus",
-    preco: "R$ 100",
-    periodo: "/mês",
-    modulos: "31 a 60 módulos",
-    destaque: false,
-    tag: undefined as string | undefined,
-    extras: ["Alertas de queda de performance"],
-  },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -284,80 +255,181 @@ export default function HomePage() {
       </section>
 
       {/* ── Seção 6: Planos de assinatura ────────────────────────────────── */}
-      <section id="planos" className="bg-white py-20">
+      <section
+        id="planos"
+        className="py-20 animate-on-scroll"
+        style={{ background: "#1B3A2D" }}
+      >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              💳 Planos de assinatura
-            </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark mb-3">
+          {/* Heading */}
+          <div className="text-center mb-12">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
               Escolha o plano ideal para sua usina
             </h2>
-            <p className="text-brand-muted text-base max-w-xl mx-auto">
+            <p className="text-base max-w-xl mx-auto" style={{ color: "#3DC45A" }}>
               Todos os planos incluem 2 limpezas/ano, relatório mensal, checkup técnico e seguro na limpeza.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-            {planos.map(({ nome, preco, periodo, modulos, destaque, tag, extras }, idx) => (
-              <div
-                key={nome}
-                className={`rounded-2xl border-2 p-8 flex flex-col gap-5 animate-on-scroll ${
-                  destaque
-                    ? "bg-brand-dark border-brand-dark"
-                    : "bg-white border-brand-border"
-                }`}
-                style={{ transitionDelay: `${idx * 150}ms` }}
-              >
-                {tag ? (
-                  <span className="self-start bg-brand-green text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
-                    {tag}
-                  </span>
-                ) : (
-                  <span className="self-start h-6" />
-                )}
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
 
+            {/* Card Básico */}
+            <div
+              className="flex flex-col gap-5 animate-on-scroll"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "20px",
+                padding: "2.5rem",
+                position: "relative",
+                overflow: "hidden",
+                transitionDelay: "0ms",
+              }}
+            >
+              <BannerParticles />
+              <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: "1.25rem", flex: 1 }}>
+                <span className="self-start h-6" />
+                <p style={{ fontSize: "20px", fontWeight: 600, color: "#EBF3E8", fontFamily: "var(--font-heading)" }}>
+                  Básico
+                </p>
                 <div>
-                  <h3 className={`font-heading text-xl font-extrabold mb-1 ${destaque ? "text-white" : "text-brand-dark"}`}>
-                    {nome}
-                  </h3>
-                  <p className={`text-xs ${destaque ? "text-white/60" : "text-brand-muted"}`}>{modulos}</p>
+                  <div className="flex items-baseline gap-1">
+                    <span style={{ fontSize: "52px", fontWeight: 700, color: "#ffffff", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
+                      R$ 30
+                    </span>
+                    <span style={{ fontSize: "18px", color: "#7A9A84" }}>/mês</span>
+                  </div>
+                  <p style={{ fontSize: "14px", color: "#7A9A84", marginTop: "4px" }}>até 15 módulos</p>
                 </div>
-
-                <div className="flex items-baseline gap-1">
-                  <span className={`font-heading font-extrabold text-4xl ${destaque ? "text-white" : "text-brand-dark"}`}>
-                    {preco}
-                  </span>
-                  <span className={`text-sm ${destaque ? "text-white/60" : "text-brand-muted"}`}>{periodo}</span>
-                </div>
-
+                <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
                 <ul className="flex flex-col gap-2.5 flex-1">
-                  {[...itensBase, ...extras].map((item) => (
+                  {itensBase.map((item) => (
                     <li key={item} className="flex items-start gap-2 text-sm">
-                      <span className="text-brand-green font-bold mt-0.5">✓</span>
-                      <span className={destaque ? "text-white/80" : "text-brand-muted"}>{item}</span>
+                      <span style={{ color: "#3DC45A", fontWeight: 700, marginTop: "2px" }}>✓</span>
+                      <span style={{ color: "rgba(235,243,232,0.8)" }}>{item}</span>
                     </li>
                   ))}
                 </ul>
-
                 <Link
                   href="/cadastro"
-                  className={`block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors ${
-                    destaque
-                      ? "bg-brand-green text-white hover:bg-brand-green/90"
-                      : "bg-brand-light text-brand-dark hover:bg-brand-border"
-                  }`}
+                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
+                  style={{ background: "transparent", border: "1.5px solid #3DC45A", color: "#3DC45A" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#3DC45A"; (e.currentTarget as HTMLAnchorElement).style.color = "#1B3A2D"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#3DC45A"; }}
                 >
-                  Começar com {nome}
+                  Começar com Básico
                 </Link>
               </div>
-            ))}
+            </div>
+
+            {/* Card Padrão — destaque, ligeiramente maior */}
+            <div
+              className="flex flex-col gap-5 animate-on-scroll"
+              style={{
+                background: "#3DC45A",
+                borderRadius: "20px",
+                padding: "2.5rem",
+                marginTop: "-16px",
+                transitionDelay: "150ms",
+              }}
+            >
+              <span
+                className="self-start font-bold uppercase tracking-wider"
+                style={{ background: "rgba(255,255,255,0.2)", color: "#ffffff", fontSize: "11px", padding: "4px 12px", borderRadius: "999px" }}
+              >
+                MAIS POPULAR
+              </span>
+              <p style={{ fontSize: "20px", fontWeight: 600, color: "#1B3A2D", fontFamily: "var(--font-heading)" }}>
+                Padrão
+              </p>
+              <div>
+                <div className="flex items-baseline gap-1">
+                  <span style={{ fontSize: "52px", fontWeight: 700, color: "#1B3A2D", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
+                    R$ 50
+                  </span>
+                  <span style={{ fontSize: "18px", color: "rgba(27,58,45,0.6)" }}>/mês</span>
+                </div>
+                <p style={{ fontSize: "14px", color: "rgba(27,58,45,0.7)", marginTop: "4px" }}>16 a 30 módulos</p>
+              </div>
+              <hr style={{ border: "none", borderTop: "1px solid rgba(27,58,45,0.15)" }} />
+              <ul className="flex flex-col gap-2.5 flex-1">
+                {itensBase.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm">
+                    <span style={{ color: "#1B3A2D", fontWeight: 700, marginTop: "2px" }}>✓</span>
+                    <span style={{ color: "rgba(27,58,45,0.85)" }}>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
+                style={{ background: "#1B3A2D", color: "#ffffff" }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(27,58,45,0.85)"; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#1B3A2D"; }}
+              >
+                Começar com Padrão
+              </Link>
+            </div>
+
+            {/* Card Plus */}
+            <div
+              className="flex flex-col gap-5 animate-on-scroll"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.15)",
+                borderRadius: "20px",
+                padding: "2.5rem",
+                position: "relative",
+                overflow: "hidden",
+                transitionDelay: "300ms",
+              }}
+            >
+              <BannerParticles />
+              <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: "1.25rem", flex: 1 }}>
+                <span className="self-start h-6" />
+                <p style={{ fontSize: "20px", fontWeight: 600, color: "#EBF3E8", fontFamily: "var(--font-heading)" }}>
+                  Plus
+                </p>
+                <div>
+                  <div className="flex items-baseline gap-1">
+                    <span style={{ fontSize: "52px", fontWeight: 700, color: "#ffffff", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
+                      R$ 100
+                    </span>
+                    <span style={{ fontSize: "18px", color: "#7A9A84" }}>/mês</span>
+                  </div>
+                  <p style={{ fontSize: "14px", color: "#7A9A84", marginTop: "4px" }}>31 a 60 módulos</p>
+                </div>
+                <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
+                <ul className="flex flex-col gap-2.5 flex-1">
+                  {[...itensBase, "Alertas de queda de performance"].map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm">
+                      <span style={{ color: "#3DC45A", fontWeight: 700, marginTop: "2px" }}>✓</span>
+                      <span style={{ color: "rgba(235,243,232,0.8)" }}>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/cadastro"
+                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
+                  style={{ background: "transparent", border: "1.5px solid #3DC45A", color: "#3DC45A" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#3DC45A"; (e.currentTarget as HTMLAnchorElement).style.color = "#1B3A2D"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#3DC45A"; }}
+                >
+                  Começar com Plus
+                </Link>
+              </div>
+            </div>
           </div>
 
-          <p className="text-center mt-10 animate-on-scroll">
+          {/* Rodapé */}
+          <p className="text-center mt-10">
             <Link
               href="/cadastro"
-              className="text-brand-muted hover:text-brand-dark text-sm transition-colors"
+              className="text-sm transition-colors"
+              style={{ color: "rgba(255,255,255,0.5)" }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.5)"; }}
             >
               Usina com 60+ módulos? Fale conosco sobre o Plano Pro →
             </Link>

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { type TipoInstalacao } from "@/lib/pricing";
 import { BannerParticles } from "@/components/BannerParticles";
 
 // === v2 — Modelo assinatura ===
@@ -29,7 +28,6 @@ function fmt(v: number) {
 
 export default function CalculadoraEconomia() {
   const [modulos, setModulos] = useState(20);
-  const [tipo, setTipo]       = useState<TipoInstalacao>("telhado_padrao");
 
   // Prejuízo mensal por sujeira (perda energética × tarifa)
   const prejuizoMes = Math.round(modulos * KWP_POR_MODULO * KWH_POR_KWP_MES * PERDA_SUJEIRA * TARIFA_KWH);
@@ -45,12 +43,6 @@ export default function CalculadoraEconomia() {
   const assinatura3Anos  = entrada + mensalidadeAnual * 3;
   const avulso3Anos      = precoAvulsoAno * 3;
   const economia3Anos    = Math.max(0, avulso3Anos - assinatura3Anos);
-
-  const tipoOptions: { value: TipoInstalacao; emoji: string; label: string }[] = [
-    { value: "solo",            emoji: "☀️", label: "Solo"            },
-    { value: "telhado_padrao",  emoji: "🏠", label: "Telhado"         },
-    { value: "telhado_dificil", emoji: "🏗️", label: "Telhado difícil" },
-  ];
 
   const sliderPct = ((modulos - 1) / (100 - 1)) * 100;
 
@@ -97,30 +89,6 @@ export default function CalculadoraEconomia() {
               <div className="flex justify-between text-[11px] text-brand-muted mt-1.5">
                 <span>1</span>
                 <span>100</span>
-              </div>
-            </div>
-
-            {/* Tipo de instalação */}
-            <div>
-              <label className="font-heading font-bold text-brand-dark text-sm block mb-3">
-                Tipo de instalação
-              </label>
-              <div className="grid grid-cols-3 gap-2">
-                {tipoOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setTipo(opt.value)}
-                    className={`flex flex-col items-center gap-1 py-2.5 px-2 rounded-xl border-2 text-center transition-colors ${
-                      tipo === opt.value
-                        ? "border-brand-green bg-brand-light text-brand-dark"
-                        : "border-brand-border bg-white text-brand-muted hover:border-brand-dark/30"
-                    }`}
-                  >
-                    <span className="text-xl">{opt.emoji}</span>
-                    <span className="text-[11px] font-semibold leading-tight">{opt.label}</span>
-                  </button>
-                ))}
               </div>
             </div>
 
