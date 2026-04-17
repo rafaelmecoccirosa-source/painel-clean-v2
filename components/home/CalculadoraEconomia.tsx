@@ -26,6 +26,12 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+const planosMini = [
+  { id: "basic",    nome: "Básico",  modulos: "até 15 módulos",  preco: "R$ 30/mês"  },
+  { id: "standard", nome: "Padrão",  modulos: "16–30 módulos",   preco: "R$ 50/mês"  },
+  { id: "plus",     nome: "Plus",    modulos: "31–60 módulos",   preco: "R$ 100/mês" },
+] as const;
+
 export default function CalculadoraEconomia() {
   const [modulos, setModulos] = useState(20);
 
@@ -43,6 +49,8 @@ export default function CalculadoraEconomia() {
   const assinatura3Anos  = entrada + mensalidadeAnual * 3;
   const avulso3Anos      = precoAvulsoAno * 3;
   const economia3Anos    = Math.max(0, avulso3Anos - assinatura3Anos);
+
+  const planoAtivo = modulos <= 15 ? "basic" : modulos <= 30 ? "standard" : "plus";
 
   const sliderPct = ((modulos - 1) / (100 - 1)) * 100;
 
@@ -90,6 +98,35 @@ export default function CalculadoraEconomia() {
                 <span>1</span>
                 <span>100</span>
               </div>
+            </div>
+
+            {/* Mini cards de plano — highlighted conforme slider */}
+            <div className="flex flex-col gap-2">
+              {planosMini.map((p) => {
+                const ativo = planoAtivo === p.id;
+                return (
+                  <div
+                    key={p.id}
+                    style={{
+                      background: ativo ? "#1B3A2D" : "#ffffff",
+                      border: `1.5px solid ${ativo ? "#3DC45A" : "#C8DFC0"}`,
+                      borderRadius: "12px",
+                      padding: "10px 14px",
+                      transition: "all 0.3s",
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span style={{ fontWeight: 600, fontSize: "13px", color: ativo ? "#EBF3E8" : "#1B3A2D" }}>
+                        {p.nome}
+                      </span>
+                      <span style={{ fontWeight: 700, fontSize: "13px", color: ativo ? "#3DC45A" : "#7A9A84" }}>
+                        {p.preco}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#7A9A84", marginTop: "2px" }}>{p.modulos}</p>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Breakdown comparativo */}
