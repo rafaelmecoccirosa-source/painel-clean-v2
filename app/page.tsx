@@ -313,10 +313,7 @@ export default function HomePage() {
                 </ul>
                 <Link
                   href="/cadastro"
-                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
-                  style={{ background: "transparent", border: "1.5px solid #3DC45A", color: "#3DC45A" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#3DC45A"; (e.currentTarget as HTMLAnchorElement).style.color = "#1B3A2D"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#3DC45A"; }}
+                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors border-[1.5px] border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark"
                 >
                   Começar com Básico
                 </Link>
@@ -363,10 +360,7 @@ export default function HomePage() {
               </ul>
               <Link
                 href="/cadastro"
-                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
-                style={{ background: "#1B3A2D", color: "#ffffff" }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "rgba(27,58,45,0.85)"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#1B3A2D"; }}
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors bg-brand-dark text-white hover:bg-brand-dark/85"
               >
                 Começar com Padrão
               </Link>
@@ -411,10 +405,7 @@ export default function HomePage() {
                 </ul>
                 <Link
                   href="/cadastro"
-                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors"
-                  style={{ background: "transparent", border: "1.5px solid #3DC45A", color: "#3DC45A" }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "#3DC45A"; (e.currentTarget as HTMLAnchorElement).style.color = "#1B3A2D"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; (e.currentTarget as HTMLAnchorElement).style.color = "#3DC45A"; }}
+                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors border-[1.5px] border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark"
                 >
                   Começar com Plus
                 </Link>
@@ -426,10 +417,7 @@ export default function HomePage() {
           <p className="text-center mt-10">
             <Link
               href="/cadastro"
-              className="text-sm transition-colors"
-              style={{ color: "rgba(255,255,255,0.5)" }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "#ffffff"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.5)"; }}
+              className="text-sm transition-colors text-white/50 hover:text-white"
             >
               Usina com 60+ módulos? Fale conosco sobre o Plano Pro →
             </Link>
