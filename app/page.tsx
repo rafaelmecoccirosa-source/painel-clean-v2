@@ -96,18 +96,7 @@ const passos = [
   },
 ];
 
-// ── Seção 5 — Diferenciais ────────────────────────────────────────────────
-
-const beneficios = [
-  { emoji: "✅",  titulo: "Técnicos certificados",   texto: "Todos os profissionais passam por treinamento e aprovação antes de atender." },
-  { emoji: "⚡",  titulo: "Agendamento automático",   texto: "Após assinar, suas próximas limpezas são agendadas sem que você precise fazer nada." },
-  { emoji: "📸",  titulo: "Relatório fotográfico",    texto: "Fotos antes e depois + diagnóstico técnico de cada limpeza." },
-  { emoji: "🛡️", titulo: "Seguro na limpeza",         texto: "Todos os serviços incluem cobertura contra danos acidentais às suas placas e telhado." },
-  { emoji: "📊",  titulo: "Monitoramento mensal",      texto: "Relatório de performance todo mês. Alertas automáticos se a produção cair abaixo do esperado." },
-  { emoji: "⭐",  titulo: "Avaliação real",            texto: "Veja a nota de cada técnico antes de contratar. Transparência total." },
-];
-
-// ── Seção 6 — Planos de assinatura ────────────────────────────────────────
+// ── Planos de assinatura ──────────────────────────────────────────────────
 
 const itensBase = [
   "2 limpezas/ano",
@@ -149,6 +138,29 @@ export default function HomePage() {
 
       {/* ── Seção 1: Hero ────────────────────────────────────────────────── */}
       <HeroSection />
+
+      {/* ── Prova social ────────────────────────────────────────────────── */}
+      <section className="bg-white border-t border-b border-brand-border py-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll">
+            {[
+              { valor: "500+",   label: "Usinas monitoradas em SC" },
+              { valor: "98%",    label: "Clientes satisfeitos" },
+              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
+            ].map(({ valor, label }) => (
+              <div key={label}>
+                <p className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.25rem", lineHeight: 1 }}>
+                  {valor}
+                </p>
+                <p className="text-brand-muted text-xs mt-2 leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-[11px] text-brand-muted/60 mt-6">
+            *Dados do período de validação com parceiros Painel Clean
+          </p>
+        </div>
+      </section>
 
       {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
       <section style={{ background: "#E8F0E4", paddingTop: "5rem", paddingBottom: "5rem" }}>
@@ -222,196 +234,7 @@ export default function HomePage() {
         <CalculadoraEconomia />
       </div>
 
-      {/* ── Prova social ────────────────────────────────────────────────── */}
-      <section className="bg-white border-t border-b border-brand-border py-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll">
-            {[
-              { valor: "500+",   label: "Usinas monitoradas em SC" },
-              { valor: "98%",    label: "Clientes satisfeitos" },
-              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
-            ].map(({ valor, label }) => (
-              <div key={label}>
-                <p className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.25rem", lineHeight: 1 }}>
-                  {valor}
-                </p>
-                <p className="text-brand-muted text-xs mt-2 leading-snug">{label}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-[11px] text-brand-muted/60 mt-6">
-            *Dados do período de validação com parceiros Painel Clean
-          </p>
-        </div>
-      </section>
-
-      {/* ── Seção 4: Como funciona ──────────────────────────────────────── */}
-      <section className="bg-white py-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              🚀 Processo simples
-            </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
-              Comece em 4 passos
-            </h2>
-          </div>
-
-          {/* Desktop: horizontal timeline — each step staggered 200 ms */}
-          <div className="hidden md:flex items-start gap-0">
-            {passos.map((passo, idx) => (
-              <div
-                key={passo.num}
-                className="flex-1 flex flex-col items-center relative animate-on-scroll"
-                style={{ transitionDelay: `${idx * 200}ms` }}
-              >
-                {idx < passos.length - 1 && (
-                  <div className="absolute top-8 left-1/2 w-full h-0.5 bg-brand-border" />
-                )}
-                <div className="relative z-10 h-16 w-16 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-2xl shadow-lg mb-4">
-                  {passo.num}
-                </div>
-                <span className="text-3xl mb-3">{passo.emoji}</span>
-                <h3 className="font-heading font-bold text-brand-dark text-center text-sm mb-2 px-4">
-                  {passo.titulo}
-                </h3>
-                <p className="text-brand-muted text-xs text-center leading-relaxed px-4">
-                  {passo.texto}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile: vertical list — each step staggered 200 ms */}
-          <div className="md:hidden space-y-6">
-            {passos.map((passo, idx) => (
-              <div
-                key={passo.num}
-                className="flex items-start gap-5 animate-on-scroll"
-                style={{ transitionDelay: `${idx * 200}ms` }}
-              >
-                <div className="h-12 w-12 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-xl flex-shrink-0">
-                  {passo.num}
-                </div>
-                <div>
-                  <p className="text-xl mb-1">{passo.emoji}</p>
-                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">
-                    {passo.titulo}
-                  </h3>
-                  <p className="text-brand-muted text-xs leading-relaxed">{passo.texto}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ─────────────────────────────────────────────────────────── */}
-      <FAQ />
-
-      {/* ── Cidades atendidas ───────────────────────────────────────────── */}
-      <section className="py-20 animate-on-scroll" style={{ background: "#1B3A2D" }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
-              📍 Cobertura
-            </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
-              Onde atuamos
-            </h2>
-            <p className="text-white/60 text-base max-w-md mx-auto">
-              Atendemos usinas solares em 3 cidades de Santa Catarina, com expansão prevista para 2025.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            {/* Ativas */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <p className="font-heading font-bold text-white text-sm mb-4">✅ Cidades ativas</p>
-              <div className="flex flex-col gap-2.5">
-                {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
-                  <div key={cidade} className="flex items-center gap-2">
-                    <span
-                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                      style={{ background: "#3DC45A22", color: "#3DC45A" }}
-                    >
-                      Ativo
-                    </span>
-                    <span className="text-white/80 text-sm">{cidade}, SC</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Em breve */}
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <p className="font-heading font-bold text-white text-sm mb-4">🕐 Em breve</p>
-              <div className="flex flex-col gap-2.5">
-                {["Blumenau", "Itajaí", "Brusque", "Gaspar"].map((cidade) => (
-                  <div key={cidade} className="flex items-center gap-2">
-                    <span
-                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" }}
-                    >
-                      Em breve
-                    </span>
-                    <span className="text-white/50 text-sm">{cidade}, SC</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <p className="text-center">
-            <a
-              href="/cadastro"
-              className="text-sm font-medium transition-colors"
-              style={{ color: "#3DC45A" }}
-            >
-              Não encontrou sua cidade? Cadastre-se na lista de espera →
-            </a>
-          </p>
-        </div>
-      </section>
-
-      {/* ── Seção 5: Diferenciais ───────────────────────────────────────── */}
-      <section className="bg-brand-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
-              🏆 Nossos diferenciais
-            </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
-              Por que escolher a Painel Clean?
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {beneficios.map(({ emoji, titulo, texto }, idx) => (
-              <div
-                key={titulo}
-                className="bg-white rounded-2xl border border-brand-light p-6 flex gap-4 hover:shadow-card-hover transition-shadow animate-on-scroll"
-                style={{ transitionDelay: `${idx * 100}ms` }}
-              >
-                <span className="text-3xl flex-shrink-0">{emoji}</span>
-                <div>
-                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">{titulo}</h3>
-                  <p className="text-brand-muted text-xs leading-relaxed">{texto}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Separador entre Diferenciais e Planos ────────────────────────── */}
-      <div className="bg-brand-bg">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <hr style={{ border: "none", borderTop: "1px solid #C8DFC0" }} />
-        </div>
-      </div>
-
-      {/* ── Seção 6: Planos de assinatura ────────────────────────────────── */}
+      {/* ── Seção de planos ──────────────────────────────────────────────── */}
       <section id="planos" className="pt-20 pb-20 animate-on-scroll bg-brand-bg">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -547,7 +370,66 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 7: Seja um técnico ───────────────────────────────────── */}
+      {/* ── Como funciona ────────────────────────────────────────────────── */}
+      <section className="bg-white py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14 animate-on-scroll">
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+              🚀 Processo simples
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+              Comece em 4 passos
+            </h2>
+          </div>
+
+          {/* Desktop: horizontal timeline */}
+          <div className="hidden md:flex items-start gap-0">
+            {passos.map((passo, idx) => (
+              <div
+                key={passo.num}
+                className="flex-1 flex flex-col items-center relative animate-on-scroll"
+                style={{ transitionDelay: `${idx * 200}ms` }}
+              >
+                {idx < passos.length - 1 && (
+                  <div className="absolute top-8 left-1/2 w-full h-0.5 bg-brand-border" />
+                )}
+                <div className="relative z-10 h-16 w-16 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-2xl shadow-lg mb-4">
+                  {passo.num}
+                </div>
+                <span className="text-3xl mb-3">{passo.emoji}</span>
+                <h3 className="font-heading font-bold text-brand-dark text-center text-sm mb-2 px-4">
+                  {passo.titulo}
+                </h3>
+                <p className="text-brand-muted text-xs text-center leading-relaxed px-4">
+                  {passo.texto}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Mobile: vertical list */}
+          <div className="md:hidden space-y-6">
+            {passos.map((passo, idx) => (
+              <div
+                key={passo.num}
+                className="flex items-start gap-5 animate-on-scroll"
+                style={{ transitionDelay: `${idx * 200}ms` }}
+              >
+                <div className="h-12 w-12 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-xl flex-shrink-0">
+                  {passo.num}
+                </div>
+                <div>
+                  <p className="text-xl mb-1">{passo.emoji}</p>
+                  <h3 className="font-heading font-bold text-brand-dark text-sm mb-1">{passo.titulo}</h3>
+                  <p className="text-brand-muted text-xs leading-relaxed">{passo.texto}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Seja um técnico ───────────────────────────────────────────────── */}
       <section className="bg-brand-dark py-20 animate-on-scroll relative overflow-hidden">
         <TecnicoParticles />
         <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -587,26 +469,54 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Seção 8: CTA Final ────────────────────────────────────────── */}
-      <section className="bg-brand-light py-20 border-t border-brand-border">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center animate-on-scroll">
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4 leading-tight">
-            Comece sua assinatura hoje
-          </h2>
-          <p className="text-gray-500 text-lg mb-10">
-            Primeira limpeza com 50% de desconto. Técnico certificado em até 48h.
-          </p>
-          <Link
-            href="/cadastro"
-            className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-lg px-10 py-5 rounded-2xl hover:bg-brand-green/90 transition-colors shadow-lg"
-          >
-            Escolher meu plano →
-          </Link>
-          <p className="text-gray-400 text-sm mt-5">
-            Sem fidelidade no 1º mês. Cancele a qualquer momento.
+      {/* ── Onde atuamos ─────────────────────────────────────────────────── */}
+      <section className="py-20 animate-on-scroll" style={{ background: "#1B3A2D" }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
+              📍 Cobertura
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
+              Onde atuamos
+            </h2>
+            <p className="text-white/60 text-base max-w-md mx-auto">
+              Atendemos usinas solares em 3 cidades de Santa Catarina, com expansão prevista para 2025.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <p className="font-heading font-bold text-white text-sm mb-4">✅ Cidades ativas</p>
+              <div className="flex flex-col gap-2.5">
+                {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
+                  <div key={cidade} className="flex items-center gap-2">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "#3DC45A22", color: "#3DC45A" }}>Ativo</span>
+                    <span className="text-white/80 text-sm">{cidade}, SC</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <p className="font-heading font-bold text-white text-sm mb-4">🕐 Em breve</p>
+              <div className="flex flex-col gap-2.5">
+                {["Blumenau", "Itajaí", "Brusque", "Gaspar"].map((cidade) => (
+                  <div key={cidade} className="flex items-center gap-2">
+                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" }}>Em breve</span>
+                    <span className="text-white/50 text-sm">{cidade}, SC</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <p className="text-center">
+            <a href="/cadastro" className="text-sm font-medium" style={{ color: "#3DC45A" }}>
+              Não encontrou sua cidade? Cadastre-se na lista de espera →
+            </a>
           </p>
         </div>
       </section>
+
+      {/* ── FAQ ──────────────────────────────────────────────────────────── */}
+      <FAQ />
 
       {/* ── Footer ─────────────────────────────────────────────────────── */}
       <footer className="bg-brand-dark border-t border-white/10">
