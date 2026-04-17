@@ -61,30 +61,9 @@ const IconPanelPlus = () => (
 );
 
 const paybackCards = [
-  {
-    Icon: IconPanelBasico,
-    plano: "Plano Básico",
-    modulos: "até 15 módulos",
-    prejuizoMes: "R$ 218",
-    mensalidade: "R$ 30/mês",
-    dark: false,
-  },
-  {
-    Icon: IconPanelPadrao,
-    plano: "Plano Padrão",
-    modulos: "16 a 30 módulos",
-    prejuizoMes: "R$ 365",
-    mensalidade: "R$ 50/mês",
-    dark: true,
-  },
-  {
-    Icon: IconPanelPlus,
-    plano: "Plano Plus",
-    modulos: "31 a 60 módulos",
-    prejuizoMes: "R$ 729",
-    mensalidade: "R$ 100/mês",
-    dark: false,
-  },
+  { Icon: IconPanelBasico, plano: "Plano Básico", modulos: "até 15 módulos",   prejuizoMes: "R$ 218", mensalidade: "R$ 30/mês"  },
+  { Icon: IconPanelPadrao, plano: "Plano Padrão", modulos: "16 a 30 módulos",  prejuizoMes: "R$ 365", mensalidade: "R$ 50/mês"  },
+  { Icon: IconPanelPlus,   plano: "Plano Plus",   modulos: "31 a 60 módulos",  prejuizoMes: "R$ 729", mensalidade: "R$ 100/mês" },
 ];
 
 // ── Seção 4 — Como funciona (v2 — assinatura) ─────────────────────────────
@@ -183,23 +162,19 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {paybackCards.map(({ Icon, plano, modulos, prejuizoMes, mensalidade, dark }, idx) => (
+            {paybackCards.map(({ Icon, plano, modulos, prejuizoMes, mensalidade }, idx) => (
               <div
                 key={plano}
-                className="rounded-2xl flex flex-col animate-on-scroll"
+                className="rounded-2xl flex flex-col animate-on-scroll overflow-hidden"
                 style={{
-                  background: dark ? "#0F2218" : "#ffffff",
-                  border: dark ? "1px solid #3DC45A33" : "1px solid #C8DFC0",
+                  border: "1px solid #C8DFC0",
                   transitionDelay: `${idx * 150}ms`,
                 }}
               >
-                {/* Metade superior — partículas + ícone + nome */}
+                {/* Metade superior — fundo escuro + partículas */}
                 <div
                   className="relative overflow-hidden flex flex-col gap-3"
-                  style={{
-                    padding: "2rem 2rem 1.5rem",
-                    borderBottom: dark ? "1px solid #3DC45A22" : "1px solid #C8DFC0",
-                  }}
+                  style={{ background: "#1B3A2D", padding: "2rem 2rem 1.5rem" }}
                 >
                   <BannerParticles />
                   <div className="relative" style={{ zIndex: 2 }}>
@@ -207,15 +182,15 @@ export default function HomePage() {
                   </div>
                   <h3
                     className="relative font-heading text-lg font-bold"
-                    style={{ color: dark ? "#EBF3E8" : "#1B3A2D", zIndex: 2 }}
+                    style={{ color: "#EBF3E8", zIndex: 2 }}
                   >
                     {plano}
                   </h3>
                   <p className="relative text-xs" style={{ color: "#7A9A84", zIndex: 2 }}>{modulos}</p>
                 </div>
 
-                {/* Metade inferior — valores + CTA */}
-                <div className="flex flex-col gap-4 flex-1" style={{ padding: "1.5rem 2rem 2rem" }}>
+                {/* Metade inferior — fundo branco */}
+                <div className="flex flex-col gap-4 flex-1 bg-white" style={{ padding: "1.5rem 2rem 2rem" }}>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span style={{ color: "#7A9A84" }}>Prejuízo/mês por sujeira</span>
@@ -223,12 +198,12 @@ export default function HomePage() {
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span style={{ color: "#7A9A84" }}>Mensalidade</span>
-                      <span className="font-bold" style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}>{mensalidade}</span>
+                      <span className="font-bold" style={{ color: "#1B3A2D" }}>{mensalidade}</span>
                     </div>
                   </div>
                   <div
                     className="mt-auto rounded-xl px-4 py-2.5 text-center"
-                    style={{ background: dark ? "#3DC45A22" : "#3DC45A1A" }}
+                    style={{ background: "#3DC45A1A" }}
                   >
                     <span className="font-heading font-bold text-sm" style={{ color: "#3DC45A" }}>
                       ✅ Se paga em ~4 dias
