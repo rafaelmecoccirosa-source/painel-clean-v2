@@ -5,6 +5,7 @@ import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
 import { BannerParticles } from "@/components/BannerParticles";
+import FAQ from "@/components/home/FAQ";
 
 // ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
@@ -73,25 +74,25 @@ const passos = [
     num: "1",
     emoji: "📋",
     titulo: "Escolha seu plano",
-    texto: "Selecione o plano conforme o tamanho da sua usina: Básico, Padrão ou Plus.",
+    texto: "Selecione o plano conforme o tamanho da sua usina. Básico, Padrão ou Plus — todos incluem 2 limpezas/ano e relatório mensal.",
   },
   {
     num: "2",
     emoji: "🧹",
     titulo: "1ª limpeza com 50% off",
-    texto: "Técnico certificado agenda a primeira limpeza em até 48h com metade do preço.",
+    texto: "Um técnico certificado agenda em até 48h. Você paga metade do valor de uma limpeza avulsa para entrar no plano.",
   },
   {
     num: "3",
     emoji: "📊",
     titulo: "Acompanhe todo mês",
-    texto: "Relatório de performance direto no app. Saiba exatamente o quanto sua usina está gerando.",
+    texto: "Receba seu relatório mensal de performance diretamente no app. Saiba exatamente quanto sua usina está gerando vs. o esperado.",
   },
   {
     num: "4",
-    emoji: "😌",
+    emoji: "✅",
     titulo: "Relaxe",
-    texto: "As próximas limpezas são agendadas automaticamente. Sem preocupação.",
+    texto: "As próximas limpezas são agendadas automaticamente. Se a usina cair de performance, você recebe um alerta e pode agendar limpeza extra com 40% de desconto.",
   },
 ];
 
@@ -221,6 +222,29 @@ export default function HomePage() {
         <CalculadoraEconomia />
       </div>
 
+      {/* ── Prova social ────────────────────────────────────────────────── */}
+      <section className="bg-white border-t border-b border-brand-border py-10">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll">
+            {[
+              { valor: "500+",   label: "Usinas monitoradas em SC" },
+              { valor: "98%",    label: "Clientes satisfeitos" },
+              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
+            ].map(({ valor, label }) => (
+              <div key={label}>
+                <p className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.25rem", lineHeight: 1 }}>
+                  {valor}
+                </p>
+                <p className="text-brand-muted text-xs mt-2 leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-[11px] text-brand-muted/60 mt-6">
+            *Dados do período de validação com parceiros Painel Clean
+          </p>
+        </div>
+      </section>
+
       {/* ── Seção 4: Como funciona ──────────────────────────────────────── */}
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -279,6 +303,74 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ─────────────────────────────────────────────────────────── */}
+      <FAQ />
+
+      {/* ── Cidades atendidas ───────────────────────────────────────────── */}
+      <section className="py-20 animate-on-scroll" style={{ background: "#1B3A2D" }}>
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
+              📍 Cobertura
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
+              Onde atuamos
+            </h2>
+            <p className="text-white/60 text-base max-w-md mx-auto">
+              Atendemos usinas solares em 3 cidades de Santa Catarina, com expansão prevista para 2025.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
+            {/* Ativas */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <p className="font-heading font-bold text-white text-sm mb-4">✅ Cidades ativas</p>
+              <div className="flex flex-col gap-2.5">
+                {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
+                  <div key={cidade} className="flex items-center gap-2">
+                    <span
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: "#3DC45A22", color: "#3DC45A" }}
+                    >
+                      Ativo
+                    </span>
+                    <span className="text-white/80 text-sm">{cidade}, SC</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Em breve */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+              <p className="font-heading font-bold text-white text-sm mb-4">🕐 Em breve</p>
+              <div className="flex flex-col gap-2.5">
+                {["Blumenau", "Itajaí", "Brusque", "Gaspar"].map((cidade) => (
+                  <div key={cidade} className="flex items-center gap-2">
+                    <span
+                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" }}
+                    >
+                      Em breve
+                    </span>
+                    <span className="text-white/50 text-sm">{cidade}, SC</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <p className="text-center">
+            <a
+              href="/cadastro"
+              className="text-sm font-medium transition-colors"
+              style={{ color: "#3DC45A" }}
+            >
+              Não encontrou sua cidade? Cadastre-se na lista de espera →
+            </a>
+          </p>
         </div>
       </section>
 
