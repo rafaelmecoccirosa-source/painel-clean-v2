@@ -40,7 +40,7 @@ export default function Logo({ inverted = false, size = "md" }: LogoProps) {
             inverted ? "text-white/60" : "text-brand-muted"
           }`}
         >
-          Limpeza de Placa Solar
+          Limpeza e monitoramento de usinas solares
         </span>
       </div>
     </Link>

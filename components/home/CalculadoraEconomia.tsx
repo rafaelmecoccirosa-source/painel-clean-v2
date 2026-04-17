@@ -27,6 +27,10 @@ function fmt(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function fmtKwh(v: number) {
+  return v.toLocaleString("pt-BR") + " kWh";
+}
+
 const planosMini = [
   { id: "basic",    nome: "Básico", faixa: "até 15 módulos",  preco: "R$ 30/mês",  centro: 10 },
   { id: "standard", nome: "Padrão", faixa: "16–30 módulos",   preco: "R$ 50/mês",  centro: 20 },
@@ -36,8 +40,11 @@ const planosMini = [
 export default function CalculadoraEconomia() {
   const [modulos, setModulos] = useState(20);
 
-  // Prejuízo mensal por sujeira
-  const prejuizoMes = Math.round(modulos * KWP_POR_MODULO * KWH_POR_KWP_MES * PERDA_SUJEIRA * TARIFA_KWH);
+  // Energia e perda
+  const geracaoTotal  = Math.round(modulos * KWP_POR_MODULO * KWH_POR_KWP_MES);
+  const perdaKwh      = Math.round(geracaoTotal * PERDA_SUJEIRA);
+  const prejuizoMes   = Math.round(perdaKwh * TARIFA_KWH);
+  const prejuizoAno   = prejuizoMes * 12;
 
   // Preços base
   const precoPorModulo   = getPrecoPorModulo(modulos);
@@ -145,14 +152,17 @@ export default function CalculadoraEconomia() {
             {/* Gráfico de barras — 3 anos */}
             <div>
               {/* Legenda */}
-              <div className="flex items-center gap-4 mb-3">
-                <div className="flex items-center gap-1.5">
-                  <div style={{ width: 10, height: 10, borderRadius: 2, background: "#374151" }} />
-                  <span style={{ fontSize: 11, color: "#7A9A84" }}>Avulso</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div style={{ width: 10, height: 10, borderRadius: 2, background: "#3DC45A" }} />
-                  <span style={{ fontSize: 11, color: "#7A9A84" }}>Assinatura</span>
+              <div className="flex items-center justify-between mb-3">
+                <span style={{ fontSize: 11, color: "#7A9A84", fontWeight: 600 }}>Investimento anual</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5">
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: "#374151" }} />
+                    <span style={{ fontSize: 11, color: "#7A9A84" }}>Avulso</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div style={{ width: 10, height: 10, borderRadius: 2, background: "#3DC45A" }} />
+                    <span style={{ fontSize: 11, color: "#7A9A84" }}>Assinatura</span>
+                  </div>
                 </div>
               </div>
               {/* Barras */}
@@ -190,7 +200,7 @@ export default function CalculadoraEconomia() {
             {/* Breakdown comparativo */}
             <div className="space-y-2 pt-4 border-t border-brand-border text-sm mt-auto">
               <div className="flex items-center justify-between">
-                <span className="text-brand-muted">Plano recomendado</span>
+                <span className="text-brand-muted">Tipo de assinatura</span>
                 <span className="font-bold text-brand-dark">{plano.nome} — {fmt(plano.preco)}/mês</span>
               </div>
               <div className="flex items-center justify-between">
@@ -211,26 +221,31 @@ export default function CalculadoraEconomia() {
           {/* ── Coluna direita ── */}
           <div className="rounded-2xl overflow-hidden shadow-lg flex flex-col">
 
-            {/* Top — perda mensal */}
-            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4">
+            {/* Top — perda de energia */}
+            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-3">
               <h3 className="font-heading font-bold text-brand-dark text-base">
-                ⚡ Você pode estar perdendo
+                ⚡ O que você pode estar perdendo
               </h3>
-              <div>
+
+              <p className="text-sm text-brand-muted">
+                Suas <span className="font-bold text-brand-dark">{modulos} placas</span> geram{" "}
+                <span className="font-bold text-brand-dark">~{fmtKwh(geracaoTotal)}/mês</span>
+              </p>
+              <p className="text-sm text-brand-muted">Com sujeira acumulada, você pode perder até:</p>
+
+              <div className="space-y-1">
                 <p
                   className="font-heading font-extrabold leading-none"
                   style={{ fontSize: "2.75rem", color: "#E24B4A" }}
                 >
-                  {fmt(prejuizoMes)}<span className="text-base font-semibold">/mês</span>
+                  {fmtKwh(perdaKwh)}<span className="text-base font-semibold">/mês</span>
                 </p>
-                <p className="text-sm text-brand-muted mt-2">
-                  com {Math.round(PERDA_SUJEIRA * 100)}% de queda de eficiência por sujeira
+                <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
+                  = {fmt(prejuizoMes)}/mês{" "}
+                  <em className="font-normal" style={{ color: "#E24B4A" }}>desperdiçados por mês</em>
                 </p>
-              </div>
-              <div className="bg-brand-bg rounded-xl px-4 py-3">
-                <p className="text-sm font-semibold text-brand-dark">
-                  Plano recomendado:{" "}
-                  <span className="text-brand-green">{plano.nome} — {fmt(plano.preco)}/mês</span>
+                <p className="text-sm font-semibold" style={{ color: "#E24B4A" }}>
+                  = {fmt(prejuizoAno)}/ano em energia desperdiçada
                 </p>
               </div>
             </div>
