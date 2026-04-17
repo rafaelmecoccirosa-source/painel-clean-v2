@@ -6,6 +6,7 @@ import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
 import { BannerParticles } from "@/components/BannerParticles";
 import FAQ from "@/components/home/FAQ";
+import AnimatedCounter from "@/components/home/AnimatedCounter";
 
 // ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
@@ -128,7 +129,8 @@ export default function HomePage() {
             </Link>
             <Link
               href="/cadastro"
-              className="bg-brand-green text-white font-heading font-bold text-[12px] sm:text-sm px-3 py-1.5 sm:px-5 sm:py-2 rounded-xl hover:bg-brand-green/90 transition-colors whitespace-nowrap"
+              className="bg-brand-green text-white font-heading font-bold text-[12px] sm:text-sm px-3 py-1.5 sm:px-5 sm:py-2 rounded-xl whitespace-nowrap hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+              style={{ transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
             >
               Cadastrar-se
             </Link>
@@ -143,10 +145,10 @@ export default function HomePage() {
       <section style={{ background: "#E8F0E4", paddingTop: "5rem", paddingBottom: "5rem" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+            <p className="text-brand-green uppercase tracking-widest mb-3" style={{ fontSize: "11px", letterSpacing: "0.1em", fontWeight: 600 }}>
               💡 Investimento que se paga rápido
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+            <h2 className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
               Por que R$ 30/mês é o melhor investimento da sua usina?
             </h2>
           </div>
@@ -219,10 +221,10 @@ export default function HomePage() {
 
           {/* Heading */}
           <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold mb-3 text-brand-dark">
+            <h2 className="font-heading font-extrabold text-brand-dark mb-3" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
               Escolha o plano ideal para sua usina
             </h2>
-            <p className="text-base max-w-xl mx-auto text-brand-green">
+            <p className="max-w-xl mx-auto text-brand-muted" style={{ fontSize: "1.1rem", fontWeight: 400, maxWidth: "600px" }}>
               Todos os planos incluem 2 limpezas/ano, relatório mensal, checkup técnico e seguro na limpeza.
             </p>
           </div>
@@ -232,8 +234,8 @@ export default function HomePage() {
 
             {/* Básico */}
             <div
-              className="bg-white flex flex-col gap-5 animate-on-scroll"
-              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "0ms" }}
+              className="bg-white flex flex-col gap-5 animate-on-scroll hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(27,58,45,0.12)]"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "0ms", transition: "transform 200ms ease-out, box-shadow 200ms ease-out" }}
             >
               <div>
                 <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Básico</p>
@@ -254,8 +256,8 @@ export default function HomePage() {
               </ul>
               <Link
                 href="/cadastro"
-                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
-                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ background: "#3DC45A", color: "#1B3A2D", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Começar com Básico
               </Link>
@@ -263,8 +265,8 @@ export default function HomePage() {
 
             {/* Padrão */}
             <div
-              className="bg-white flex flex-col gap-5 animate-on-scroll"
-              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "150ms" }}
+              className="bg-white flex flex-col gap-5 animate-on-scroll hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(27,58,45,0.12)]"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "150ms", transition: "transform 200ms ease-out, box-shadow 200ms ease-out" }}
             >
               <div>
                 <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Padrão</p>
@@ -285,8 +287,8 @@ export default function HomePage() {
               </ul>
               <Link
                 href="/cadastro"
-                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
-                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ background: "#3DC45A", color: "#1B3A2D", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Começar com Padrão
               </Link>
@@ -294,8 +296,8 @@ export default function HomePage() {
 
             {/* Plus */}
             <div
-              className="bg-white flex flex-col gap-5 animate-on-scroll"
-              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "300ms" }}
+              className="bg-white flex flex-col gap-5 animate-on-scroll hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(27,58,45,0.12)]"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "300ms", transition: "transform 200ms ease-out, box-shadow 200ms ease-out" }}
             >
               <div>
                 <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Plus</p>
@@ -316,8 +318,8 @@ export default function HomePage() {
               </ul>
               <Link
                 href="/cadastro"
-                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
-                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ background: "#3DC45A", color: "#1B3A2D", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Começar com Plus
               </Link>
@@ -336,8 +338,8 @@ export default function HomePage() {
             <p className="text-brand-muted text-sm mb-3">Prefere uma limpeza sem compromisso?</p>
             <Link
               href="/cadastro"
-              className="inline-flex items-center gap-2 text-sm font-medium transition-colors px-4 py-2 rounded-lg text-brand-muted hover:text-brand-dark"
-              style={{ border: "1px solid #C8DFC0" }}
+              className="inline-flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg text-brand-muted hover:bg-brand-green hover:text-brand-dark hover:border-brand-green"
+              style={{ border: "1px solid #C8DFC0", transition: "background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out" }}
             >
               Solicitar limpeza avulsa →
             </Link>
@@ -353,10 +355,10 @@ export default function HomePage() {
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+            <p className="text-brand-green uppercase tracking-widest mb-3" style={{ fontSize: "11px", letterSpacing: "0.1em", fontWeight: 600 }}>
               🚀 Processo simples
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+            <h2 className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
               Comece em 4 passos
             </h2>
           </div>
@@ -414,13 +416,13 @@ export default function HomePage() {
           {/* Big numbers */}
           <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 animate-on-scroll">
             {[
-              { valor: "500+", label: "Usinas monitoradas em SC" },
-              { valor: "100%", label: "Clientes satisfeitos" },
-              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
-            ].map(({ valor, label }) => (
-              <div key={valor} className="text-center">
+              { counter: <AnimatedCounter target={500} suffix="+" duration={1500} />, label: "Usinas monitoradas em SC" },
+              { counter: <AnimatedCounter target={100} suffix="%" duration={1500} />, label: "Clientes satisfeitos" },
+              { counter: <AnimatedCounter target={4} suffix=" dias" fadeOnly delay={500} />, label: "Tempo médio para recuperar o investimento" },
+            ].map(({ counter, label }) => (
+              <div key={label} className="text-center">
                 <p className="font-heading font-extrabold text-brand-green" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1 }}>
-                  {valor}
+                  {counter}
                 </p>
                 <p className="text-brand-muted text-xs sm:text-sm mt-2 leading-snug">{label}</p>
               </div>
@@ -439,8 +441,8 @@ export default function HomePage() {
             ].map(({ iniciais, nome, cidade, texto }) => (
               <div
                 key={nome}
-                className="bg-white rounded-2xl animate-on-scroll flex flex-col gap-4"
-                style={{ padding: "1.5rem", border: "1px solid #C8DFC0" }}
+                className="bg-white rounded-2xl animate-on-scroll flex flex-col gap-4 hover:-translate-y-0.5"
+                style={{ padding: "1.5rem", border: "1px solid #C8DFC0", transition: "transform 200ms ease-out" }}
               >
                 <p className="text-brand-dark text-sm leading-relaxed flex-1">&ldquo;{texto}&rdquo;</p>
                 <div className="flex items-center gap-3">
@@ -465,10 +467,10 @@ export default function HomePage() {
       <section className="bg-white py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+            <p className="text-brand-green uppercase tracking-widest mb-3" style={{ fontSize: "11px", letterSpacing: "0.1em", fontWeight: 600 }}>
               ⭐ Por que a Painel Clean
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+            <h2 className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
               O serviço que sua usina merece
             </h2>
           </div>
@@ -558,7 +560,8 @@ export default function HomePage() {
               </p>
               <Link
                 href="/cadastro?role=tecnico"
-                className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg"
+                className="inline-flex items-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Cadastrar como técnico →
               </Link>
@@ -584,24 +587,24 @@ export default function HomePage() {
       {/* ── CTA Final ────────────────────────────────────────────────────── */}
       <section className="py-20 animate-on-scroll" style={{ background: "#EBF3E8" }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4">
+          <h2 className="font-heading font-extrabold text-brand-dark mb-4" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
             Pronto para maximizar sua geração solar?
           </h2>
-          <p className="text-brand-muted text-base mb-8 max-w-lg mx-auto">
+          <p className="mb-8 mx-auto text-brand-muted" style={{ fontSize: "1.1rem", fontWeight: 400, maxWidth: "600px" }}>
             Junte-se a mais de 500 usinas monitoradas em Santa Catarina. Comece com a 1ª limpeza com 50% off.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="#planos"
-              className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-8 py-4 rounded-xl hover:opacity-90 transition-colors"
-              style={{ background: "#3DC45A", color: "#1B3A2D" }}
+              className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-8 py-4 rounded-xl hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+              style={{ background: "#3DC45A", color: "#1B3A2D", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
             >
               Ver planos →
             </Link>
             <a
               href="#calculadora"
-              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-sm px-8 py-4 rounded-xl transition-colors hover:bg-white"
-              style={{ border: "1px solid #C8DFC0", color: "#1B3A2D" }}
+              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-sm px-8 py-4 rounded-xl hover:bg-brand-green hover:text-brand-dark"
+              style={{ border: "1px solid #C8DFC0", color: "#1B3A2D", transition: "background 150ms ease-out, color 150ms ease-out" }}
             >
               Calcular minha economia
             </a>
@@ -640,8 +643,8 @@ export default function HomePage() {
               </div>
               <Link
                 href="/cadastro"
-                className="inline-flex items-center gap-2 font-heading font-bold text-sm px-6 py-3.5 transition-colors hover:opacity-90 self-start"
-                style={{ background: "#3DC45A", color: "#1B3A2D", borderRadius: "8px" }}
+                className="inline-flex items-center gap-2 font-heading font-bold text-sm px-6 py-3.5 self-start hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ background: "#3DC45A", color: "#1B3A2D", borderRadius: "8px", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Quero assinar agora →
               </Link>
@@ -679,8 +682,8 @@ export default function HomePage() {
               </p>
               <Link
                 href="/cadastro"
-                className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-5 py-3 rounded-xl transition-colors hover:opacity-90 text-center"
-                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+                className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-5 py-3 rounded-xl text-center hover:-translate-y-px hover:scale-[1.01] hover:shadow-[0_4px_16px_rgba(61,196,90,0.35)] active:scale-[0.98]"
+                style={{ background: "#3DC45A", color: "#1B3A2D", transition: "transform 150ms ease-out, box-shadow 150ms ease-out" }}
               >
                 Entrar na lista de espera →
               </Link>

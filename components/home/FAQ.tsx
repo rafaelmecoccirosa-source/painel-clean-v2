@@ -36,10 +36,10 @@ export default function FAQ() {
     <section style={{ background: "#F4F8F2" }} className="py-20">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 animate-on-scroll">
-          <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+          <p className="text-brand-green uppercase tracking-widest mb-3" style={{ fontSize: "11px", letterSpacing: "0.1em", fontWeight: 600 }}>
             ❓ Dúvidas comuns
           </p>
-          <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+          <h2 className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.5rem", letterSpacing: "-0.02em" }}>
             Perguntas frequentes
           </h2>
         </div>
@@ -73,11 +73,18 @@ export default function FAQ() {
                     +
                   </span>
                 </button>
-                {isOpen && (
+                <div
+                  style={{
+                    maxHeight: isOpen ? "200px" : "0",
+                    opacity: isOpen ? 1 : 0,
+                    overflow: "hidden",
+                    transition: "max-height 300ms ease-in-out, opacity 300ms ease-in-out",
+                  }}
+                >
                   <div className="px-6 pb-5">
                     <p className="text-brand-muted text-sm leading-relaxed">{faq.resposta}</p>
                   </div>
-                )}
+                </div>
               </div>
             );
           })}
