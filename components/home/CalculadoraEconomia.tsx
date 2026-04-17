@@ -9,7 +9,6 @@ const KWP_POR_MODULO  = 0.55;
 const KWH_POR_KWP_MES = 130;
 const PERDA_SUJEIRA   = 0.30;
 const TARIFA_KWH      = 0.85;
-const CHART_H         = 76; // px — altura máxima das barras
 
 function getPrecoPorModulo(modulos: number): number {
   if (modulos <= 30) return 30;
@@ -46,7 +45,7 @@ export default function CalculadoraEconomia() {
   const prejuizoMes   = Math.round(perdaKwh * TARIFA_KWH);
   const prejuizoAno   = prejuizoMes * 12;
 
-  // Preços base
+  // Preços e economia
   const precoPorModulo   = getPrecoPorModulo(modulos);
   const precoAvulso      = Math.round(modulos * precoPorModulo);
   const precoAvulsoAno   = precoAvulso * 2;
@@ -60,17 +59,10 @@ export default function CalculadoraEconomia() {
   const planoAtivo = modulos <= 15 ? "basic" : modulos <= 30 ? "standard" : "plus";
   const sliderPct  = ((modulos - 1) / (100 - 1)) * 100;
 
-  // Dados do gráfico anual
-  const anoData = [
-    { label: "Ano 1", avulso: precoAvulsoAno, assinatura: entrada + mensalidadeAnual },
-    { label: "Ano 2", avulso: precoAvulsoAno, assinatura: mensalidadeAnual },
-    { label: "Ano 3", avulso: precoAvulsoAno, assinatura: mensalidadeAnual },
-  ];
-  const chartMax = Math.max(...anoData.flatMap((d) => [d.avulso, d.assinatura]));
-
   return (
     <section id="calculadora" className="bg-brand-bg py-20">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-12">
           <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
@@ -84,6 +76,7 @@ export default function CalculadoraEconomia() {
           </p>
         </div>
 
+        {/* Grid principal — colunas de mesma altura */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
 
           {/* ── Coluna esquerda ── */}
@@ -149,56 +142,8 @@ export default function CalculadoraEconomia() {
               })}
             </div>
 
-            {/* Gráfico de barras — 3 anos */}
-            <div>
-              {/* Legenda */}
-              <div className="flex items-center justify-between mb-3">
-                <span style={{ fontSize: 11, color: "#7A9A84", fontWeight: 600 }}>Investimento anual</span>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1.5">
-                    <div style={{ width: 10, height: 10, borderRadius: 2, background: "#374151" }} />
-                    <span style={{ fontSize: 11, color: "#7A9A84" }}>Avulso</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div style={{ width: 10, height: 10, borderRadius: 2, background: "#3DC45A" }} />
-                    <span style={{ fontSize: 11, color: "#7A9A84" }}>Assinatura</span>
-                  </div>
-                </div>
-              </div>
-              {/* Barras */}
-              <div className="flex items-end gap-3">
-                {anoData.map(({ label, avulso, assinatura }) => (
-                  <div key={label} className="flex-1 flex flex-col items-center gap-1">
-                    <div className="flex items-end gap-1 w-full justify-center" style={{ height: CHART_H }}>
-                      <div
-                        title={fmt(avulso)}
-                        style={{
-                          width: "42%",
-                          height: Math.max(4, Math.round((avulso / chartMax) * CHART_H)),
-                          background: "#374151",
-                          borderRadius: "3px 3px 0 0",
-                          alignSelf: "flex-end",
-                        }}
-                      />
-                      <div
-                        title={fmt(assinatura)}
-                        style={{
-                          width: "42%",
-                          height: Math.max(4, Math.round((assinatura / chartMax) * CHART_H)),
-                          background: "#3DC45A",
-                          borderRadius: "3px 3px 0 0",
-                          alignSelf: "flex-end",
-                        }}
-                      />
-                    </div>
-                    <span style={{ fontSize: 10, color: "#7A9A84" }}>{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Breakdown comparativo */}
-            <div className="space-y-2 pt-4 border-t border-brand-border text-sm mt-auto">
+            {/* Separador + Breakdown */}
+            <div className="flex flex-col gap-2 pt-4 border-t border-brand-border text-sm mt-auto">
               <div className="flex items-center justify-between">
                 <span className="text-brand-muted">Tipo de assinatura</span>
                 <span className="font-bold text-brand-dark">{plano.nome} — {fmt(plano.preco)}/mês</span>
@@ -218,20 +163,21 @@ export default function CalculadoraEconomia() {
             </div>
           </div>
 
-          {/* ── Coluna direita ── */}
+          {/* ── Coluna direita — duas seções 50%/50% ── */}
           <div className="rounded-2xl overflow-hidden shadow-lg flex flex-col">
 
-            {/* Top — perda de energia */}
-            <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-3">
-              <h3 className="font-heading font-bold text-brand-dark text-base">
-                ⚡ O que você pode estar perdendo
-              </h3>
-
-              <p className="text-sm text-brand-muted">
-                Suas <span className="font-bold text-brand-dark">{modulos} placas</span> geram{" "}
-                <span className="font-bold text-brand-dark">~{fmtKwh(geracaoTotal)}/mês</span>
-              </p>
-              <p className="text-sm text-brand-muted">Com sujeira acumulada, você pode perder até:</p>
+            {/* Seção superior — perda de energia */}
+            <div className="bg-white border border-brand-border border-b-0 px-6 py-6 flex flex-col flex-1 justify-between gap-4">
+              <div className="space-y-2">
+                <h3 className="font-heading font-bold text-brand-dark text-base">
+                  ⚡ O que você pode estar perdendo
+                </h3>
+                <p className="text-sm text-brand-muted">
+                  Suas <span className="font-bold text-brand-dark">{modulos} placas</span> geram{" "}
+                  <span className="font-bold text-brand-dark">~{fmtKwh(geracaoTotal)}/mês</span>
+                </p>
+                <p className="text-sm text-brand-muted">Com sujeira acumulada, você pode perder até:</p>
+              </div>
 
               <div className="space-y-1">
                 <p
@@ -250,14 +196,14 @@ export default function CalculadoraEconomia() {
               </div>
             </div>
 
-            {/* Bottom — economia 3 anos */}
-            <div className="bg-brand-dark px-6 pt-5 pb-6 relative overflow-hidden flex-1 flex flex-col justify-between">
+            {/* Seção inferior — economia 3 anos */}
+            <div className="bg-brand-dark px-6 py-6 relative overflow-hidden flex flex-col flex-1 justify-between">
               <BannerParticles />
-              <div className="relative flex flex-col gap-4 flex-1 justify-between" style={{ zIndex: 2 }}>
+              <div className="relative flex flex-col gap-3" style={{ zIndex: 2 }}>
+                <h3 className="font-heading font-bold text-white text-base">
+                  💰 Economia em 3 anos vs avulso
+                </h3>
                 <div>
-                  <h3 className="font-heading font-bold text-white text-base mb-3">
-                    💰 Economia em 3 anos vs avulso
-                  </h3>
                   <p className="font-heading font-extrabold text-brand-green text-3xl leading-none">
                     {fmt(economia3Anos)}
                   </p>
@@ -265,22 +211,22 @@ export default function CalculadoraEconomia() {
                     Assinatura: {fmt(assinatura3Anos)} · Avulso: {fmt(avulso3Anos)}
                   </p>
                 </div>
+              </div>
 
-                <div className="space-y-3">
-                  <Link
-                    href="/cadastro"
-                    className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
-                  >
-                    Garantir minha assinatura →
-                  </Link>
-                  <p className="text-[11px] text-white/30 text-center leading-relaxed">
-                    *1ª limpeza com 50% off. Valor final confirmado pelo técnico certificado.
-                  </p>
-                </div>
+              <div className="relative space-y-3" style={{ zIndex: 2 }}>
+                <Link
+                  href="/cadastro"
+                  className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
+                >
+                  Garantir minha assinatura →
+                </Link>
+                <p className="text-[11px] text-white/30 text-center leading-relaxed">
+                  *1ª limpeza com 50% off. Valor final confirmado pelo técnico certificado.
+                </p>
               </div>
             </div>
-          </div>
 
+          </div>
         </div>
       </div>
     </section>
