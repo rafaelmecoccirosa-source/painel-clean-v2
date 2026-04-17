@@ -171,14 +171,13 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
-      <section className="py-20 relative overflow-hidden" style={{ background: "#1B3A2D" }}>
-        <BannerParticles />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ zIndex: 2 }}>
+      <section className="bg-brand-bg py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-on-scroll">
-            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
               💡 Investimento que se paga rápido
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
               Por que R$ 30/mês é o melhor investimento da sua usina?
             </h2>
           </div>
@@ -187,41 +186,44 @@ export default function HomePage() {
             {paybackCards.map(({ Icon, plano, modulos, prejuizoMes, mensalidade, dark }, idx) => (
               <div
                 key={plano}
-                className="rounded-2xl p-8 flex flex-col gap-4 animate-on-scroll"
+                className="rounded-2xl p-8 flex flex-col gap-4 animate-on-scroll relative overflow-hidden"
                 style={{
                   background: dark ? "#0F2218" : "#ffffff",
                   border: dark ? "1px solid #3DC45A33" : "1px solid #C8DFC0",
                   transitionDelay: `${idx * 150}ms`,
                 }}
               >
-                <Icon />
-                <h3
-                  className="font-heading text-lg font-bold"
-                  style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}
-                >
-                  {plano}
-                </h3>
-                <p className="text-xs" style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>{modulos}</p>
-                <div
-                  className="border-t pt-4 space-y-2"
-                  style={{ borderColor: dark ? "#3DC45A22" : "#C8DFC0" }}
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>Prejuízo/mês por sujeira</span>
-                    <span className="font-bold" style={{ color: "#E24B4A" }}>{prejuizoMes}</span>
+                <BannerParticles />
+                <div className="relative flex flex-col gap-4" style={{ zIndex: 2 }}>
+                  <Icon />
+                  <h3
+                    className="font-heading text-lg font-bold"
+                    style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}
+                  >
+                    {plano}
+                  </h3>
+                  <p className="text-xs" style={{ color: "#7A9A84" }}>{modulos}</p>
+                  <div
+                    className="border-t pt-4 space-y-2"
+                    style={{ borderColor: dark ? "#3DC45A22" : "#C8DFC0" }}
+                  >
+                    <div className="flex items-center justify-between text-sm">
+                      <span style={{ color: "#7A9A84" }}>Prejuízo/mês por sujeira</span>
+                      <span className="font-bold" style={{ color: "#E24B4A" }}>{prejuizoMes}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span style={{ color: "#7A9A84" }}>Mensalidade</span>
+                      <span className="font-bold" style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}>{mensalidade}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>Mensalidade</span>
-                    <span className="font-bold" style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}>{mensalidade}</span>
+                  <div
+                    className="mt-auto rounded-xl px-4 py-2.5 text-center"
+                    style={{ background: dark ? "#3DC45A22" : "#3DC45A1A" }}
+                  >
+                    <span className="font-heading font-bold text-sm" style={{ color: "#3DC45A" }}>
+                      ✅ Se paga em ~4 dias
+                    </span>
                   </div>
-                </div>
-                <div
-                  className="mt-auto rounded-xl px-4 py-2.5 text-center"
-                  style={{ background: dark ? "#3DC45A22" : "#3DC45A1A" }}
-                >
-                  <span className="font-heading font-bold text-sm" style={{ color: "#3DC45A" }}>
-                    ✅ Se paga em ~4 dias
-                  </span>
                 </div>
               </div>
             ))}
