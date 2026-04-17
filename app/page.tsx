@@ -140,12 +140,13 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── Prova social ────────────────────────────────────────────────── */}
-      <section className="bg-white border-t border-b border-brand-border py-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll">
+      <section className="bg-white border-t border-b border-brand-border py-14">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Big numbers */}
+          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll mb-3">
             {[
               { valor: "500+",   label: "Usinas monitoradas em SC" },
-              { valor: "98%",    label: "Clientes satisfeitos" },
+              { valor: "100%",   label: "Clientes satisfeitos" },
               { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
             ].map(({ valor, label }) => (
               <div key={label}>
@@ -156,9 +157,55 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-[11px] text-brand-muted/60 mt-6">
+          <p className="text-center text-[11px] text-brand-muted/60 mb-12">
             *Dados do período de validação com parceiros Painel Clean
           </p>
+
+          {/* Depoimentos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[
+              {
+                nome: "Carlos Mendonça",
+                cidade: "Jaraguá do Sul, SC",
+                iniciais: "CM",
+                texto: "Depois de 6 meses sem limpar, minha usina estava gerando 28% menos. A primeira limpeza se pagou em menos de 2 semanas. Agora tenho o relatório todo mês e durmo tranquilo.",
+              },
+              {
+                nome: "Ana Paula Ritter",
+                cidade: "Pomerode, SC",
+                iniciais: "AP",
+                texto: "O relatório mensal me mostrou que um painel estava com problema. O técnico veio, identificou e resolveu. Sem a assinatura eu nunca saberia.",
+              },
+              {
+                nome: "Roberto Schaefer",
+                cidade: "Florianópolis, SC",
+                iniciais: "RS",
+                texto: "Tenho 40 módulos e pagava R$ 800 por limpeza avulsa. Com o plano Plus pago R$ 100/mês e tenho 2 limpezas por ano mais monitoramento. Não faz mais sentido fazer avulso.",
+              },
+            ].map(({ nome, cidade, iniciais, texto }, idx) => (
+              <div
+                key={nome}
+                className="bg-white rounded-2xl p-6 flex flex-col gap-4 animate-on-scroll"
+                style={{ border: "1px solid #C8DFC0", transitionDelay: `${idx * 150}ms` }}
+              >
+                <p className="text-brand-dark/20 font-serif text-5xl leading-none select-none">"</p>
+                <p className="text-brand-muted text-sm leading-relaxed flex-1 -mt-4">{texto}</p>
+                <div className="flex items-center gap-3 pt-2 border-t border-brand-border">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
+                    style={{ background: "#1B3A2D" }}
+                  >
+                    {iniciais}
+                  </div>
+                  <div>
+                    <p className="font-heading font-semibold text-brand-dark text-sm leading-none">{nome}</p>
+                    <p className="text-brand-muted text-[11px] mt-0.5">{cidade}</p>
+                  </div>
+                  <span className="ml-auto text-yellow-400 text-sm">★★★★★</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
