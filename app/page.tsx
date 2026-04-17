@@ -253,8 +253,15 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Separador entre Diferenciais e Planos ────────────────────────── */}
+      <div className="bg-brand-bg">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <hr style={{ border: "none", borderTop: "1px solid #C8DFC0" }} />
+        </div>
+      </div>
+
       {/* ── Seção 6: Planos de assinatura ────────────────────────────────── */}
-      <section id="planos" className="py-20 animate-on-scroll bg-brand-bg">
+      <section id="planos" className="pt-20 pb-20 animate-on-scroll bg-brand-bg">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Heading */}
