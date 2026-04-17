@@ -4,30 +4,86 @@ import HeroSection from "@/components/home/HeroSection";
 import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
+import { BannerParticles } from "@/components/BannerParticles";
 
 // ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
+const IconPanelBasico = () => (
+  <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="10" width="32" height="20" rx="2" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="4" y1="17" x2="36" y2="17" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="4" y1="24" x2="36" y2="24" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="15" y1="10" x2="15" y2="30" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="25" y1="10" x2="25" y2="30" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="20" y1="30" x2="20" y2="36" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="14" y1="36" x2="26" y2="36" stroke="#3DC45A" strokeWidth="2"/>
+  </svg>
+);
+
+const IconPanelPadrao = () => (
+  <svg width="48" height="40" viewBox="0 0 48 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="10" width="20" height="14" rx="2" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="2" y1="15" x2="22" y2="15" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="2" y1="20" x2="22" y2="20" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="9" y1="10" x2="9" y2="24" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="15" y1="10" x2="15" y2="24" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="12" y1="24" x2="12" y2="30" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="7" y1="30" x2="17" y2="30" stroke="#3DC45A" strokeWidth="2"/>
+    <rect x="26" y="10" width="20" height="14" rx="2" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="26" y1="15" x2="46" y2="15" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="26" y1="20" x2="46" y2="20" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="33" y1="10" x2="33" y2="24" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="39" y1="10" x2="39" y2="24" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="36" y1="24" x2="36" y2="30" stroke="#3DC45A" strokeWidth="2"/>
+    <line x1="31" y1="30" x2="41" y2="30" stroke="#3DC45A" strokeWidth="2"/>
+  </svg>
+);
+
+const IconPanelPlus = () => (
+  <svg width="48" height="44" viewBox="0 0 48 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 4L44 16V38H4V16L24 4Z" stroke="#3DC45A" strokeWidth="2" fill="none"/>
+    <rect x="8" y="18" width="10" height="8" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="8" y1="22" x2="18" y2="22" stroke="#3DC45A" strokeWidth="1"/>
+    <line x1="13" y1="18" x2="13" y2="26" stroke="#3DC45A" strokeWidth="1"/>
+    <rect x="19" y="18" width="10" height="8" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="19" y1="22" x2="29" y2="22" stroke="#3DC45A" strokeWidth="1"/>
+    <line x1="24" y1="18" x2="24" y2="26" stroke="#3DC45A" strokeWidth="1"/>
+    <rect x="30" y="18" width="10" height="8" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="30" y1="22" x2="40" y2="22" stroke="#3DC45A" strokeWidth="1"/>
+    <line x1="35" y1="18" x2="35" y2="26" stroke="#3DC45A" strokeWidth="1"/>
+    <rect x="13" y="28" width="10" height="8" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="13" y1="32" x2="23" y2="32" stroke="#3DC45A" strokeWidth="1"/>
+    <line x1="18" y1="28" x2="18" y2="36" stroke="#3DC45A" strokeWidth="1"/>
+    <rect x="25" y="28" width="10" height="8" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+    <line x1="25" y1="32" x2="35" y2="32" stroke="#3DC45A" strokeWidth="1"/>
+    <line x1="30" y1="28" x2="30" y2="36" stroke="#3DC45A" strokeWidth="1"/>
+  </svg>
+);
+
 const paybackCards = [
   {
-    emoji: "☀️",
+    Icon: IconPanelBasico,
     plano: "Plano Básico",
     modulos: "até 15 módulos",
     prejuizoMes: "R$ 218",
     mensalidade: "R$ 30/mês",
+    dark: false,
   },
   {
-    emoji: "☀️☀️",
+    Icon: IconPanelPadrao,
     plano: "Plano Padrão",
     modulos: "16 a 30 módulos",
     prejuizoMes: "R$ 365",
     mensalidade: "R$ 50/mês",
+    dark: true,
   },
   {
-    emoji: "☀️☀️☀️",
+    Icon: IconPanelPlus,
     plano: "Plano Plus",
     modulos: "31 a 60 módulos",
     prejuizoMes: "R$ 729",
     mensalidade: "R$ 100/mês",
+    dark: false,
   },
 ];
 
@@ -115,39 +171,55 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
-      <section className="bg-brand-bg py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 relative overflow-hidden" style={{ background: "#1B3A2D" }}>
+        <BannerParticles />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" style={{ zIndex: 2 }}>
           <div className="text-center mb-12 animate-on-scroll">
-            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
               💡 Investimento que se paga rápido
             </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white">
               Por que R$ 30/mês é o melhor investimento da sua usina?
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {paybackCards.map(({ emoji, plano, modulos, prejuizoMes, mensalidade }, idx) => (
+            {paybackCards.map(({ Icon, plano, modulos, prejuizoMes, mensalidade, dark }, idx) => (
               <div
                 key={plano}
-                className="bg-white rounded-2xl border border-brand-border p-8 flex flex-col gap-4 hover:shadow-card-hover transition-shadow animate-on-scroll"
-                style={{ transitionDelay: `${idx * 150}ms` }}
+                className="rounded-2xl p-8 flex flex-col gap-4 animate-on-scroll"
+                style={{
+                  background: dark ? "#0F2218" : "#ffffff",
+                  border: dark ? "1px solid #3DC45A33" : "1px solid #C8DFC0",
+                  transitionDelay: `${idx * 150}ms`,
+                }}
               >
-                <span className="text-3xl">{emoji}</span>
-                <h3 className="font-heading text-lg font-bold text-brand-dark">{plano}</h3>
-                <p className="text-xs text-brand-muted">{modulos}</p>
-                <div className="border-t border-brand-border pt-4 space-y-2">
+                <Icon />
+                <h3
+                  className="font-heading text-lg font-bold"
+                  style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}
+                >
+                  {plano}
+                </h3>
+                <p className="text-xs" style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>{modulos}</p>
+                <div
+                  className="border-t pt-4 space-y-2"
+                  style={{ borderColor: dark ? "#3DC45A22" : "#C8DFC0" }}
+                >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-brand-muted">Prejuízo/mês por sujeira</span>
-                    <span className="font-bold text-red-500">{prejuizoMes}</span>
+                    <span style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>Prejuízo/mês por sujeira</span>
+                    <span className="font-bold" style={{ color: "#E24B4A" }}>{prejuizoMes}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-brand-muted">Mensalidade</span>
-                    <span className="font-bold text-brand-dark">{mensalidade}</span>
+                    <span style={{ color: dark ? "#7A9A84" : "#7A9A84" }}>Mensalidade</span>
+                    <span className="font-bold" style={{ color: dark ? "#EBF3E8" : "#1B3A2D" }}>{mensalidade}</span>
                   </div>
                 </div>
-                <div className="mt-auto bg-brand-green/10 rounded-xl px-4 py-2.5 text-center">
-                  <span className="text-brand-green font-heading font-bold text-sm">
+                <div
+                  className="mt-auto rounded-xl px-4 py-2.5 text-center"
+                  style={{ background: dark ? "#3DC45A22" : "#3DC45A1A" }}
+                >
+                  <span className="font-heading font-bold text-sm" style={{ color: "#3DC45A" }}>
                     ✅ Se paga em ~4 dias
                   </span>
                 </div>
