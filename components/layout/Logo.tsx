@@ -7,10 +7,9 @@ interface LogoProps {
 }
 
 const sizes = {
-  // sm: header logo — 16px title mobile, 20px desktop; compact image
-  sm: { titleCls: "text-[16px] md:text-[20px]", subtitleCls: "text-[10px] md:text-[12px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
-  md: { titleCls: "text-[16px] md:text-[20px]", subtitleCls: "text-[10px] md:text-[12px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
-  lg: { titleCls: "text-[20px] md:text-[24px]", subtitleCls: "text-[12px] md:text-[14px]", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
+  sm: { titleCls: "text-[18px] md:text-[22px]", subtitleCls: "text-[11px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
+  md: { titleCls: "text-[18px] md:text-[22px]", subtitleCls: "text-[11px]", mobileCls: "w-8 h-8", desktopCls: "md:w-10 md:h-10" },
+  lg: { titleCls: "text-[22px] md:text-[26px]", subtitleCls: "text-[11px]", mobileCls: "w-10 h-10", desktopCls: "md:w-12 md:h-12" },
 };
 
 export default function Logo({ inverted = false, size = "md" }: LogoProps) {
@@ -40,7 +39,7 @@ export default function Logo({ inverted = false, size = "md" }: LogoProps) {
             inverted ? "text-white/60" : "text-brand-muted"
           }`}
         >
-          Limpeza e monitoramento de usinas solares
+          Limpeza e cuidado para usinas solares
         </span>
       </div>
     </Link>
