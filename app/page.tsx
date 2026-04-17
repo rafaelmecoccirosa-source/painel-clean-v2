@@ -139,76 +139,6 @@ export default function HomePage() {
       {/* ── Seção 1: Hero ────────────────────────────────────────────────── */}
       <HeroSection />
 
-      {/* ── Prova social ────────────────────────────────────────────────── */}
-      <section className="bg-white border-t border-b border-brand-border py-14">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Big numbers */}
-          <div className="grid grid-cols-3 gap-6 text-center animate-on-scroll mb-3">
-            {[
-              { valor: "500+",   label: "Usinas monitoradas em SC" },
-              { valor: "100%",   label: "Clientes satisfeitos" },
-              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
-            ].map(({ valor, label }) => (
-              <div key={label}>
-                <p className="font-heading font-extrabold text-brand-dark" style={{ fontSize: "2.25rem", lineHeight: 1 }}>
-                  {valor}
-                </p>
-                <p className="text-brand-muted text-xs mt-2 leading-snug">{label}</p>
-              </div>
-            ))}
-          </div>
-          <p className="text-center text-[11px] text-brand-muted/60 mb-12">
-            *Dados do período de validação com parceiros Painel Clean
-          </p>
-
-          {/* Depoimentos */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              {
-                nome: "Carlos Mendonça",
-                cidade: "Jaraguá do Sul, SC",
-                iniciais: "CM",
-                texto: "Depois de 6 meses sem limpar, minha usina estava gerando 28% menos. A primeira limpeza se pagou em menos de 2 semanas. Agora tenho o relatório todo mês e durmo tranquilo.",
-              },
-              {
-                nome: "Ana Paula Ritter",
-                cidade: "Pomerode, SC",
-                iniciais: "AP",
-                texto: "O relatório mensal me mostrou que um painel estava com problema. O técnico veio, identificou e resolveu. Sem a assinatura eu nunca saberia.",
-              },
-              {
-                nome: "Roberto Schaefer",
-                cidade: "Florianópolis, SC",
-                iniciais: "RS",
-                texto: "Tenho 40 módulos e pagava R$ 800 por limpeza avulsa. Com o plano Plus pago R$ 100/mês e tenho 2 limpezas por ano mais monitoramento. Não faz mais sentido fazer avulso.",
-              },
-            ].map(({ nome, cidade, iniciais, texto }, idx) => (
-              <div
-                key={nome}
-                className="bg-white rounded-2xl p-6 flex flex-col gap-4 animate-on-scroll"
-                style={{ border: "1px solid #C8DFC0", transitionDelay: `${idx * 150}ms` }}
-              >
-                <p className="text-brand-dark/20 font-serif text-5xl leading-none select-none">"</p>
-                <p className="text-brand-muted text-sm leading-relaxed flex-1 -mt-4">{texto}</p>
-                <div className="flex items-center gap-3 pt-2 border-t border-brand-border">
-                  <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold text-white"
-                    style={{ background: "#1B3A2D" }}
-                  >
-                    {iniciais}
-                  </div>
-                  <div>
-                    <p className="font-heading font-semibold text-brand-dark text-sm leading-none">{nome}</p>
-                    <p className="text-brand-muted text-[11px] mt-0.5">{cidade}</p>
-                  </div>
-                  <span className="ml-auto text-yellow-400 text-sm">★★★★★</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
       <section style={{ background: "#E8F0E4", paddingTop: "5rem", paddingBottom: "5rem" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -476,6 +406,139 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── Prova social ─────────────────────────────────────────────────── */}
+      <section style={{ background: "#F4F8F2" }} className="py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Big numbers */}
+          <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 animate-on-scroll">
+            {[
+              { valor: "500+", label: "Usinas monitoradas em SC" },
+              { valor: "100%", label: "Clientes satisfeitos" },
+              { valor: "4 dias", label: "Tempo médio para recuperar o investimento" },
+            ].map(({ valor, label }) => (
+              <div key={valor} className="text-center">
+                <p className="font-heading font-extrabold text-brand-green" style={{ fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1 }}>
+                  {valor}
+                </p>
+                <p className="text-brand-muted text-xs sm:text-sm mt-2 leading-snug">{label}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-brand-muted text-xs mb-14 animate-on-scroll" style={{ opacity: 0.6 }}>
+            *Dados do período de validação com parceiros Painel Clean
+          </p>
+
+          {/* Depoimentos */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[
+              { iniciais: "CM", nome: "Carlos Mendonça", cidade: "Jaraguá do Sul", texto: "Assino há 4 meses e a diferença na geração foi visível logo após a primeira limpeza. O relatório mensal é excelente." },
+              { iniciais: "AP", nome: "Ana Paula Ritter", cidade: "Pomerode", texto: "Finalmente uma solução que faz sentido para quem tem usina solar. O técnico foi pontual e profissional." },
+              { iniciais: "RS", nome: "Roberto Schaefer", cidade: "Florianópolis", texto: "Recuperei o investimento da assinatura em menos de uma semana. Recomendo para todo dono de painel solar." },
+            ].map(({ iniciais, nome, cidade, texto }) => (
+              <div
+                key={nome}
+                className="bg-white rounded-2xl animate-on-scroll flex flex-col gap-4"
+                style={{ padding: "1.5rem", border: "1px solid #C8DFC0" }}
+              >
+                <p className="text-brand-dark text-sm leading-relaxed flex-1">&ldquo;{texto}&rdquo;</p>
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center font-heading font-bold text-sm flex-shrink-0"
+                    style={{ background: "#3DC45A", color: "#1B3A2D" }}
+                  >
+                    {iniciais}
+                  </div>
+                  <div>
+                    <p className="font-heading font-semibold text-brand-dark text-sm">{nome}</p>
+                    <p className="text-brand-muted text-xs">{cidade}, SC</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Diferenciais ─────────────────────────────────────────────────── */}
+      <section className="bg-white py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12 animate-on-scroll">
+            <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
+              ⭐ Por que a Painel Clean
+            </p>
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-brand-dark">
+              O serviço que sua usina merece
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
+            {[
+              {
+                svg: (
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="16" cy="10" r="6" stroke="#3DC45A" strokeWidth="2"/>
+                    <path d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12" stroke="#3DC45A" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M11 10l3 3 6-6" stroke="#3DC45A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                titulo: "Técnicos certificados",
+                texto: "Todos os técnicos passam por treinamento e têm seguro de responsabilidade civil.",
+              },
+              {
+                svg: (
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="6" y="4" width="20" height="24" rx="3" stroke="#3DC45A" strokeWidth="2"/>
+                    <rect x="10" y="10" width="7" height="7" rx="1" stroke="#3DC45A" strokeWidth="1.5"/>
+                    <line x1="19" y1="11" x2="23" y2="11" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="19" y1="14" x2="23" y2="14" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="10" y1="20" x2="23" y2="20" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="10" y1="23" x2="20" y2="23" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                titulo: "Relatório fotográfico",
+                texto: "Fotos antes e depois de cada limpeza com checklist completo do serviço realizado.",
+              },
+              {
+                svg: (
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M16 4L6 8v8c0 5.523 4.477 10 10 10s10-4.477 10-10V8L16 4Z" stroke="#3DC45A" strokeWidth="2"/>
+                    <path d="M11 16l3 3 7-7" stroke="#3DC45A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ),
+                titulo: "Seguro na limpeza",
+                texto: "Cobertura contra danos causados durante a execução — equipamentos e estrutura.",
+              },
+              {
+                svg: (
+                  <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="8" width="24" height="16" rx="3" stroke="#3DC45A" strokeWidth="2"/>
+                    <circle cx="16" cy="16" r="4" stroke="#3DC45A" strokeWidth="2"/>
+                    <line x1="4" y1="13" x2="8" y2="13" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                    <line x1="24" y1="19" x2="28" y2="19" stroke="#3DC45A" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                ),
+                titulo: "Preço transparente",
+                texto: "Mensalidade fixa, sem surpresas. Saiba exatamente o que está pagando a cada mês.",
+              },
+            ].map(({ svg, titulo, texto }) => (
+              <div
+                key={titulo}
+                className="flex flex-col items-center text-center gap-3 animate-on-scroll"
+                style={{ padding: "2rem 1.5rem", border: "1px solid #C8DFC0", borderRadius: "16px" }}
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{ background: "#EBF3E8" }}
+                >
+                  {svg}
+                </div>
+                <h3 className="font-heading font-bold text-brand-dark text-sm">{titulo}</h3>
+                <p className="text-brand-muted text-xs leading-relaxed">{texto}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Seja um técnico ───────────────────────────────────────────────── */}
       <section className="bg-brand-dark py-20 animate-on-scroll relative overflow-hidden">
         <TecnicoParticles />
@@ -522,47 +585,62 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
 
             {/* Coluna esquerda */}
-            <div>
-              <span
-                className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5"
-                style={{ background: "#3DC45A22", color: "#3DC45A" }}
-              >
-                Cobertura atual
-              </span>
-              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
-                Atendemos 3 cidades em SC
-              </h2>
-              <p className="text-white/60 text-base mb-7">
-                Com expansão para mais 4 cidades no segundo semestre de 2026.
-              </p>
-              <ul className="flex flex-col gap-3 mb-8">
-                {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
-                  <li key={cidade} className="flex items-center gap-3">
-                    <span className="font-bold flex-shrink-0" style={{ color: "#3DC45A" }}>✓</span>
-                    <span className="text-white text-sm">{cidade}, SC</span>
-                  </li>
-                ))}
-              </ul>
+            <div className="flex flex-col" style={{ justifyContent: "space-between", minHeight: "320px" }}>
+              <div>
+                <span
+                  className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5"
+                  style={{ background: "#3DC45A22", color: "#3DC45A" }}
+                >
+                  Cobertura atual
+                </span>
+                <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
+                  Atendemos 3 cidades em SC
+                </h2>
+                <p className="text-white/60 text-base mb-7">
+                  Com expansão para mais 4 cidades no segundo semestre de 2026.
+                </p>
+                <ul className="flex flex-col gap-3 mb-8">
+                  {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
+                    <li key={cidade} className="flex items-center gap-3">
+                      <span className="font-bold flex-shrink-0" style={{ color: "#3DC45A" }}>✓</span>
+                      <span className="text-white text-sm">{cidade}, SC</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
               <Link
                 href="/cadastro"
-                className="inline-flex items-center gap-2 font-heading font-bold text-sm px-6 py-3.5 transition-colors hover:opacity-90"
+                className="inline-flex items-center gap-2 font-heading font-bold text-sm px-6 py-3.5 transition-colors hover:opacity-90 self-start"
                 style={{ background: "#3DC45A", color: "#1B3A2D", borderRadius: "8px" }}
               >
-                Garantir minha vaga →
+                Quero assinar agora →
               </Link>
             </div>
 
             {/* Coluna direita */}
             <div
-              className="rounded-2xl p-6 flex flex-col gap-5"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+              className="rounded-2xl flex flex-col gap-5"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "2rem" }}
             >
-              <p className="font-heading font-bold text-white text-base">🕐 Em breve</p>
-              <ul className="flex flex-col gap-3">
-                {["Blumenau", "Itajaí", "Brusque", "Gaspar"].map((cidade) => (
-                  <li key={cidade} className="flex items-center gap-3">
-                    <span className="text-base flex-shrink-0">🕐</span>
-                    <span className="text-white/60 text-sm">{cidade}, SC</span>
+              <p className="font-heading font-bold text-white" style={{ fontSize: "20px", fontWeight: 700 }}>🕐 Em breve</p>
+              <ul className="flex flex-col gap-4">
+                {[
+                  { emoji: "🏭", cidade: "Blumenau", fila: 47 },
+                  { emoji: "⚓", cidade: "Itajaí",   fila: 23 },
+                  { emoji: "🧵", cidade: "Brusque",  fila: 31 },
+                  { emoji: "🌿", cidade: "Gaspar",   fila: 18 },
+                ].map(({ emoji, cidade, fila }) => (
+                  <li key={cidade} className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg flex-shrink-0">{emoji}</span>
+                      <span className="text-white text-sm">{cidade}, SC</span>
+                    </div>
+                    <span
+                      className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
+                      style={{ background: "#3DC45A22", color: "#3DC45A" }}
+                    >
+                      {fila} na fila
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -571,13 +649,41 @@ export default function HomePage() {
               </p>
               <Link
                 href="/cadastro"
-                className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-5 py-3 rounded-xl transition-colors hover:bg-white/10 text-center"
-                style={{ border: "1px solid rgba(255,255,255,0.3)", color: "white" }}
+                className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-5 py-3 rounded-xl transition-colors hover:opacity-90 text-center"
+                style={{ background: "#3DC45A", color: "#1B3A2D" }}
               >
                 Entrar na lista de espera →
               </Link>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA Final ────────────────────────────────────────────────────── */}
+      <section className="py-20 animate-on-scroll" style={{ background: "#EBF3E8" }}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4">
+            Pronto para maximizar sua geração solar?
+          </h2>
+          <p className="text-brand-muted text-base mb-8 max-w-lg mx-auto">
+            Junte-se a mais de 500 usinas monitoradas em Santa Catarina. Comece com a 1ª limpeza com 50% off.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="#planos"
+              className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-8 py-4 rounded-xl hover:opacity-90 transition-colors"
+              style={{ background: "#3DC45A", color: "#1B3A2D" }}
+            >
+              Ver planos →
+            </Link>
+            <a
+              href="#calculadora"
+              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-sm px-8 py-4 rounded-xl transition-colors hover:bg-white"
+              style={{ border: "1px solid #C8DFC0", color: "#1B3A2D" }}
+            >
+              Calcular minha economia
+            </a>
           </div>
         </div>
       </section>
