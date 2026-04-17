@@ -211,6 +211,8 @@ export default function HomePage() {
         <CalculadoraEconomia />
       </div>
 
+      <div style={{ width: '100%', height: '4px', background: 'linear-gradient(90deg, transparent, #3DC45A, transparent)' }} />
+
       {/* ── Seção de planos ──────────────────────────────────────────────── */}
       <section id="planos" className="pt-20 pb-20 animate-on-scroll bg-brand-bg">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -407,7 +409,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Prova social ─────────────────────────────────────────────────── */}
-      <section style={{ background: "#F4F8F2" }} className="py-20">
+      <section style={{ background: "#EBF3E8" }} className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Big numbers */}
           <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 animate-on-scroll">
@@ -579,6 +581,34 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── CTA Final ────────────────────────────────────────────────────── */}
+      <section className="py-20 animate-on-scroll" style={{ background: "#EBF3E8" }}>
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4">
+            Pronto para maximizar sua geração solar?
+          </h2>
+          <p className="text-brand-muted text-base mb-8 max-w-lg mx-auto">
+            Junte-se a mais de 500 usinas monitoradas em Santa Catarina. Comece com a 1ª limpeza com 50% off.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="#planos"
+              className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-8 py-4 rounded-xl hover:opacity-90 transition-colors"
+              style={{ background: "#3DC45A", color: "#1B3A2D" }}
+            >
+              Ver planos →
+            </Link>
+            <a
+              href="#calculadora"
+              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-sm px-8 py-4 rounded-xl transition-colors hover:bg-white"
+              style={{ border: "1px solid #C8DFC0", color: "#1B3A2D" }}
+            >
+              Calcular minha economia
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── Onde atuamos ─────────────────────────────────────────────────── */}
       <section className="py-20 animate-on-scroll" style={{ background: "#1B3A2D" }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -656,34 +686,6 @@ export default function HomePage() {
               </Link>
             </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA Final ────────────────────────────────────────────────────── */}
-      <section className="py-20 animate-on-scroll" style={{ background: "#EBF3E8" }}>
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-brand-dark mb-4">
-            Pronto para maximizar sua geração solar?
-          </h2>
-          <p className="text-brand-muted text-base mb-8 max-w-lg mx-auto">
-            Junte-se a mais de 500 usinas monitoradas em Santa Catarina. Comece com a 1ª limpeza com 50% off.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="#planos"
-              className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-8 py-4 rounded-xl hover:opacity-90 transition-colors"
-              style={{ background: "#3DC45A", color: "#1B3A2D" }}
-            >
-              Ver planos →
-            </Link>
-            <a
-              href="#calculadora"
-              className="inline-flex items-center justify-center gap-2 font-heading font-semibold text-sm px-8 py-4 rounded-xl transition-colors hover:bg-white"
-              style={{ border: "1px solid #C8DFC0", color: "#1B3A2D" }}
-            >
-              Calcular minha economia
-            </a>
           </div>
         </div>
       </section>
