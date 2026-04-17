@@ -90,9 +90,9 @@ const passos = [
   },
   {
     num: "4",
-    emoji: "✅",
+    emoji: "😌",
     titulo: "Relaxe",
-    texto: "As próximas limpezas são agendadas automaticamente. Se a usina cair de performance, você recebe um alerta e pode agendar limpeza extra com 40% de desconto.",
+    texto: "As próximas limpezas são agendadas automaticamente. Se precisar de uma limpeza extra, assinantes têm desconto especial.",
   },
 ];
 
@@ -447,7 +447,7 @@ export default function HomePage() {
                 <h3 className="font-heading font-bold text-brand-dark text-center text-sm mb-2 px-4">
                   {passo.titulo}
                 </h3>
-                <p className="text-brand-muted text-xs text-center leading-relaxed px-4">
+                <p className="text-brand-muted text-xs text-center leading-relaxed px-4" style={{ minHeight: "80px" }}>
                   {passo.texto}
                 </p>
               </div>
