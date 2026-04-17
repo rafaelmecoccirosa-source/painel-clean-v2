@@ -4,7 +4,6 @@ import HeroSection from "@/components/home/HeroSection";
 import CalculadoraEconomia from "@/components/home/CalculadoraEconomia";
 import ScrollAnimations from "@/components/home/ScrollAnimations";
 import { TecnicoParticles } from "@/components/TecnicoParticles";
-import { BannerParticles } from "@/components/BannerParticles";
 
 // ── Seção 2 — Como se paga em 4 dias ──────────────────────────────────────
 
@@ -255,173 +254,138 @@ export default function HomePage() {
       </section>
 
       {/* ── Seção 6: Planos de assinatura ────────────────────────────────── */}
-      <section
-        id="planos"
-        className="py-20 animate-on-scroll"
-        style={{ background: "#1B3A2D" }}
-      >
+      <section id="planos" className="py-20 animate-on-scroll bg-brand-bg">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+
           {/* Heading */}
           <div className="text-center mb-12">
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
+            <h2 className="font-heading text-3xl sm:text-4xl font-bold mb-3 text-brand-dark">
               Escolha o plano ideal para sua usina
             </h2>
-            <p className="text-base max-w-xl mx-auto" style={{ color: "#3DC45A" }}>
+            <p className="text-base max-w-xl mx-auto text-brand-green">
               Todos os planos incluem 2 limpezas/ano, relatório mensal, checkup técnico e seguro na limpeza.
             </p>
           </div>
 
-          {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+          {/* Cards — todos iguais */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
 
-            {/* Card Básico */}
+            {/* Básico */}
             <div
-              className="flex flex-col gap-5 animate-on-scroll"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: "20px",
-                padding: "2.5rem",
-                position: "relative",
-                overflow: "hidden",
-                transitionDelay: "0ms",
-              }}
+              className="bg-white flex flex-col gap-5 animate-on-scroll"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "0ms" }}
             >
-              <BannerParticles />
-              <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: "1.25rem", flex: 1 }}>
-                <span className="self-start h-6" />
-                <p style={{ fontSize: "20px", fontWeight: 600, color: "#EBF3E8", fontFamily: "var(--font-heading)" }}>
-                  Básico
-                </p>
-                <div>
-                  <div className="flex items-baseline gap-1">
-                    <span style={{ fontSize: "52px", fontWeight: 700, color: "#ffffff", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
-                      R$ 30
-                    </span>
-                    <span style={{ fontSize: "18px", color: "#7A9A84" }}>/mês</span>
-                  </div>
-                  <p style={{ fontSize: "14px", color: "#7A9A84", marginTop: "4px" }}>até 15 módulos</p>
-                </div>
-                <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
-                <ul className="flex flex-col gap-2.5 flex-1">
-                  {itensBase.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm">
-                      <span style={{ color: "#3DC45A", fontWeight: 700, marginTop: "2px" }}>✓</span>
-                      <span style={{ color: "rgba(235,243,232,0.8)" }}>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/cadastro"
-                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors border-[1.5px] border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark"
-                >
-                  Começar com Básico
-                </Link>
-              </div>
-            </div>
-
-            {/* Card Padrão — destaque, ligeiramente maior */}
-            <div
-              className="flex flex-col gap-5 animate-on-scroll"
-              style={{
-                background: "#3DC45A",
-                borderRadius: "20px",
-                padding: "2.5rem",
-                marginTop: "-16px",
-                transitionDelay: "150ms",
-              }}
-            >
-              <span
-                className="self-start font-bold uppercase tracking-wider"
-                style={{ background: "rgba(255,255,255,0.2)", color: "#ffffff", fontSize: "11px", padding: "4px 12px", borderRadius: "999px" }}
-              >
-                MAIS POPULAR
-              </span>
-              <p style={{ fontSize: "20px", fontWeight: 600, color: "#1B3A2D", fontFamily: "var(--font-heading)" }}>
-                Padrão
-              </p>
               <div>
-                <div className="flex items-baseline gap-1">
-                  <span style={{ fontSize: "52px", fontWeight: 700, color: "#1B3A2D", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
-                    R$ 50
-                  </span>
-                  <span style={{ fontSize: "18px", color: "rgba(27,58,45,0.6)" }}>/mês</span>
-                </div>
-                <p style={{ fontSize: "14px", color: "rgba(27,58,45,0.7)", marginTop: "4px" }}>16 a 30 módulos</p>
+                <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Básico</p>
+                <p className="text-brand-muted" style={{ fontSize: "14px", marginTop: "2px" }}>até 15 módulos</p>
               </div>
-              <hr style={{ border: "none", borderTop: "1px solid rgba(27,58,45,0.15)" }} />
+              <div className="flex items-baseline gap-1">
+                <span className="font-heading font-bold text-brand-dark" style={{ fontSize: "52px", lineHeight: 1 }}>R$ 30</span>
+                <span className="text-brand-muted" style={{ fontSize: "18px" }}>/mês</span>
+              </div>
+              <hr style={{ border: "none", borderTop: "1px solid #C8DFC0" }} />
               <ul className="flex flex-col gap-2.5 flex-1">
                 {itensBase.map((item) => (
                   <li key={item} className="flex items-start gap-2 text-sm">
-                    <span style={{ color: "#1B3A2D", fontWeight: 700, marginTop: "2px" }}>✓</span>
-                    <span style={{ color: "rgba(27,58,45,0.85)" }}>{item}</span>
+                    <span className="text-brand-green font-bold mt-0.5">✓</span>
+                    <span className="text-brand-muted">{item}</span>
                   </li>
                 ))}
               </ul>
               <Link
                 href="/cadastro"
-                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors bg-brand-dark text-white hover:bg-brand-dark/85"
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
+                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+              >
+                Começar com Básico
+              </Link>
+            </div>
+
+            {/* Padrão */}
+            <div
+              className="bg-white flex flex-col gap-5 animate-on-scroll"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "150ms" }}
+            >
+              <div>
+                <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Padrão</p>
+                <p className="text-brand-muted" style={{ fontSize: "14px", marginTop: "2px" }}>16 a 30 módulos</p>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <span className="font-heading font-bold text-brand-dark" style={{ fontSize: "52px", lineHeight: 1 }}>R$ 50</span>
+                <span className="text-brand-muted" style={{ fontSize: "18px" }}>/mês</span>
+              </div>
+              <hr style={{ border: "none", borderTop: "1px solid #C8DFC0" }} />
+              <ul className="flex flex-col gap-2.5 flex-1">
+                {itensBase.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm">
+                    <span className="text-brand-green font-bold mt-0.5">✓</span>
+                    <span className="text-brand-muted">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
+                style={{ background: "#3DC45A", color: "#1B3A2D" }}
               >
                 Começar com Padrão
               </Link>
             </div>
 
-            {/* Card Plus */}
+            {/* Plus */}
             <div
-              className="flex flex-col gap-5 animate-on-scroll"
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                borderRadius: "20px",
-                padding: "2.5rem",
-                position: "relative",
-                overflow: "hidden",
-                transitionDelay: "300ms",
-              }}
+              className="bg-white flex flex-col gap-5 animate-on-scroll"
+              style={{ border: "1px solid #C8DFC0", borderRadius: "20px", padding: "2.5rem", transitionDelay: "300ms" }}
             >
-              <BannerParticles />
-              <div style={{ position: "relative", zIndex: 2, display: "flex", flexDirection: "column", gap: "1.25rem", flex: 1 }}>
-                <span className="self-start h-6" />
-                <p style={{ fontSize: "20px", fontWeight: 600, color: "#EBF3E8", fontFamily: "var(--font-heading)" }}>
-                  Plus
-                </p>
-                <div>
-                  <div className="flex items-baseline gap-1">
-                    <span style={{ fontSize: "52px", fontWeight: 700, color: "#ffffff", lineHeight: 1, fontFamily: "var(--font-heading)" }}>
-                      R$ 100
-                    </span>
-                    <span style={{ fontSize: "18px", color: "#7A9A84" }}>/mês</span>
-                  </div>
-                  <p style={{ fontSize: "14px", color: "#7A9A84", marginTop: "4px" }}>31 a 60 módulos</p>
-                </div>
-                <hr style={{ border: "none", borderTop: "1px solid rgba(255,255,255,0.1)" }} />
-                <ul className="flex flex-col gap-2.5 flex-1">
-                  {[...itensBase, "Alertas de queda de performance"].map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm">
-                      <span style={{ color: "#3DC45A", fontWeight: 700, marginTop: "2px" }}>✓</span>
-                      <span style={{ color: "rgba(235,243,232,0.8)" }}>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href="/cadastro"
-                  className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors border-[1.5px] border-brand-green text-brand-green hover:bg-brand-green hover:text-brand-dark"
-                >
-                  Começar com Plus
-                </Link>
+              <div>
+                <p className="font-heading font-semibold text-brand-dark" style={{ fontSize: "20px" }}>Plus</p>
+                <p className="text-brand-muted" style={{ fontSize: "14px", marginTop: "2px" }}>31 a 60 módulos</p>
               </div>
+              <div className="flex items-baseline gap-1">
+                <span className="font-heading font-bold text-brand-dark" style={{ fontSize: "52px", lineHeight: 1 }}>R$ 100</span>
+                <span className="text-brand-muted" style={{ fontSize: "18px" }}>/mês</span>
+              </div>
+              <hr style={{ border: "none", borderTop: "1px solid #C8DFC0" }} />
+              <ul className="flex flex-col gap-2.5 flex-1">
+                {[...itensBase, "Alertas de queda de performance"].map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-sm">
+                    <span className="text-brand-green font-bold mt-0.5">✓</span>
+                    <span className="text-brand-muted">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link
+                href="/cadastro"
+                className="block w-full text-center font-heading font-bold text-sm px-6 py-3.5 rounded-xl transition-colors hover:opacity-90"
+                style={{ background: "#3DC45A", color: "#1B3A2D" }}
+              >
+                Começar com Plus
+              </Link>
             </div>
           </div>
 
-          {/* Rodapé */}
-          <p className="text-center mt-10">
-            <Link
-              href="/cadastro"
-              className="text-sm transition-colors text-white/50 hover:text-white"
-            >
+          {/* Link Pro */}
+          <p className="text-center mt-10 animate-on-scroll">
+            <Link href="/cadastro" className="text-sm text-brand-muted hover:text-brand-dark transition-colors">
               Usina com 60+ módulos? Fale conosco sobre o Plano Pro →
             </Link>
           </p>
+
+          {/* Avulso discreto */}
+          <div className="mt-8 pt-8 border-t border-brand-border text-center animate-on-scroll">
+            <p className="text-brand-muted text-sm mb-3">Prefere uma limpeza sem compromisso?</p>
+            <Link
+              href="/cadastro"
+              className="inline-flex items-center gap-2 text-sm font-medium transition-colors px-4 py-2 rounded-lg text-brand-muted hover:text-brand-dark"
+              style={{ border: "1px solid #C8DFC0" }}
+            >
+              Solicitar limpeza avulsa →
+            </Link>
+            <p className="text-xs text-brand-muted mt-3" style={{ opacity: 0.7 }}>
+              Valores a partir de R$ 30/placa · Sem contrato
+            </p>
+          </div>
+
         </div>
       </section>
 

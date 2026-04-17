@@ -9,6 +9,7 @@ const KWP_POR_MODULO  = 0.55;
 const KWH_POR_KWP_MES = 130;
 const PERDA_SUJEIRA   = 0.30;
 const TARIFA_KWH      = 0.85;
+const CHART_H         = 76; // px — altura máxima das barras
 
 function getPrecoPorModulo(modulos: number): number {
   if (modulos <= 30) return 30;
@@ -17,9 +18,9 @@ function getPrecoPorModulo(modulos: number): number {
 }
 
 function getPlano(modulos: number): { nome: string; preco: number } {
-  if (modulos <= 15) return { nome: "Básico",  preco: 30  };
-  if (modulos <= 30) return { nome: "Padrão",  preco: 50  };
-  return               { nome: "Plus",    preco: 100 };
+  if (modulos <= 15) return { nome: "Básico", preco: 30  };
+  if (modulos <= 30) return { nome: "Padrão", preco: 50  };
+  return               { nome: "Plus",   preco: 100 };
 }
 
 function fmt(v: number) {
@@ -27,32 +28,38 @@ function fmt(v: number) {
 }
 
 const planosMini = [
-  { id: "basic",    nome: "Básico",  modulos: "até 15 módulos",  preco: "R$ 30/mês"  },
-  { id: "standard", nome: "Padrão",  modulos: "16–30 módulos",   preco: "R$ 50/mês"  },
-  { id: "plus",     nome: "Plus",    modulos: "31–60 módulos",   preco: "R$ 100/mês" },
+  { id: "basic",    nome: "Básico", faixa: "até 15 módulos",  preco: "R$ 30/mês",  centro: 10 },
+  { id: "standard", nome: "Padrão", faixa: "16–30 módulos",   preco: "R$ 50/mês",  centro: 20 },
+  { id: "plus",     nome: "Plus",   faixa: "31–60 módulos",   preco: "R$ 100/mês", centro: 45 },
 ] as const;
 
 export default function CalculadoraEconomia() {
   const [modulos, setModulos] = useState(20);
 
-  // Prejuízo mensal por sujeira (perda energética × tarifa)
+  // Prejuízo mensal por sujeira
   const prejuizoMes = Math.round(modulos * KWP_POR_MODULO * KWH_POR_KWP_MES * PERDA_SUJEIRA * TARIFA_KWH);
 
-  // Preços para comparação 3 anos
-  const precoPorModulo  = getPrecoPorModulo(modulos);
-  const precoAvulso     = Math.round(modulos * precoPorModulo);
-  const precoAvulsoAno  = precoAvulso * 2; // 2 limpezas/ano
-  const entrada         = Math.round(precoAvulso * 0.50); // 1ª limpeza 50% off
-
-  const plano           = getPlano(modulos);
+  // Preços base
+  const precoPorModulo   = getPrecoPorModulo(modulos);
+  const precoAvulso      = Math.round(modulos * precoPorModulo);
+  const precoAvulsoAno   = precoAvulso * 2;
+  const entrada          = Math.round(precoAvulso * 0.50);
+  const plano            = getPlano(modulos);
   const mensalidadeAnual = plano.preco * 12;
   const assinatura3Anos  = entrada + mensalidadeAnual * 3;
   const avulso3Anos      = precoAvulsoAno * 3;
   const economia3Anos    = Math.max(0, avulso3Anos - assinatura3Anos);
 
   const planoAtivo = modulos <= 15 ? "basic" : modulos <= 30 ? "standard" : "plus";
+  const sliderPct  = ((modulos - 1) / (100 - 1)) * 100;
 
-  const sliderPct = ((modulos - 1) / (100 - 1)) * 100;
+  // Dados do gráfico anual
+  const anoData = [
+    { label: "Ano 1", avulso: precoAvulsoAno, assinatura: entrada + mensalidadeAnual },
+    { label: "Ano 2", avulso: precoAvulsoAno, assinatura: mensalidadeAnual },
+    { label: "Ano 3", avulso: precoAvulsoAno, assinatura: mensalidadeAnual },
+  ];
+  const chartMax = Math.max(...anoData.flatMap((d) => [d.avulso, d.assinatura]));
 
   return (
     <section id="calculadora" className="bg-brand-bg py-20">
@@ -71,9 +78,11 @@ export default function CalculadoraEconomia() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
-          {/* ── Inputs ── */}
-          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 space-y-8 flex flex-col justify-between">
-            {/* Quantidade de módulos */}
+
+          {/* ── Coluna esquerda ── */}
+          <div className="bg-white rounded-2xl border border-brand-border p-6 sm:p-8 flex flex-col gap-6">
+
+            {/* Slider de módulos */}
             <div>
               <div className="flex items-center justify-between mb-3">
                 <label className="font-heading font-bold text-brand-dark text-sm">
@@ -100,19 +109,23 @@ export default function CalculadoraEconomia() {
               </div>
             </div>
 
-            {/* Mini cards de plano — highlighted conforme slider */}
+            {/* Mini cards clicáveis */}
             <div className="flex flex-col gap-2">
               {planosMini.map((p) => {
                 const ativo = planoAtivo === p.id;
                 return (
-                  <div
+                  <button
                     key={p.id}
+                    type="button"
+                    onClick={() => setModulos(p.centro)}
+                    className="w-full text-left"
                     style={{
                       background: ativo ? "#1B3A2D" : "#ffffff",
                       border: `1.5px solid ${ativo ? "#3DC45A" : "#C8DFC0"}`,
                       borderRadius: "12px",
                       padding: "10px 14px",
                       transition: "all 0.3s",
+                      cursor: "pointer",
                     }}
                   >
                     <div className="flex items-center justify-between">
@@ -123,14 +136,59 @@ export default function CalculadoraEconomia() {
                         {p.preco}
                       </span>
                     </div>
-                    <p style={{ fontSize: "11px", color: "#7A9A84", marginTop: "2px" }}>{p.modulos}</p>
-                  </div>
+                    <p style={{ fontSize: "11px", color: "#7A9A84", marginTop: "2px" }}>{p.faixa}</p>
+                  </button>
                 );
               })}
             </div>
 
+            {/* Gráfico de barras — 3 anos */}
+            <div>
+              {/* Legenda */}
+              <div className="flex items-center gap-4 mb-3">
+                <div className="flex items-center gap-1.5">
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: "#374151" }} />
+                  <span style={{ fontSize: 11, color: "#7A9A84" }}>Avulso</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: "#3DC45A" }} />
+                  <span style={{ fontSize: 11, color: "#7A9A84" }}>Assinatura</span>
+                </div>
+              </div>
+              {/* Barras */}
+              <div className="flex items-end gap-3">
+                {anoData.map(({ label, avulso, assinatura }) => (
+                  <div key={label} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="flex items-end gap-1 w-full justify-center" style={{ height: CHART_H }}>
+                      <div
+                        title={fmt(avulso)}
+                        style={{
+                          width: "42%",
+                          height: Math.max(4, Math.round((avulso / chartMax) * CHART_H)),
+                          background: "#374151",
+                          borderRadius: "3px 3px 0 0",
+                          alignSelf: "flex-end",
+                        }}
+                      />
+                      <div
+                        title={fmt(assinatura)}
+                        style={{
+                          width: "42%",
+                          height: Math.max(4, Math.round((assinatura / chartMax) * CHART_H)),
+                          background: "#3DC45A",
+                          borderRadius: "3px 3px 0 0",
+                          alignSelf: "flex-end",
+                        }}
+                      />
+                    </div>
+                    <span style={{ fontSize: 10, color: "#7A9A84" }}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
             {/* Breakdown comparativo */}
-            <div className="space-y-2.5 pt-4 border-t border-brand-border text-sm">
+            <div className="space-y-2 pt-4 border-t border-brand-border text-sm mt-auto">
               <div className="flex items-center justify-between">
                 <span className="text-brand-muted">Plano recomendado</span>
                 <span className="font-bold text-brand-dark">{plano.nome} — {fmt(plano.preco)}/mês</span>
@@ -150,15 +208,14 @@ export default function CalculadoraEconomia() {
             </div>
           </div>
 
-          {/* ── Result card ── */}
-          <div className="rounded-2xl overflow-hidden shadow-lg">
+          {/* ── Coluna direita ── */}
+          <div className="rounded-2xl overflow-hidden shadow-lg flex flex-col">
 
             {/* Top — perda mensal */}
             <div className="bg-white border border-brand-border border-b-0 px-6 pt-6 pb-5 space-y-4">
               <h3 className="font-heading font-bold text-brand-dark text-base">
                 ⚡ Você pode estar perdendo
               </h3>
-
               <div>
                 <p
                   className="font-heading font-extrabold leading-none"
@@ -170,7 +227,6 @@ export default function CalculadoraEconomia() {
                   com {Math.round(PERDA_SUJEIRA * 100)}% de queda de eficiência por sujeira
                 </p>
               </div>
-
               <div className="bg-brand-bg rounded-xl px-4 py-3">
                 <p className="text-sm font-semibold text-brand-dark">
                   Plano recomendado:{" "}
@@ -180,14 +236,13 @@ export default function CalculadoraEconomia() {
             </div>
 
             {/* Bottom — economia 3 anos */}
-            <div className="bg-brand-dark px-6 pt-5 pb-6 relative overflow-hidden">
+            <div className="bg-brand-dark px-6 pt-5 pb-6 relative overflow-hidden flex-1 flex flex-col justify-between">
               <BannerParticles />
-              <div className="relative space-y-4" style={{ zIndex: 2 }}>
-                <h3 className="font-heading font-bold text-white text-base">
-                  💰 Economia em 3 anos vs avulso
-                </h3>
-
+              <div className="relative flex flex-col gap-4 flex-1 justify-between" style={{ zIndex: 2 }}>
                 <div>
+                  <h3 className="font-heading font-bold text-white text-base mb-3">
+                    💰 Economia em 3 anos vs avulso
+                  </h3>
                   <p className="font-heading font-extrabold text-brand-green text-3xl leading-none">
                     {fmt(economia3Anos)}
                   </p>
@@ -196,19 +251,21 @@ export default function CalculadoraEconomia() {
                   </p>
                 </div>
 
-                <Link
-                  href="/cadastro"
-                  className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
-                >
-                  Quero assinar o Plano {plano.nome} →
-                </Link>
-
-                <p className="text-[11px] text-white/30 text-center leading-relaxed">
-                  *1ª limpeza com 50% off. Valor final confirmado pelo técnico certificado.
-                </p>
+                <div className="space-y-3">
+                  <Link
+                    href="/cadastro"
+                    className="block w-full text-center bg-brand-green text-white font-heading font-bold text-base px-6 py-4 rounded-xl hover:bg-brand-green/90 transition-colors"
+                  >
+                    Garantir minha assinatura →
+                  </Link>
+                  <p className="text-[11px] text-white/30 text-center leading-relaxed">
+                    *1ª limpeza com 50% off. Valor final confirmado pelo técnico certificado.
+                  </p>
+                </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </section>
