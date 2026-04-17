@@ -518,47 +518,67 @@ export default function HomePage() {
 
       {/* ── Onde atuamos ─────────────────────────────────────────────────── */}
       <section className="py-20 animate-on-scroll" style={{ background: "#1B3A2D" }}>
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <p className="font-semibold text-sm uppercase tracking-widest mb-3" style={{ color: "#3DC45A" }}>
-              📍 Cobertura
-            </p>
-            <h2 className="font-heading text-3xl sm:text-4xl font-bold text-white mb-3">
-              Onde atuamos
-            </h2>
-            <p className="text-white/60 text-base max-w-md mx-auto">
-              Atendemos usinas solares em 3 cidades de Santa Catarina, com expansão prevista para 2025.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <p className="font-heading font-bold text-white text-sm mb-4">✅ Cidades ativas</p>
-              <div className="flex flex-col gap-2.5">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
+
+            {/* Coluna esquerda */}
+            <div>
+              <span
+                className="inline-block text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-5"
+                style={{ background: "#3DC45A22", color: "#3DC45A" }}
+              >
+                Cobertura atual
+              </span>
+              <h2 className="font-heading text-3xl sm:text-4xl font-extrabold text-white mb-3 leading-tight">
+                Atendemos 3 cidades em SC
+              </h2>
+              <p className="text-white/60 text-base mb-7">
+                Com expansão para mais 4 cidades no segundo semestre de 2026.
+              </p>
+              <ul className="flex flex-col gap-3 mb-8">
                 {["Jaraguá do Sul", "Pomerode", "Florianópolis"].map((cidade) => (
-                  <div key={cidade} className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "#3DC45A22", color: "#3DC45A" }}>Ativo</span>
-                    <span className="text-white/80 text-sm">{cidade}, SC</span>
-                  </div>
+                  <li key={cidade} className="flex items-center gap-3">
+                    <span className="font-bold flex-shrink-0" style={{ color: "#3DC45A" }}>✓</span>
+                    <span className="text-white text-sm">{cidade}, SC</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <Link
+                href="/cadastro"
+                className="inline-flex items-center gap-2 font-heading font-bold text-sm px-6 py-3.5 transition-colors hover:opacity-90"
+                style={{ background: "#3DC45A", color: "#1B3A2D", borderRadius: "8px" }}
+              >
+                Garantir minha vaga →
+              </Link>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <p className="font-heading font-bold text-white text-sm mb-4">🕐 Em breve</p>
-              <div className="flex flex-col gap-2.5">
+
+            {/* Coluna direita */}
+            <div
+              className="rounded-2xl p-6 flex flex-col gap-5"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)" }}
+            >
+              <p className="font-heading font-bold text-white text-base">🕐 Em breve</p>
+              <ul className="flex flex-col gap-3">
                 {["Blumenau", "Itajaí", "Brusque", "Gaspar"].map((cidade) => (
-                  <div key={cidade} className="flex items-center gap-2">
-                    <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.08)", color: "rgba(255,255,255,0.4)" }}>Em breve</span>
-                    <span className="text-white/50 text-sm">{cidade}, SC</span>
-                  </div>
+                  <li key={cidade} className="flex items-center gap-3">
+                    <span className="text-base flex-shrink-0">🕐</span>
+                    <span className="text-white/60 text-sm">{cidade}, SC</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
+              <p className="text-white/50 text-sm leading-relaxed border-t border-white/10 pt-4">
+                Cadastre-se para ser notificado quando chegarmos na sua cidade.
+              </p>
+              <Link
+                href="/cadastro"
+                className="inline-flex items-center justify-center gap-2 font-heading font-bold text-sm px-5 py-3 rounded-xl transition-colors hover:bg-white/10 text-center"
+                style={{ border: "1px solid rgba(255,255,255,0.3)", color: "white" }}
+              >
+                Entrar na lista de espera →
+              </Link>
             </div>
+
           </div>
-          <p className="text-center">
-            <a href="/cadastro" className="text-sm font-medium" style={{ color: "#3DC45A" }}>
-              Não encontrou sua cidade? Cadastre-se na lista de espera →
-            </a>
-          </p>
         </div>
       </section>
 
