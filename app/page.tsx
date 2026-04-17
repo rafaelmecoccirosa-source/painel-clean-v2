@@ -150,7 +150,7 @@ export default function HomePage() {
       <HeroSection />
 
       {/* ── Seção 2: Como se paga em 4 dias ──────────────────────────────── */}
-      <section className="bg-brand-bg py-20">
+      <section style={{ background: "#E8F0E4", paddingTop: "5rem", paddingBottom: "5rem" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12 animate-on-scroll">
             <p className="text-brand-green font-semibold text-sm uppercase tracking-widest mb-3">
@@ -165,32 +165,32 @@ export default function HomePage() {
             {paybackCards.map(({ Icon, plano, modulos, prejuizoMes, mensalidade }, idx) => (
               <div
                 key={plano}
-                className="rounded-2xl flex flex-col animate-on-scroll overflow-hidden"
+                className="flex flex-col animate-on-scroll overflow-hidden"
                 style={{
                   border: "1px solid #C8DFC0",
+                  borderRadius: "16px",
                   transitionDelay: `${idx * 150}ms`,
                 }}
               >
-                {/* Metade superior — fundo escuro + partículas */}
+                {/* Topo escuro — ícone + título + faixa */}
                 <div
-                  className="relative overflow-hidden flex flex-col gap-3"
-                  style={{ background: "#1B3A2D", padding: "2rem 2rem 1.5rem" }}
+                  className="relative overflow-hidden"
+                  style={{ background: "#1B3A2D", padding: "1.5rem" }}
                 >
                   <BannerParticles />
-                  <div className="relative" style={{ zIndex: 2 }}>
+                  <div className="relative flex items-center gap-3" style={{ zIndex: 2 }}>
                     <Icon />
+                    <div>
+                      <h3 className="font-heading font-bold" style={{ fontSize: "20px", color: "#ffffff", lineHeight: 1.2 }}>
+                        {plano}
+                      </h3>
+                      <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", marginTop: "2px" }}>{modulos}</p>
+                    </div>
                   </div>
-                  <h3
-                    className="relative font-heading text-lg font-bold"
-                    style={{ color: "#EBF3E8", zIndex: 2 }}
-                  >
-                    {plano}
-                  </h3>
-                  <p className="relative text-xs" style={{ color: "#7A9A84", zIndex: 2 }}>{modulos}</p>
                 </div>
 
-                {/* Metade inferior — fundo branco */}
-                <div className="flex flex-col gap-4 flex-1 bg-white" style={{ padding: "1.5rem 2rem 2rem" }}>
+                {/* Base branca — valores + CTA */}
+                <div className="flex flex-col gap-4 flex-1 bg-white" style={{ padding: "1.5rem" }}>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span style={{ color: "#7A9A84" }}>Prejuízo/mês por sujeira</span>
