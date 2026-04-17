@@ -57,11 +57,8 @@ export default function HeroSection() {
         />
         {/* Gradient overlay */}
         <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: "linear-gradient(rgba(27, 58, 45, 0.85), rgba(27, 58, 45, 0.70))",
-          }}
+          id="hero-overlay"
+          style={{ position: "absolute", inset: 0 }}
         />
         {/* Shimmer sweep */}
         <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}>
@@ -82,8 +79,10 @@ export default function HeroSection() {
 
       {/* Responsive background-position for the photo */}
       <style>{`
-        #hero-bg { background-position: center 30%; }
-        @media (min-width: 640px) { #hero-bg { background-position: center center; } }
+        #hero-bg { background-position: 60% center; }
+        @media (min-width: 768px) { #hero-bg { background-position: center center; } }
+        #hero-overlay { background: linear-gradient(to right, rgba(27,58,45,0.85) 0%, rgba(27,58,45,0.5) 100%); }
+        @media (min-width: 768px) { #hero-overlay { background: linear-gradient(rgba(27,58,45,0.85), rgba(27,58,45,0.70)); } }
       `}</style>
 
       <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-12 sm:py-28">
@@ -98,7 +97,7 @@ export default function HeroSection() {
 
         {/* Headline */}
         <h1
-          className="font-heading text-[28px] sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-5 max-w-3xl text-white"
+          className="font-heading text-[2rem] sm:text-5xl lg:text-6xl font-extrabold leading-[1.2] sm:leading-tight mb-5 max-w-3xl text-white"
           style={{
             textShadow: "0 2px 4px rgba(0,0,0,0.3)",
             animation: "fadeSlideUp 0.6s ease both",
@@ -133,18 +132,20 @@ export default function HeroSection() {
 
         {/* CTAs */}
         <div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4"
+          className="flex flex-col sm:flex-row items-center sm:items-start gap-3 sm:gap-4"
           style={{ animation: "fadeSlideUp 0.6s ease both", animationDelay: "1.1s" }}
         >
           <Link
             href="#planos"
-            className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg w-full sm:w-auto"
+            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "280px" }}
           >
             Ver planos →
           </Link>
           <a
             href="#calculadora"
-            className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold text-base px-8 py-4 rounded-xl hover:bg-white/10 transition-colors w-full sm:w-auto"
+            className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold rounded-xl hover:bg-white/10 transition-colors w-full sm:w-auto"
+            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "280px" }}
           >
             Calcular minha economia
           </a>
@@ -165,15 +166,12 @@ export default function HeroSection() {
             ))}
           </div>
 
-          {/* Mobile: 2-col grid, último item centralizado se ímpar */}
-          <div className="sm:hidden grid grid-cols-2 gap-x-4 gap-y-2.5">
-            {trustItems.map(({ icon, label }, idx) => (
-              <span
-                key={label}
-                className={`flex items-center gap-1.5 ${idx === trustItems.length - 1 && trustItems.length % 2 !== 0 ? "col-span-2 justify-center" : ""}`}
-              >
-                <span style={{ fontSize: "13px", lineHeight: 1 }}>{icon}</span>
-                <span className="text-white font-medium text-[12px]">{label}</span>
+          {/* Mobile: horizontal scroll */}
+          <div className="sm:hidden flex items-center gap-4 overflow-x-auto pb-1" style={{ flexWrap: "nowrap" }}>
+            {trustItems.map(({ icon, label }) => (
+              <span key={label} className="flex items-center gap-1.5 flex-shrink-0">
+                <span style={{ fontSize: "11px", lineHeight: 1 }}>{icon}</span>
+                <span className="text-white font-medium" style={{ fontSize: "11px" }}>{label}</span>
               </span>
             ))}
           </div>
