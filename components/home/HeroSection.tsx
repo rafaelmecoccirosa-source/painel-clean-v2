@@ -30,7 +30,7 @@ export default function HeroSection() {
   const trustItems = [
     { icon: "✔",  label: "2 limpezas/ano"          },
     { icon: "⚡", label: "Relatório mensal"          },
-    { icon: "📋", label: "Checkup técnico"           },
+    { icon: "✅", label: "Checkup técnico"           },
     { icon: "🛡️", label: "Seguro na limpeza"         },
     { icon: "💳", label: "Sem fidelidade no 1º mês"  },
   ];
@@ -166,10 +166,14 @@ export default function HeroSection() {
             ))}
           </div>
 
-          {/* Mobile: 2×2 grid */}
+          {/* Mobile: 2×2 + 5º centralizado */}
           <div className="sm:hidden grid grid-cols-2 gap-2">
-            {trustItems.map(({ icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5">
+            {trustItems.map(({ icon, label }, idx) => (
+              <span
+                key={label}
+                className="flex items-center gap-1.5"
+                style={idx === trustItems.length - 1 && trustItems.length % 2 !== 0 ? { gridColumn: "1 / -1", justifyContent: "center" } : {}}
+              >
                 <span style={{ fontSize: "12px", lineHeight: 1 }}>{icon}</span>
                 <span className="text-white font-medium" style={{ fontSize: "12px" }}>{label}</span>
               </span>
