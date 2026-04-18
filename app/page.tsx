@@ -396,7 +396,7 @@ export default function HomePage() {
                 className="flex items-start gap-5 animate-on-scroll"
                 style={{ transitionDelay: `${idx * 200}ms` }}
               >
-                <div className="h-12 w-12 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold text-xl flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-brand-green flex items-center justify-center text-white font-heading font-extrabold flex-shrink-0" style={{ fontSize: "14px" }}>
                   {passo.num}
                 </div>
                 <div>
@@ -413,8 +413,18 @@ export default function HomePage() {
       {/* ── Prova social ─────────────────────────────────────────────────── */}
       <section style={{ background: "#EBF3E8" }} className="py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Heading */}
+          <div className="text-center mb-10 animate-on-scroll">
+            <h2 className="font-heading font-bold text-brand-dark" style={{ fontSize: "1.5rem" }}>
+              Resultados que falam por si
+            </h2>
+            <p className="text-brand-muted text-sm mt-2">
+              Dados do nosso período de validação em SC
+            </p>
+          </div>
+
           {/* Big numbers */}
-          <div className="grid grid-cols-3 gap-4 sm:gap-8 mb-12 animate-on-scroll">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 animate-on-scroll">
             {[
               { counter: <AnimatedCounter target={500} suffix="+" duration={1500} />, label: "Usinas monitoradas em SC" },
               { counter: <AnimatedCounter target={100} suffix="%" duration={1500} />, label: "Clientes satisfeitos" },
@@ -428,9 +438,6 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <p className="text-center text-brand-muted text-xs mb-14 animate-on-scroll" style={{ opacity: 0.6 }}>
-            *Dados do período de validação com parceiros Painel Clean
-          </p>
 
           {/* Depoimentos */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -652,8 +659,8 @@ export default function HomePage() {
 
             {/* Coluna direita */}
             <div
-              className="rounded-2xl flex flex-col gap-5"
-              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "2rem" }}
+              className="w-full rounded-2xl flex flex-col gap-5"
+              style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", padding: "1.25rem" }}
             >
               <p className="font-heading font-bold text-white" style={{ fontSize: "20px", fontWeight: 700 }}>🕐 Em breve</p>
               <ul className="flex flex-col gap-4">
