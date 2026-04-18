@@ -79,7 +79,7 @@ export default function HeroSection() {
 
       {/* Responsive background-position for the photo */}
       <style>{`
-        #hero-bg { background-position: 60% center; }
+        #hero-bg { background-position: 30% center; }
         @media (min-width: 768px) { #hero-bg { background-position: center center; } }
         #hero-overlay { background: linear-gradient(to right, rgba(27,58,45,0.85) 0%, rgba(27,58,45,0.5) 100%); }
         @media (min-width: 768px) { #hero-overlay { background: linear-gradient(rgba(27,58,45,0.85), rgba(27,58,45,0.70)); } }
@@ -138,14 +138,14 @@ export default function HeroSection() {
           <Link
             href="#planos"
             className="inline-flex items-center justify-center gap-2 bg-brand-green text-white font-heading font-bold rounded-xl hover:bg-brand-green/90 transition-colors shadow-lg w-full sm:w-auto"
-            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "280px" }}
+            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "320px", margin: "0 auto" }}
           >
             Ver planos →
           </Link>
           <a
             href="#calculadora"
             className="inline-flex items-center justify-center gap-2 border-2 border-white/50 text-white font-heading font-bold rounded-xl hover:bg-white/10 transition-colors w-full sm:w-auto"
-            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "280px" }}
+            style={{ fontSize: "16px", padding: "14px 28px", maxWidth: "320px", margin: "0 auto" }}
           >
             Calcular minha economia
           </a>
@@ -166,12 +166,12 @@ export default function HeroSection() {
             ))}
           </div>
 
-          {/* Mobile: horizontal scroll */}
-          <div className="sm:hidden flex items-center gap-4 overflow-x-auto pb-1" style={{ flexWrap: "nowrap" }}>
+          {/* Mobile: 2×2 grid */}
+          <div className="sm:hidden grid grid-cols-2 gap-2">
             {trustItems.map(({ icon, label }) => (
-              <span key={label} className="flex items-center gap-1.5 flex-shrink-0">
-                <span style={{ fontSize: "11px", lineHeight: 1 }}>{icon}</span>
-                <span className="text-white font-medium" style={{ fontSize: "11px" }}>{label}</span>
+              <span key={label} className="flex items-center gap-1.5">
+                <span style={{ fontSize: "12px", lineHeight: 1 }}>{icon}</span>
+                <span className="text-white font-medium" style={{ fontSize: "12px" }}>{label}</span>
               </span>
             ))}
           </div>
