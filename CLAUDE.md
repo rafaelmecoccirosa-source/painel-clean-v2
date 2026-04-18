@@ -434,8 +434,8 @@ api/auth/redirect/route.ts
 (cliente)/layout.tsx
 (cliente)/cliente/
 page.tsx                    <- dashboard cliente — status plano + próxima limpeza
-meu-plano/page.tsx          <- detalhes assinatura, histórico pagamentos (v2)
-relatorios/page.tsx         <- relatórios mensais de performance (v2)
+meu-plano/page.tsx          <- detalhes assinatura, histórico pagamentos (v2, pendente)
+relatorios/page.tsx         <- relatórios mensais de performance (v2, pendente)
 solicitar/page.tsx          <- limpeza avulsa (secundário)
 historico/page.tsx
 perfil/page.tsx
@@ -452,7 +452,7 @@ conclusao/[id]/page.tsx
 (admin)/layout.tsx
 (admin)/admin/
 page.tsx
-assinaturas/page.tsx        <- MRR, assinantes ativos, churn (v2)
+assinaturas/page.tsx        <- MRR, assinantes ativos, churn (v2, pendente)
 relatorios/page.tsx         <- envios pendentes, status inversores (v2)
 mapa/page.tsx
 servicos/page.tsx, [id]/page.tsx
@@ -480,6 +480,10 @@ geocode.ts
 - **`BannerParticles`** — partículas animadas para banners internos
 - **`TecnicoParticles`** — partículas subindo para seção técnico na landing
 - **`LoginBackground`** — fundo animado da tela de login
+- **`AnimatedCounter`** — contador animado com IntersectionObserver para prova social
+- **`FAQ`** (`components/home/FAQ.tsx`) — accordion client component com 6 perguntas e transição suave
+- **`CalculadoraEconomia`** (`components/home/CalculadoraEconomia.tsx`) — calculadora interativa com slider e mini cards clicáveis
+- **`HeroSection`** (`components/home/HeroSection.tsx`) — hero com Ken Burns, shimmer, fade sequencial e counter animado
 
 ---
 
