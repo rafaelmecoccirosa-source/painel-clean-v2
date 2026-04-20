@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
 
   // Public routes — always allow
   const publicRoutes = ["/", "/login", "/cadastro", "/completar-cadastro", "/termos"];
-  const publicPrefixes = ["/auth/", "/_next/", "/favicon"];
+  const publicPrefixes = ["/auth/", "/_next/", "/favicon", "/v2"];
   if (
     publicRoutes.includes(pathname) ||
     publicPrefixes.some((p) => pathname.startsWith(p))
