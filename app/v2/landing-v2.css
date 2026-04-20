@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Open+Sans:wght@400;500;600;700;800&display=swap');
+
+@keyframes pc-slideup {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pc-fadein-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pc-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes pc-rise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translateY(-120vh); opacity: 0; }
+}
+@keyframes pc-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(61,196,90,0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(61,196,90,0); }
+}
+@keyframes pc-pulse-soft {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+@keyframes pc-pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+@keyframes pc-kenburns {
+  0% { transform: scale(1) translate(0, 0); }
+  100% { transform: scale(1.08) translate(-1%, -1%); }
+}
+@keyframes pc-shimmer {
+  0% { transform: translateX(-50%) skewX(-18deg); }
+  50% { transform: translateX(250%) skewX(-18deg); }
+  100% { transform: translateX(250%) skewX(-18deg); }
+}
+
+.landing-v2-root {
+  font-family: 'Open Sans', sans-serif;
+  background: #F4F8F2;
+  color: #1B3A2D;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+.landing-v2-root ::selection {
+  background: #3DC45A;
+  color: white;
+}
+
+.pc-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #3DC45A;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(61,196,90,0.35);
+  transition: transform .12s, box-shadow .12s;
+}
+.pc-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(61,196,90,0.45);
+}
+.pc-slider::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #3DC45A;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(61,196,90,0.35);
+}
