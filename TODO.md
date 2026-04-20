@@ -2,122 +2,116 @@
 
 > Arquivo vivo. Atualizar a cada sessão.
 > Versão: v2 — modelo assinatura (Netflix)
-> Última atualização: 2026-04-18
+> Última atualização: 2026-04-20
 
 ---
 
 ## PENDENTES (a fazer)
 
-### Landing page
-- [ ] Aplicar interface-design skill nos dashboards quando iniciar área interna
-- [ ] Aplicar web-design-guidelines (auditoria acessibilidade) antes do lançamento
-- [ ] Explorar Claude Design para protótipos das telas internas
+### Landing /v2 — ajustes finais
+- [ ] Partículas — replicar estilo ascending da v1 (em andamento no Claude Code)
+- [ ] Promover /v2 → / após aprovação final (arquivar atual em /v1)
 
-### Dashboards (pós-landing)
-- [ ] Dashboard cliente: home com status do plano + próxima limpeza + último relatório
-- [ ] Dashboard cliente: nova página "Meu Plano"
-- [ ] Dashboard cliente: nova página "Relatórios"
-- [ ] Dashboard admin: nova seção "Assinaturas" (MRR, churn, ativos)
-- [ ] Dashboard técnico: agenda separando assinatura vs avulso
+### Dashboards — próxima fase
+- [ ] Dashboard cliente — alinhar layout com landing v3 (header, footer, tipografia, espaçamentos)
+- [ ] Dashboard cliente — telas faltando: Meu Plano, Relatórios, Solicitar Avulsa, Histórico, Perfil
+- [ ] Dashboard cliente — ícones do menu melhorar
+- [ ] Dashboard cliente — implementar no Claude Code após protótipo aprovado
+- [ ] Dashboard técnico — prototipar no Claude Design (agenda assinatura vs avulso, chamados, ganhos)
+- [ ] Dashboard admin — prototipar no Claude Design (assinaturas MRR/churn, relatórios, mapa)
+- [ ] Implementar dashboards no Claude Code após protótipos aprovados
 
 ### Banco de dados
-- [ ] Rodar migrations v2 no Supabase (subscriptions, monthly_reports, service_requests_v2) — arquivos criados, ainda não aplicados
+- [ ] Testar fluxo end-to-end com dados reais (cliente → técnico → admin)
+
+### Pré-lançamento
+- [ ] Auditoria de acessibilidade (web-design-guidelines)
+- [ ] Testar responsivo mobile em todas as páginas
+- [ ] Configurar domínio customizado no Vercel
 
 ### Pós-MVP
 - [ ] Integração API inversores (Fronius, SolarEdge, Growatt, Sungrow, Hoymiles, Deye)
 - [ ] Débito automático recorrente
-- [ ] App mobile
+- [ ] App mobile (base responsiva sendo construída com isso em mente)
+
+---
+
+## CONCLUÍDO — Sessão 2026-04-20
+
+### Landing /v2 — implementação via Claude Code terminal
+- [x] Claude Code terminal instalado no WSL (Ubuntu 24) via npm install -g @anthropic-ai/claude-code
+- [x] Claude Code extensão VS Code configurada (WSL terminal)
+- [x] Workflow descoberto: cat HTML | claude "instruções" para arquivos grandes
+- [x] HTML do Claude Design extraído via standalone export + Python bundle unpacker automático
+- [x] Landing v3 implementada: 14 seções, 15+ componentes em components/landing-v2/
+- [x] Assets copiados: hero-solar-v2.png (já existia), logos landing-v2-*
+- [x] sc-municipios.ts criado com 295 municípios de SC para o mapa
+- [x] Rota /v2 adicionada às rotas públicas no middleware.ts
+- [x] Title/metadata: "Painel Clean — Sua usina solar no máximo, o ano inteiro"
+- [x] Calculadora: premissa corrigida para 130 kWh/kWp/mês (era 1,35/dia ≈ 40/mês — muito baixo)
+- [x] Calculadora: toggle padrão alterado para "Nunca" (30% perda, argumento mais forte)
+- [x] Calculadora: sinal negativo na geração corrigido (~ 446 kWh/mês)
+- [x] Calculadora: footnote premissas corrigido para "130 kWh/kWp/mês"
+- [x] Payback section: dobra "Se paga em ~4 dias" adicionada (entre StatsBar e Calculadora)
+- [x] Payback section: ícones diferenciados por plano (1, 2, 3 painéis solares SVG)
+- [x] Git workflow: commits cirúrgicos sem CRLF churn, cherry-pick quando remoto divergiu
+
+### Banco de dados v2
+- [x] Migrations aplicadas: subscriptions, monthly_reports, service_requests_v2
+- [x] Seed executado: 4 clientes com assinatura ativa + monthly_reports + service_requests
+- [x] panel_count removido do seed (coluna não existe no banco atual)
+- [x] Clientes demo com assinatura: Fernanda Alves (Padrão), Ana Silva (Básico), Ricardo Mendes (Plus), Maria Oliveira (Padrão)
 
 ---
 
 ## CONCLUÍDO — Sessão 2026-04-18
 
-### Mobile hero
-- [x] background-position 30% center no mobile para mostrar técnico na foto
-- [x] Trust badges: grid 2x2 no mobile, 5º badge centralizado em col-span-2
-- [x] Ícone "Checkup técnico" trocado para ✅
-- [x] Botões hero mobile: max-width 320px, centralizados
-- [x] Overlay direcional mais escuro no mobile para legibilidade
-- [x] Título hero mobile: 2rem / line-height 1.2
-- [x] Círculos numerados do passo a passo: 32px no mobile
-- [x] Prova social mobile: números em coluna única + título "Resultados que falam por si"
-- [x] Card "Em breve" full-width no mobile
-
-### Refinamento visual (Impeccable + interaction-design embutidos)
-- [x] Hover states em cards de plano (translateY -4px + sombra)
-- [x] Hover states em depoimentos (translateY -2px)
-- [x] Hover states em botões primários (translateY + scale + sombra verde)
-- [x] Hover states em botões outline (swap para fundo verde)
+### Landing atual (/) — refinamentos mobile e visual
+- [x] Hero mobile: background-position 30% center, overlay mais escuro, título 2rem
+- [x] Trust badges: grid 2x2+1 no mobile, 5º badge centralizado
+- [x] Hover states em cards de plano, depoimentos, botões
 - [x] FAQ accordion com transição suave (max-height + opacity 300ms)
-- [x] Contador animado na prova social (IntersectionObserver, 0→500/100/fade)
-- [x] Tipografia: h2 800 weight, -0.02em tracking, badges 11px/0.1em
-
-### Estrutura e conteúdo da landing
-- [x] Ordem final das seções: Hero → Payback → Calculadora → Planos → Como funciona → Prova social → Diferenciais → Técnico → Onde atuamos → CTA Final → FAQ → Footer
-- [x] Prova social: 500+ / 100% / 4 dias + 3 depoimentos com avatar
-- [x] FAQ accordion com 6 perguntas
-- [x] Seção "Onde atuamos": 2 colunas, cidades ativas + em breve com ícones e contadores de fila
-- [x] Seção "Como funciona": 4 passos atualizados para modelo assinatura
-- [x] Seção diferenciais: 4 cards SVG (Técnicos certificados, Relatório fotográfico, Seguro na limpeza, Preço transparente)
-- [x] CTA Final: fundo #EBF3E8, dois botões
-- [x] Divisor gradiente entre calculadora e seção de planos
+- [x] Contador animado na prova social (IntersectionObserver)
+- [x] Seção "Onde atuamos" com cidades ativas + em breve
 
 ---
 
 ## CONCLUÍDO — Sessão 2026-04-17
 
 ### Setup v2
-- [x] Repo painel-clean-v2 criado no GitHub a partir da v1
-- [x] Novo Supabase painel-clean-v2 criado e migrations v1 aplicadas
-- [x] Usuários demo criados (6 técnicos + 6 clientes + admin)
-- [x] Deploy no Vercel painel-clean-v2.vercel.app
-- [x] Google OAuth configurado para novo domínio
-- [x] CLAUDE.md e TODO.md atualizados para v2
-
-### Migrations v2
-- [x] 20260416_subscriptions.sql — tabela subscriptions
-- [x] 20260416_monthly_reports.sql — tabela monthly_reports
-- [x] 20260416_service_requests_v2.sql — origin + subscription_id
+- [x] Repo painel-clean-v2 criado no GitHub
+- [x] Supabase painel-clean-v2 configurado
+- [x] 6 técnicos + 6 clientes + 1 admin demo criados
+- [x] Deploy Vercel painel-clean-v2.vercel.app
+- [x] Google OAuth configurado
+- [x] lib/pricing.ts — faixas v2
 - [x] lib/config.ts — SUBSCRIPTION_ENABLED = true
-- [x] lib/pricing.ts — faixas v2 + calcularEntrada + calcularLimpezaExtra + sugerirPlano
-
-### Landing page v2
-- [x] Nova imagem hero: técnico limpando placas com escova (hero-solar-v2.png)
-- [x] Hero: novo copy modelo assinatura, trust badges atualizados
-- [x] Animações hero: Ken Burns + shimmer (2s delay, 8s repeat) + fade sequencial + pulso 30%
-- [x] Seção "Investimento que se paga rápido": 3 cards topo escuro + partículas + ícones SVG distintos
-- [x] Calculadora: slider + mini cards clicáveis + kWh perdidos + economia 3 anos + "Garantir minha assinatura"
-- [x] Seção de planos: fundo claro, 3 cards iguais sem favorecimento, limpeza avulsa discreta
-- [x] Logo: "Painel Clean" maior, subtítulo "Limpeza e cuidado para usinas solares"
-- [x] Partículas: BannerParticles nos cards, TecnicoParticles na seção técnico, LoginBackground no login
-- [x] Admin/usuarios: corrigido para usar createServiceClient() — dados reais
 
 ---
 
 ## DECISÕES TOMADAS — v2
 
 - **Modelo:** assinatura mensal (Netflix) com avulso como secundário
-- **Planos:** Básico R$30/15mod, Padrão R$50/30mod, Plus R$100/60mod, Pro/Business sob consulta
-- **Limpezas:** 2 por ano incluídas em todos os planos
-- **Entrada:** 1ª limpeza a 50% do avulso + contrato mínimo 12 meses
-- **Cancelamento:** carência — paga saldo devedor, perde limpeza não realizada
+- **Planos:** Básico R$30/≤15mod, Padrão R$50/16-30mod, Plus R$100/31-60mod, Pro/Business sob consulta
+- **Limpezas:** 2/ano incluídas em todos os planos
+- **Entrada:** 1ª limpeza 50% off + contrato mínimo 12 meses
+- **Cancelamento:** paga saldo devedor do período restante
 - **Limpeza extra:** 40% mais barata que avulso para assinantes
-- **Preço avulso:** R$30/placa (≤30), R$25 (31–50), R$20 (51–100), sob consulta (100+)
-- **Custo técnico:** R$10/placa
-- **Seguro:** cobre danos causados DURANTE a limpeza, não o ativo
-- **API inversores:** pós-MVP, manual no início
-- **Argumento central:** placas sujas = prejuízo ~R$218–729/mês, assinatura se paga em ~4 dias
-- **Sem favorecimento de plano:** todos os cards com mesmo visual, sem "Mais Popular"
-- **Skills de design:** Impeccable + interaction-design embutidos nos prompts; interface-design para dashboards; web-design-guidelines para auditoria pré-lançamento
+- **Calculadora:** 130 kWh/kWp/mês (média SC), tarifa R$0,92/kWh, toggle padrão "Nunca" (30% perda)
+- **Sem % de comissão** na landing — só no dashboard técnico pós-login
+- **Sem "sem fidelidade"** — existe contrato de 12 meses, não mencionar na landing
+- **Planos por módulos** — sem "Mais Popular", critério é tamanho da usina
+- **Landing:** /v2 nova isolada, / atual intacta até aprovação → depois /v2 vira /, antiga vira /v1
+- **Claude Code terminal** (VS Code WSL) é o ambiente principal — web tem limitações de upload
+- **Dashboard cliente:** hero dinâmico com 5 estados: tranquilo / relatório chegou / queda detectada / limpeza em 3 dias / pós-limpeza
+- **Referência visual:** landing v3 é o padrão — dashboards devem alinhar com ela (header, footer, tipografia)
 
 ---
 
 ## PRÓXIMAS SESSÕES
 
-- [ ] Explorar Claude Design para protótipos dos dashboards
-- [ ] Certificação dos técnicos — online, presencial ou híbrido?
-- [ ] Política de cancelamento — multa além da carência?
-- [ ] O que cobre o seguro contra danos — termos, limite, processo
-- [ ] SLA sem técnico disponível — lista de espera? reembolso?
-- [ ] Precificação Pro e Business
-- [ ] Validar preços com clientes reais
+- [ ] Fechar partículas na /v2 e fazer deploy
+- [ ] Briefing pro Claude Design: dashboards técnico + admin
+- [ ] Implementar dashboard cliente (Home já prototipado, faltam sub-páginas)
+- [ ] Definir fluxo de avulsa dentro da plataforma
+- [ ] Discussões pendentes: certificação técnicos, política cancelamento, SLA sem técnico, precificação Pro/Business
