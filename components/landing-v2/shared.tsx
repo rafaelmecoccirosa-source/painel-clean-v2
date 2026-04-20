@@ -278,16 +278,18 @@ export function SectionHeadline({
 
 export function Particles({
   count = 16,
-  color = 'rgba(61,196,90,0.35)',
 }: {
   count?: number;
+  /** Aceito por compatibilidade mas ignorado — partículas usam verde padrão com alpha aleatório. */
   color?: string;
 }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return null;
   const dots = Array.from({ length: count }, (_, i) => {
-    const size = 3 + Math.random() * 5;
+    const size = 3 + Math.random() * 3;
+    const alpha = 0.2 + Math.random() * 0.2;
+    const duration = 6 + Math.random() * 6;
     return (
       <span
         key={i}
@@ -298,8 +300,8 @@ export function Particles({
           width: size,
           height: size,
           borderRadius: '50%',
-          background: color,
-          animation: `pc-rise ${6 + Math.random() * 6}s linear ${Math.random() * 6}s infinite`,
+          background: `rgba(61, 196, 90, ${alpha})`,
+          animation: `pc-rise ${duration}s linear ${Math.random() * duration}s infinite`,
         }}
       />
     );
