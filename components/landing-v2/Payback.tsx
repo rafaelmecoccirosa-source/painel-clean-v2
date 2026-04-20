@@ -10,29 +10,74 @@ type PaybackCard = {
   icon: React.ReactNode;
 };
 
-function PanelIcon() {
+const ICON_PROPS = {
+  width: 34,
+  height: 34,
+  viewBox: '0 0 48 48',
+  fill: 'none',
+  stroke: '#6EE7A0',
+  strokeWidth: 1.8,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+};
+const PANEL_FILL = 'rgba(110,231,160,0.14)';
+const SUN_FILL = 'rgba(110,231,160,0.22)';
+
+function SunGlyph({ cx, cy, r, rays }: { cx: number; cy: number; r: number; rays: number }) {
   return (
-    <svg
-      width="34"
-      height="34"
-      viewBox="0 0 48 48"
-      fill="none"
-      stroke="#6EE7A0"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="24" cy="13" r="5" fill="rgba(110,231,160,0.18)" />
-      <g stroke="#6EE7A0" strokeWidth="1.6">
-        <line x1="24" y1="3" x2="24" y2="6" />
-        <line x1="24" y1="20" x2="24" y2="23" />
-        <line x1="14" y1="13" x2="11" y2="13" />
-        <line x1="34" y1="13" x2="37" y2="13" />
-      </g>
-      <path d="M 8 40 L 16 24 L 40 24 L 40 40 Z" fill="rgba(110,231,160,0.12)" />
-      <line x1="16" y1="32" x2="40" y2="32" />
-      <line x1="24" y1="24" x2="22" y2="40" />
-      <line x1="32" y1="24" x2="31" y2="40" />
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill={SUN_FILL} />
+      <line x1={cx} y1={cy - r - 3} x2={cx} y2={cy - r - 1} />
+      <line x1={cx - r - 3} y1={cy} x2={cx - r - 1} y2={cy} />
+      <line x1={cx + r + 1} y1={cy} x2={cx + r + 3} y2={cy} />
+      {rays > 3 && (
+        <>
+          <line x1={cx - r - 2} y1={cy - r - 2} x2={cx - r} y2={cy - r} />
+          <line x1={cx + r + 2} y1={cy - r - 2} x2={cx + r} y2={cy - r} />
+        </>
+      )}
+    </g>
+  );
+}
+
+function PanelBasicoIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <SunGlyph cx={24} cy={10} r={3.5} rays={3} />
+      <rect x="15" y="22" width="18" height="20" rx="1.4" fill={PANEL_FILL} />
+      <line x1="24" y1="22" x2="24" y2="42" />
+      <line x1="15" y1="32" x2="33" y2="32" />
+    </svg>
+  );
+}
+
+function PanelPadraoIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <SunGlyph cx={24} cy={9} r={3} rays={5} />
+      <rect x="4" y="22" width="18" height="20" rx="1.4" fill={PANEL_FILL} />
+      <line x1="13" y1="22" x2="13" y2="42" />
+      <line x1="4" y1="32" x2="22" y2="32" />
+      <rect x="26" y="22" width="18" height="20" rx="1.4" fill={PANEL_FILL} />
+      <line x1="35" y1="22" x2="35" y2="42" />
+      <line x1="26" y1="32" x2="44" y2="32" />
+    </svg>
+  );
+}
+
+function PanelPlusIcon() {
+  return (
+    <svg {...ICON_PROPS}>
+      <SunGlyph cx={24} cy={8} r={2.8} rays={5} />
+      <rect x="2" y="24" width="13" height="18" rx="1.2" fill={PANEL_FILL} />
+      <line x1="8.5" y1="24" x2="8.5" y2="42" />
+      <line x1="2" y1="33" x2="15" y2="33" />
+      <rect x="17.5" y="24" width="13" height="18" rx="1.2" fill={PANEL_FILL} />
+      <line x1="24" y1="24" x2="24" y2="42" />
+      <line x1="17.5" y1="33" x2="30.5" y2="33" />
+      <rect x="33" y="24" width="13" height="18" rx="1.2" fill={PANEL_FILL} />
+      <line x1="39.5" y1="24" x2="39.5" y2="42" />
+      <line x1="33" y1="33" x2="46" y2="33" />
     </svg>
   );
 }
@@ -46,21 +91,21 @@ export default function Payback() {
       range: 'até 15 módulos',
       prejuizoMes: 'R$ 218',
       mensalidade: 'R$ 30',
-      icon: <PanelIcon />,
+      icon: <PanelBasicoIcon />,
     },
     {
       plano: 'Plano Padrão',
       range: '16–30 módulos',
       prejuizoMes: 'R$ 365',
       mensalidade: 'R$ 50',
-      icon: <PanelIcon />,
+      icon: <PanelPadraoIcon />,
     },
     {
       plano: 'Plano Plus',
       range: '31–60 módulos',
       prejuizoMes: 'R$ 729',
       mensalidade: 'R$ 100',
-      icon: <PanelIcon />,
+      icon: <PanelPlusIcon />,
     },
   ];
 

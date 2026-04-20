@@ -393,7 +393,7 @@ export default function Calculator() {
                 >
                   Suas <strong style={{ fontWeight: 800 }}>{modulos} placas</strong> geram{' '}
                   <strong style={{ fontWeight: 800 }}>
-                    ~{Math.round(geracaoMes).toLocaleString('pt-BR')} kWh/mês
+                    {'~\u00A0'}{Math.round(geracaoMes).toLocaleString('pt-BR')} kWh/mês
                   </strong>
                   . Com sujeira acumulada há <strong style={{ fontWeight: 800 }}>{perdaLabel}</strong>, você
                   perde até:
