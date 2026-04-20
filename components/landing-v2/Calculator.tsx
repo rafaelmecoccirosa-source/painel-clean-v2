@@ -24,7 +24,7 @@ export default function Calculator() {
   const [planoManual, setPlanoManual] = useState<PlanId | null>(null);
 
   const W_PER_MODULE = 550;
-  const KWH_PER_KWP_DAY = 1.35;
+  const KWH_PER_KWP_MONTH = 130;
   const TARIFF = 0.92;
   const PERDA_PCT: Record<UltimaLimpeza, number> = {
     Nunca: 0.3,
@@ -34,7 +34,7 @@ export default function Calculator() {
   };
 
   const kWp = (modulos * W_PER_MODULE) / 1000;
-  const geracaoMes = kWp * KWH_PER_KWP_DAY * 30;
+  const geracaoMes = kWp * KWH_PER_KWP_MONTH;
   const perdaPct = PERDA_PCT[ultimaLimpeza];
   const perdaKwh = Math.round(geracaoMes * perdaPct);
   const perdaReaisMes = Math.round(perdaKwh * TARIFF);
@@ -338,8 +338,8 @@ export default function Calculator() {
                   lineHeight: 1.5,
                 }}
               >
-                <strong style={{ color: COLORS.dark, fontWeight: 700 }}>Premissas:</strong> módulos 550Wp · 1,35
-                kWh/kWp/dia · tarifa R$ 0,92/kWh · média SC
+                <strong style={{ color: COLORS.dark, fontWeight: 700 }}>Premissas:</strong> módulos 550Wp · 130
+                kWh/kWp/mês · tarifa R$ 0,92/kWh · média SC
               </p>
             </div>
           </Card>

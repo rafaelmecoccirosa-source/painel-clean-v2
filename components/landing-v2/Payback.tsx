@@ -321,7 +321,7 @@ export default function Payback() {
             lineHeight: 1.5,
           }}
         >
-          Premissas: módulos 550Wp · 1,35 kWh/kWp/dia · tarifa R$ 0,92/kWh · sujeira acumulada ~6 meses
+          Premissas: módulos 550Wp · 130 kWh/kWp/mês · tarifa R$ 0,92/kWh · sujeira acumulada ~6 meses
         </p>
       </div>
     </section>
