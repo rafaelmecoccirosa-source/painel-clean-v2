@@ -1,3 +1,5 @@
+"use client";
+
 const cities = [
   { name: "Jaraguá do Sul",     phase: "active",    x: 12, y: 18 },
   { name: "Pomerode",           phase: "active",    x: 22, y: 25 },

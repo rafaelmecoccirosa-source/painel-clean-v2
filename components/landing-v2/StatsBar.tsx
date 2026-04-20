@@ -1,3 +1,5 @@
+"use client";
+
 const stats = [
   { value: "2.400", suffix: "+", label: "usinas monitoradas" },
   { value: "180",   suffix: "+", label: "técnicos certificados" },

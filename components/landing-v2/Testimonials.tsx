@@ -1,3 +1,5 @@
+"use client";
+
 const testimonials = [
   {
     name: "Carlos Menegotti",

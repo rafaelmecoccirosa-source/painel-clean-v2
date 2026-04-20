@@ -1,3 +1,5 @@
+"use client";
+
 const passos = [
   {
     num: "1",
