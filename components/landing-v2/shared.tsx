@@ -277,39 +277,113 @@ export function SectionHeadline({
 }
 
 export function Particles({
-  count = 16,
+  count = 18,
 }: {
   count?: number;
-  /** Aceito por compatibilidade mas ignorado — partículas usam verde padrão com alpha aleatório. */
+  /** Aceito por compatibilidade — ignorado. Partículas usam verde + apagadas em mix-blend screen. */
   color?: string;
 }) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
-  const dots = Array.from({ length: count }, (_, i) => {
-    const size = 3 + Math.random() * 3;
-    const alpha = 0.2 + Math.random() * 0.2;
-    const duration = 6 + Math.random() * 6;
-    return (
-      <span
-        key={i}
-        style={{
-          position: 'absolute',
-          bottom: -10,
-          left: `${Math.random() * 100}%`,
-          width: size,
-          height: size,
-          borderRadius: '50%',
-          background: `rgba(61, 196, 90, ${alpha})`,
-          animation: `pc-rise ${duration}s linear ${Math.random() * duration}s infinite`,
-        }}
-      />
-    );
-  });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const target = Math.max(15, count);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    const cv = canvas;
+    const c = ctx;
+    let animId = 0;
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+
+    const resize = () => {
+      cv.width = cv.offsetWidth;
+      cv.height = cv.offsetHeight;
+    };
+    resize();
+    window.addEventListener('resize', resize);
+
+    class Particle {
+      x = 0;
+      y = 0;
+      vx = 0;
+      speed = 0;
+      size = 0;
+      alpha = 0;
+      maxAlpha = 0;
+      green = false;
+
+      constructor() {
+        this.init(true);
+      }
+
+      init(random: boolean) {
+        this.x = rand(0, cv.width);
+        this.y = random ? rand(0, cv.height) : cv.height + 5;
+        // speed 0.5–1.0 px/frame @60fps ≈ 30–60 px/s → ~10–18s para cruzar uma seção de 600px
+        this.speed = rand(0.5, 1.0);
+        this.vx = rand(-0.12, 0.12);
+        this.size = rand(1, 2.5);
+        this.maxAlpha = rand(0.4, 0.7);
+        this.alpha = random ? rand(0, this.maxAlpha) : 0;
+        this.green = Math.random() > 0.4;
+      }
+
+      update() {
+        this.y -= this.speed;
+        this.x += this.vx;
+        if (this.y < cv.height - 50 && this.y > 50) {
+          this.alpha = this.maxAlpha;
+        } else if (this.y >= cv.height - 50) {
+          this.alpha = ((cv.height - this.y) / 50) * this.maxAlpha;
+        } else {
+          this.alpha = (this.y / 50) * this.maxAlpha;
+        }
+        if (this.y < -5) this.init(false);
+      }
+
+      draw(c2: CanvasRenderingContext2D) {
+        c2.save();
+        c2.globalAlpha = Math.max(0, this.alpha);
+        c2.fillStyle = this.green ? '#3DC45A' : '#EBF3E8';
+        c2.beginPath();
+        c2.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c2.fill();
+        c2.restore();
+      }
+    }
+
+    const particles = Array.from({ length: target }, () => new Particle());
+
+    const loop = () => {
+      c.clearRect(0, 0, cv.width, cv.height);
+      particles.forEach((p) => {
+        p.update();
+        p.draw(c);
+      });
+      animId = requestAnimationFrame(loop);
+    };
+    loop();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('resize', resize);
+    };
+  }, [target]);
+
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
-      {dots}
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        mixBlendMode: 'screen',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }}
+    />
   );
 }
 
