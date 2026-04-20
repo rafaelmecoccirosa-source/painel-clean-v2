@@ -8,6 +8,7 @@ import Footer from '@/components/landing-v2/Footer';
 import Header from '@/components/landing-v2/Header';
 import Hero from '@/components/landing-v2/Hero';
 import HowItWorks from '@/components/landing-v2/HowItWorks';
+import Payback from '@/components/landing-v2/Payback';
 import Plans from '@/components/landing-v2/Plans';
 import StatsBar from '@/components/landing-v2/StatsBar';
 import TechB2B from '@/components/landing-v2/TechB2B';
@@ -20,6 +21,7 @@ export default function LandingV2Page() {
       <Header />
       <Hero />
       <StatsBar />
+      <Payback />
       <Calculator />
       <DashboardPreview />
       <HowItWorks />

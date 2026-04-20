@@ -56,10 +56,10 @@ export default function Calculator() {
   const planoObj = planos.find((p) => p.id === planoSel) ?? planos[1];
   const custom = planoAuto === 'pro';
 
-  const precoPlaca = modulos <= 30 ? 30 : modulos <= 50 ? 25 : 20;
-  const precoAvulso = modulos * precoPlaca;
+  // Avulso 3 anos: base R$ 3.600 para 20 módulos, escalado linearmente.
+  const avulso3y = 180 * modulos;
+  const precoAvulsoUnico = avulso3y / 6;
   const assinatura3y = planoObj.preco * 36 - planoObj.preco * 0.5;
-  const avulso3y = precoAvulso * 6;
   const economia3y = Math.max(0, avulso3y - assinatura3y);
 
   const sliderStyle: CSSProperties = {
@@ -577,7 +577,7 @@ export default function Calculator() {
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          R$ {Math.round(precoAvulso * 0.5).toLocaleString('pt-BR')},00
+                          R$ {Math.round(precoAvulsoUnico * 0.5).toLocaleString('pt-BR')},00
                         </strong>
                       </div>
                       <div
