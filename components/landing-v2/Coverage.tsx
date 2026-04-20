@@ -1,36 +1,43 @@
 "use client";
 
+import { useState } from "react";
+
 const cities = [
-  { name: "Jaraguá do Sul",     phase: "active",    x: 12, y: 18 },
-  { name: "Pomerode",           phase: "active",    x: 22, y: 25 },
-  { name: "Florianópolis",      phase: "active",    x: 62, y: 88 },
-  { name: "Blumenau",           phase: "expanding", x: 30, y: 32 },
-  { name: "Itajaí",             phase: "expanding", x: 42, y: 45 },
-  { name: "Brusque",            phase: "expanding", x: 35, y: 40 },
-  { name: "Gaspar",             phase: "expanding", x: 38, y: 36 },
-  { name: "Balneário Camboriú", phase: "soon",      x: 48, y: 54 },
-  { name: "Navegantes",         phase: "soon",      x: 45, y: 50 },
-  { name: "Itapema",            phase: "soon",      x: 52, y: 60 },
-  { name: "Tijucas",            phase: "soon",      x: 56, y: 68 },
-  { name: "São José",           phase: "soon",      x: 59, y: 82 },
-  { name: "Palhoça",            phase: "soon",      x: 60, y: 86 },
-];
+  { name: "Jaraguá do Sul",     phase: "active",    x: 18, y: 16 },
+  { name: "Pomerode",           phase: "active",    x: 28, y: 22 },
+  { name: "Blumenau",           phase: "expanding", x: 34, y: 28 },
+  { name: "Gaspar",             phase: "expanding", x: 40, y: 32 },
+  { name: "Brusque",            phase: "expanding", x: 38, y: 38 },
+  { name: "Itajaí",             phase: "expanding", x: 46, y: 42 },
+  { name: "Balneário Camboriú", phase: "soon",      x: 50, y: 50 },
+  { name: "Camboriú",           phase: "soon",      x: 48, y: 54 },
+  { name: "Navegantes",         phase: "soon",      x: 44, y: 47 },
+  { name: "Itapema",            phase: "soon",      x: 54, y: 58 },
+  { name: "Tijucas",            phase: "soon",      x: 56, y: 65 },
+  { name: "São José",           phase: "soon",      x: 60, y: 80 },
+  { name: "Florianópolis",      phase: "active",    x: 63, y: 87 },
+] as const;
 
-const phaseColors = {
-  active:    "#3DC45A",
-  expanding: "#7A9A84",
-  soon:      "#C8DFC0",
-};
+type Phase = "active" | "expanding" | "soon";
 
-const phaseLabels = {
-  active:    "Ativo agora",
-  expanding: "Expansão (mês 3–6)",
-  soon:      "Em breve (ano 2)",
+const phaseConfig: Record<Phase, { fill: string; stroke?: string; label: string; pulse: boolean }> = {
+  active:    { fill: "#1B3A2D", label: "Ativa",      pulse: true  },
+  expanding: { fill: "#3DC45A", label: "Expandindo", pulse: true  },
+  soon:      { fill: "#C8DFC0", stroke: "#7A9A84", label: "Em breve", pulse: false },
 };
 
 export default function Coverage() {
+  const [hovered, setHovered] = useState<string | null>(null);
+
   return (
     <section id="cobertura" style={{ background: "#F4F8F2", padding: "clamp(72px, 9vw, 110px) 0" }}>
+      <style>{`
+        @keyframes pc-pulse {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50%       { opacity: 0.05; transform: scale(1.6); }
+        }
+      `}</style>
+
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <div className="text-center mb-12 animate-on-scroll">
@@ -52,66 +59,138 @@ export default function Coverage() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-10 items-start justify-center animate-on-scroll">
-          {/* SVG Map */}
-          <div className="w-full md:w-80 flex-shrink-0">
+
+          {/* SVG map */}
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 340,
+              margin: "0 auto",
+              background: "white",
+              borderRadius: 20,
+              overflow: "hidden",
+              boxShadow: "0 4px 24px rgba(27,58,45,0.10)",
+              padding: 16,
+              flexShrink: 0,
+            }}
+          >
             <svg
-              viewBox="0 0 100 100"
-              style={{ width: "100%", maxWidth: 320, display: "block", margin: "0 auto" }}
-              aria-label="Mapa de cobertura"
+              viewBox="0 0 100 120"
+              style={{ width: "100%", display: "block" }}
+              aria-label="Mapa de cobertura — Santa Catarina"
             >
-              {/* SC coastline rough outline */}
+              {/* Background */}
+              <rect x="1" y="1" width="98" height="118" rx="8" fill="#EBF3E8" stroke="#C8DFC0" strokeWidth="0.8" />
+
+              {/* Coastline bezier */}
               <path
-                d="M8 15 Q10 12 14 13 Q18 10 22 14 Q28 11 32 15 Q36 13 40 16 Q44 14 48 17 Q52 16 55 20 Q58 18 62 22 Q66 20 70 25 Q68 30 65 33 Q68 36 66 40 Q70 44 68 48 Q72 52 70 56 Q74 58 72 62 Q70 66 68 70 Q66 74 64 78 Q63 82 65 86 Q63 90 60 92 Q56 93 52 91 Q48 90 44 92 Q40 91 36 89 Q32 88 28 85 Q24 82 22 78 Q18 75 16 70 Q12 66 10 60 Q8 54 9 48 Q7 42 8 36 Q6 30 8 24 Z"
-                fill="#EBF3E8"
+                d="M 22,10 C 30,14 26,20 32,26 C 38,32 42,36 46,42 C 50,48 52,54 54,60 C 56,66 58,72 60,80 C 61,83 62,85 63,87"
                 stroke="#C8DFC0"
-                strokeWidth="0.8"
+                strokeWidth="1.5"
+                fill="none"
+                strokeLinecap="round"
               />
 
               {/* City pins */}
-              {cities.map(({ name, phase, x, y }) => (
-                <g key={name}>
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={phase === "active" ? 2.5 : 1.8}
-                    fill={phaseColors[phase as keyof typeof phaseColors]}
-                    opacity={phase === "soon" ? 0.6 : 1}
-                  />
-                  {phase === "active" && (
+              {cities.map(({ name, phase, x, y }) => {
+                const cfg = phaseConfig[phase];
+                const isHovered = hovered === name;
+                return (
+                  <g
+                    key={name}
+                    style={{ cursor: "pointer" }}
+                    onMouseEnter={() => setHovered(name)}
+                    onMouseLeave={() => setHovered(null)}
+                  >
+                    {/* Pulse halo */}
+                    {cfg.pulse && (
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r={5}
+                        fill={cfg.fill}
+                        style={{ animation: "pc-pulse 2.5s ease-in-out infinite" }}
+                      />
+                    )}
+
+                    {/* Main pin */}
                     <circle
                       cx={x}
                       cy={y}
-                      r={4.5}
-                      fill="none"
-                      stroke="#3DC45A"
-                      strokeWidth="0.6"
-                      opacity="0.4"
+                      r={2.8}
+                      fill={cfg.fill}
+                      stroke={cfg.stroke ?? "none"}
+                      strokeWidth={cfg.stroke ? 0.8 : 0}
                     />
-                  )}
-                </g>
-              ))}
+
+                    {/* Tooltip */}
+                    {isHovered && (
+                      <g transform={`translate(${x}, ${y - 10})`}>
+                        <rect
+                          x={-22}
+                          y={-10}
+                          width={44}
+                          height={11}
+                          rx={3}
+                          fill="white"
+                          filter="drop-shadow(0 1px 4px rgba(0,0,0,0.15))"
+                        />
+                        <text
+                          textAnchor="middle"
+                          style={{ fontSize: "5px", fill: "#1B3A2D", fontWeight: 600, fontFamily: "sans-serif" }}
+                          y={-3}
+                        >
+                          {name}
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
             </svg>
+
+            {/* Legend */}
+            <div className="flex items-center justify-center gap-4 mt-3">
+              {(["active", "expanding", "soon"] as Phase[]).map((phase) => {
+                const cfg = phaseConfig[phase];
+                return (
+                  <div key={phase} className="flex items-center gap-1.5">
+                    <span
+                      style={{
+                        width: 9,
+                        height: 9,
+                        borderRadius: "50%",
+                        background: cfg.fill,
+                        border: cfg.stroke ? `1px solid ${cfg.stroke}` : undefined,
+                        display: "inline-block",
+                        flexShrink: 0,
+                      }}
+                    />
+                    <span style={{ fontSize: 11, color: "#7A9A84" }}>{cfg.label}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
           {/* City list */}
           <div className="flex-1 flex flex-col gap-6">
-            {(["active", "expanding", "soon"] as const).map((phase) => (
+            {(["active", "expanding", "soon"] as Phase[]).map((phase) => (
               <div key={phase}>
                 <div className="flex items-center gap-2 mb-3">
                   <span
-                    className="inline-block rounded-full"
                     style={{
                       width: 10,
                       height: 10,
-                      background: phaseColors[phase],
+                      borderRadius: "50%",
+                      background: phaseConfig[phase].fill,
+                      border: phaseConfig[phase].stroke ? `1px solid ${phaseConfig[phase].stroke}` : undefined,
+                      display: "inline-block",
                       flexShrink: 0,
                     }}
                   />
-                  <span
-                    className="font-heading font-bold text-brand-dark"
-                    style={{ fontSize: "13px" }}
-                  >
-                    {phaseLabels[phase]}
+                  <span className="font-heading font-bold text-brand-dark" style={{ fontSize: 13 }}>
+                    {phaseConfig[phase].label}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -122,9 +201,9 @@ export default function Coverage() {
                         key={name}
                         className="text-xs font-medium px-3 py-1 rounded-full"
                         style={{
-                          background: phase === "active" ? "#DCFCE7" : "white",
-                          color: phase === "active" ? "#1B3A2D" : "#7A9A84",
-                          border: `1px solid ${phase === "active" ? "#C8DFC0" : "#E5EDE2"}`,
+                          background: phase === "active" ? "#DCFCE7" : phase === "expanding" ? "#F0FAF2" : "white",
+                          color: phase === "soon" ? "#7A9A84" : "#1B3A2D",
+                          border: "1px solid #C8DFC0",
                         }}
                       >
                         {name}
@@ -134,8 +213,8 @@ export default function Coverage() {
               </div>
             ))}
           </div>
-        </div>
 
+        </div>
       </div>
     </section>
   );

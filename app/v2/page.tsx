@@ -3,6 +3,7 @@ import ScrollAnimations from "@/components/home/ScrollAnimations";
 import Header       from "@/components/landing-v2/Header";
 import Hero         from "@/components/landing-v2/Hero";
 import StatsBar     from "@/components/landing-v2/StatsBar";
+import Calculadora  from "@/components/landing-v2/Calculadora";
 import ComoFunciona from "@/components/landing-v2/ComoFunciona";
 import Diferenciais from "@/components/landing-v2/Diferenciais";
 import Planos       from "@/components/landing-v2/Planos";
@@ -25,6 +26,7 @@ export default function LandingV2() {
       <main>
         <Hero />
         <StatsBar />
+        <Calculadora />
         <ComoFunciona />
         <Diferenciais />
         <Planos />
