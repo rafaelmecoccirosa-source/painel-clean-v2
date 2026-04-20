@@ -20,7 +20,7 @@ export default function Calculator() {
   }, []);
 
   const [modulos, setModulos] = useState(20);
-  const [ultimaLimpeza, setUltimaLimpeza] = useState<UltimaLimpeza>('6m');
+  const [ultimaLimpeza, setUltimaLimpeza] = useState<UltimaLimpeza>('Nunca');
   const [planoManual, setPlanoManual] = useState<PlanId | null>(null);
 
   const W_PER_MODULE = 550;
