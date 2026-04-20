@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import './landing-v2.css';
 
 export const metadata: Metadata = {
-  title: 'Painel Clean — Sua usina solar merece cuidado todo mês',
+  title: 'Painel Clean — Sua usina solar no máximo, o ano inteiro',
   description:
-    'Assinatura mensal de limpeza e monitoramento de painéis solares em Santa Catarina. A partir de R$ 30/mês. 1ª limpeza com 50% off.',
+    'Plataforma de assinatura mensal de limpeza e monitoramento de painéis solares em Santa Catarina.',
 };
 
 export default function LandingV2Layout({ children }: { children: React.ReactNode }) {
