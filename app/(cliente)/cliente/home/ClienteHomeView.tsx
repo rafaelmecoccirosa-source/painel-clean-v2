@@ -58,6 +58,9 @@ export default function ClienteHomeView() {
           <PlanoAtivoCard
             plano={c.plano}
             valor={c.mensalidade}
+            valorOriginal={c.mensalidadeOriginal}
+            descontoPct={c.descontoIndicacao}
+            indicacoesAtivas={c.indicacoesAtivas}
             usadas={c.limpezasUsadas}
             total={c.limpezasTotal}
           />

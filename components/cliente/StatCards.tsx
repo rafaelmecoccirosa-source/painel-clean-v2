@@ -104,12 +104,23 @@ export function PlanoAtivoCard({
   valor,
   usadas,
   total,
+  valorOriginal,
+  descontoPct,
+  indicacoesAtivas,
 }: {
   plano: string;
   valor: number;
   usadas: number;
   total: number;
+  valorOriginal?: number;
+  descontoPct?: number;
+  indicacoesAtivas?: number;
 }) {
+  const showDesconto =
+    typeof valorOriginal === 'number' &&
+    typeof descontoPct === 'number' &&
+    descontoPct > 0 &&
+    valorOriginal > valor;
   return (
     <CardBase hoverable>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
@@ -143,6 +154,21 @@ export function PlanoAtivoCard({
         </span>
         <span style={{ fontSize: 12, color: COLORS.muted }}>/mês</span>
       </div>
+      {showDesconto && (
+        <div
+          style={{
+            marginTop: 4,
+            fontFamily: "'Open Sans',sans-serif",
+            fontSize: 12,
+            color: COLORS.muted,
+            lineHeight: 1.4,
+          }}
+        >
+          R$ {valorOriginal!.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} com{' '}
+          {descontoPct}% desconto
+          {indicacoesAtivas ? ` (${indicacoesAtivas} indicações ativas)` : null}
+        </div>
+      )}
       <div
         style={{
           marginTop: 14,
