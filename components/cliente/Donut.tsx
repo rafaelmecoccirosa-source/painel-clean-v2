@@ -19,8 +19,24 @@ export default function Donut({
 }) {
   const r = 42;
   const c = 2 * Math.PI * r;
+  const PAD = 10;
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100">
+    <div
+      style={{
+        display: 'inline-flex',
+        padding: PAD,
+        margin: -PAD,
+        overflow: 'visible',
+        position: 'relative',
+        zIndex: 2,
+      }}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        style={{ overflow: 'visible', display: 'block' }}
+      >
       <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
       {baseline != null && (
         <circle
@@ -88,7 +104,8 @@ export default function Donut({
           {deltaLabel}
         </text>
       )}
-    </svg>
+      </svg>
+    </div>
   );
 }
 
