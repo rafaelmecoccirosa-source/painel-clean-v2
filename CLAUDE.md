@@ -225,7 +225,7 @@ created_at   timestamp
 id               uuid PRIMARY KEY
 client_id        uuid REFERENCES profiles(user_id)
 plan_type        text  -- 'basic' | 'standard' | 'plus'
-status           text  -- 'active' | 'cancelled' | 'paused'
+status           text  -- CHECK: 'active' | 'cancelled' | 'paused'  ⚠️ constraint no banco — não usar outros valores
 price_monthly    numeric
 modules_count    int
 started_at       timestamp
@@ -239,26 +239,25 @@ created_at       timestamp
 ### Tabela `service_requests`
 ```sql
 id               uuid PRIMARY KEY
-client_id        uuid REFERENCES profiles(user_id)
-tecnico_id       uuid REFERENCES profiles(user_id)  -- nullable até aceite
+client_id        uuid REFERENCES auth.users(id)
+technician_id    uuid REFERENCES auth.users(id)     -- nullable até aceite  ⚠️ é technician_id (não tecnico_id)
 subscription_id  uuid REFERENCES subscriptions(id)  -- nullable se avulso
 origin           text  -- 'subscription' | 'avulso'
 status           text  -- ver fluxo abaixo
 module_count     int   -- NUNCA usar panel_count (removido)
 address          text
-scheduled_date   date
-shift            text  -- 'manha' | 'tarde'
+preferred_date   date                               -- ⚠️ é preferred_date (não scheduled_date)
+preferred_time   text  -- 'manha' | 'tarde'         -- ⚠️ é preferred_time (não shift)
 notes            text
-price            numeric
-report_url       text  -- URL do PDF após conclusão
+price_estimate   numeric
 created_at       timestamp
 updated_at       timestamp
 ```
 
-**Status válidos de service_requests:**
+**Status válidos de service_requests (CHECK no banco):**
 ```
-pending_assignment → assigned → confirmed → in_progress → completed → report_sent
-cancelled (qualquer etapa antes de in_progress)
+pending → accepted → in_progress → completed
+cancelled (qualquer etapa)
 ```
 
 ### Tabela `monthly_reports`
@@ -275,19 +274,19 @@ savings_estimated numeric
 alert_message    text  -- nullable — usado para estado 'drop' no hero
 report_pdf_url   text
 sent_at          timestamp
-read_at          timestamp  -- nullable — usado para estado 'report' no hero
+read_at          timestamp  -- nullable — usado para estado 'report' no hero  ✓ existe (migration 20260421)
 created_at       timestamp
 ```
 
-### Tabela `referrals` (programa de indicações)
+### Tabela `referrals` (programa de indicações) ✓ existe (migration 20260421)
 ```sql
 id            uuid PRIMARY KEY
-referrer_id   uuid REFERENCES profiles(user_id)  -- quem indicou
-referred_id   uuid REFERENCES profiles(user_id)  -- quem foi indicado
-status        text  -- 'pending' | 'active' | 'expired'
-discount_pct  numeric  -- 6.0
-expires_at    timestamp
-created_at    timestamp
+referrer_id   uuid REFERENCES auth.users(id)  -- quem indicou
+referred_id   uuid REFERENCES auth.users(id)  -- quem foi indicado
+status        varchar(20)  -- CHECK: 'pending' | 'active' | 'expired'
+discount_pct  decimal(5,2) DEFAULT 6.00
+expires_at    timestamptz
+created_at    timestamptz DEFAULT now()
 ```
 
 ### RLS crítico
@@ -301,31 +300,25 @@ created_at    timestamp
 
 ### 1. Cliente cria pedido
 ```
-Cliente → /cliente/avulsa → cria service_request (status: pending_assignment)
-         ou agendamento automático via subscription (status: pending_assignment)
+Cliente → /cliente/avulsa → cria service_request (status: pending)
+         ou agendamento automático via subscription (status: pending)
 ```
 
-### 2. Admin designa técnico
+### 2. Técnico aceita
 ```
-Admin → /admin/chamados → atribui tecnico_id → status: assigned
-```
-
-### 3. Técnico aceita
-```
-Técnico → /tecnico/chamados → aceita → status: confirmed
+Técnico → /tecnico/chamados → aceita → status: accepted  (technician_id preenchido)
           Sistema notifica cliente (email + notificação in-app)
 ```
 
-### 4. Execução
+### 3. Execução
 ```
 Técnico → inicia serviço → status: in_progress
 Técnico → conclui + envia fotos → status: completed
 ```
 
-### 5. Relatório e liberação
+### 4. Relatório e liberação
 ```
-Admin → revisa → gera PDF → report_url preenchido → status: report_sent
-Admin → libera repasse ao técnico (75% do valor)
+Admin → revisa → libera repasse ao técnico (75% do valor)
 Cliente → recebe notificação → pode avaliar serviço
 ```
 
