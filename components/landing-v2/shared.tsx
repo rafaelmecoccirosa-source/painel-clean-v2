@@ -1,21 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties, type ReactNode, type ButtonHTMLAttributes, type RefObject } from 'react';
+import { COLORS } from '@/lib/brand-tokens';
 
-export const COLORS = {
-  dark: '#1B3A2D',
-  darkHover: '#142C22',
-  green: '#3DC45A',
-  greenHover: '#2DAF4A',
-  light: '#EBF3E8',
-  bg: '#F4F8F2',
-  border: '#C8DFC0',
-  muted: '#7A9A84',
-  amberBg: '#FEF3C7',
-  amberBorder: '#FDE68A',
-  amberText: '#B45309',
-  amberTextDark: '#92400E',
-} as const;
+export { COLORS };
 
 export const LOGO_WHITE = '/landing-v2-logo-white.png';
 export const LOGO_DARK = '/landing-v2-logo-dark.png';
