@@ -238,7 +238,7 @@ export default function CompletarCadastroPage() {
     const { error: subError } = await supabase.from("subscriptions").insert({
       client_id:       user.id,
       plan_type:       planId,
-      status:          "pending_payment",
+      status:          "active",
       price_monthly:   plan.price,
       modules_count:   total,
       inverter_brand:  usinas[0]?.inversor || null,
