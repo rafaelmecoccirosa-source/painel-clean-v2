@@ -28,21 +28,26 @@ export default function ClienteHomeView() {
           gap: 24,
         }}
       >
-        <HeroCard
-          state={c.heroState}
-          userFirst={userFirst}
-          plano={c.plano}
-          proximaLimpezaDias={proximaLimpezaDias}
-          proximaLimpezaData={proximaLimpezaData}
-          tecnico={c.tecnico}
-          eficiencia={c.eficienciaAtual}
-          geracao={c.geracao}
-          geracaoMeta={c.geracaoMeta}
-          mesRelatorio="março"
-          onReagendar={() => setReagendarOpen(true)}
-        />
+        <div className="fade-up">
+          <HeroCard
+            state={c.heroState}
+            userFirst={userFirst}
+            plano={c.plano}
+            proximaLimpezaDias={proximaLimpezaDias}
+            proximaLimpezaData={proximaLimpezaData}
+            tecnico={c.tecnico}
+            eficiencia={c.eficienciaAtual}
+            geracao={c.geracao}
+            geracaoMeta={c.geracaoMeta}
+            mesRelatorio="março"
+            onReagendar={() => setReagendarOpen(true)}
+          />
+        </div>
 
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+        <section
+          className="fade-up fade-up-1"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}
+        >
           <NextCleaningCard
             dias={proximaLimpezaDias}
             data={proximaLimpezaData}
@@ -59,9 +64,13 @@ export default function ClienteHomeView() {
           <EconomiaCard total={c.economiaAcumulada} delta={95} />
         </section>
 
-        <HistorySection />
+        <div className="fade-up fade-up-2">
+          <HistorySection />
+        </div>
 
-        <AvulsaFooterCTA />
+        <div className="fade-up fade-up-3">
+          <AvulsaFooterCTA />
+        </div>
       </main>
 
       <ReagendarModal

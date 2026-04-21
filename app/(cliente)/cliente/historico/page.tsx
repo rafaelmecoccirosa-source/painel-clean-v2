@@ -23,7 +23,10 @@ export default function HistoricoPage() {
         </h1>
       </div>
 
-      <section style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <section
+        className="fade-up fade-up-1"
+        style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}
+      >
         <ChartCard eyebrow="Eficiência ao longo do tempo" title="Evolução em 12 meses">
           <EficienciaChart />
         </ChartCard>
@@ -32,7 +35,7 @@ export default function HistoricoPage() {
         </ChartCard>
       </section>
 
-      <section>
+      <section className="fade-up fade-up-2">
         <Eyebrow>Tabela completa</Eyebrow>
         <h3
           style={{

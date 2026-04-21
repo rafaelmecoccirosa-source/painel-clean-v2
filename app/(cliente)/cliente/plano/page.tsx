@@ -38,6 +38,7 @@ export default function PlanoPage() {
     <main style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 28px 72px', display: 'grid', gap: 24 }}>
       {/* Hero dark — plano ativo */}
       <section
+        className="fade-up"
         style={{
           background: `linear-gradient(135deg, ${COLORS.dark} 0%, #0E251C 100%)`,
           color: 'white',
@@ -113,7 +114,10 @@ export default function PlanoPage() {
       </section>
 
       {/* Próxima cobrança + contrato */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+      <section
+        className="fade-up fade-up-1"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}
+      >
         <div
           style={{
             background: 'white',
@@ -229,7 +233,7 @@ export default function PlanoPage() {
       </section>
 
       {/* Comparativo de planos */}
-      <section>
+      <section className="fade-up fade-up-2">
         <Eyebrow>Comparativo de planos</Eyebrow>
         <h2
           style={{
@@ -335,6 +339,7 @@ export default function PlanoPage() {
 
       {/* Limpeza extra */}
       <section
+        className="fade-up fade-up-3"
         style={{
           background: COLORS.light,
           border: `1px solid ${COLORS.border}`,
@@ -371,6 +376,7 @@ export default function PlanoPage() {
 
       {/* Cancelamento */}
       <section
+        className="fade-up fade-up-4"
         style={{
           background: 'white',
           border: `1px solid ${COLORS.border}`,

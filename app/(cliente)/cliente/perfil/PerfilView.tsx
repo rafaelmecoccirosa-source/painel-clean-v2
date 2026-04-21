@@ -34,7 +34,10 @@ export default function PerfilView() {
         </h1>
       </div>
 
-      <section style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 24 }}>
+      <section
+        className="fade-up fade-up-1"
+        style={{ display: 'grid', gridTemplateColumns: '1.15fr 1fr', gap: 24 }}
+      >
         {/* Dados pessoais */}
         <div
           style={{
@@ -150,6 +153,7 @@ export default function PerfilView() {
 
       {/* Pagamento */}
       <section
+        className="fade-up fade-up-2"
         style={{
           background: 'white',
           border: `1px solid ${COLORS.border}`,
@@ -210,6 +214,7 @@ export default function PerfilView() {
 
       {/* Notificações */}
       <section
+        className="fade-up fade-up-3"
         style={{
           background: 'white',
           border: `1px solid ${COLORS.border}`,

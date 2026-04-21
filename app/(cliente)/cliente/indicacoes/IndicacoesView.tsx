@@ -41,6 +41,7 @@ export default function IndicacoesView() {
     <main style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 28px 72px', display: 'grid', gap: 24 }}>
       {/* Hero dark */}
       <section
+        className="fade-up"
         style={{
           position: 'relative',
           background: `linear-gradient(135deg, ${COLORS.dark} 0%, #0E251C 100%)`,
@@ -133,7 +134,10 @@ export default function IndicacoesView() {
       </section>
 
       {/* 5 niveis */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14 }}>
+      <section
+        className="fade-up fade-up-1"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14 }}
+      >
         {NIVEIS.map((n) => {
           const ativo = n.n <= c.indicacoesAtivas;
           return (
@@ -182,6 +186,7 @@ export default function IndicacoesView() {
 
       {/* Link */}
       <section
+        className="fade-up fade-up-2"
         style={{
           background: 'white',
           border: `1px solid ${COLORS.border}`,
@@ -238,7 +243,7 @@ export default function IndicacoesView() {
       </section>
 
       {/* Tabela */}
-      <section>
+      <section className="fade-up fade-up-3">
         <Eyebrow>Indicações realizadas</Eyebrow>
         <h3
           style={{
@@ -316,6 +321,7 @@ export default function IndicacoesView() {
 
       {/* Como funciona */}
       <section
+        className="fade-up fade-up-4"
         style={{
           background: COLORS.light,
           border: `1px solid ${COLORS.border}`,

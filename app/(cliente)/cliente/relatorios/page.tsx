@@ -23,7 +23,10 @@ export default function RelatoriosPage() {
       </div>
 
       {/* 3 metric cards */}
-      <section style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+      <section
+        className="fade-up fade-up-1"
+        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}
+      >
         <MetricCard eyebrow="Eficiência média" value="91,5%" sub="últimos 12 meses" />
         <MetricCard eyebrow="Total gerado" value="5.256 kWh" sub="últimos 12 meses" />
         <MetricCard eyebrow="Ganho pós-limpeza" value="+10,7%" sub="média após cada limpeza" accent />
@@ -31,6 +34,7 @@ export default function RelatoriosPage() {
 
       {/* Chart */}
       <section
+        className="fade-up fade-up-2"
         style={{
           background: 'white',
           border: `1px solid ${COLORS.border}`,
@@ -61,7 +65,7 @@ export default function RelatoriosPage() {
       </section>
 
       {/* Lista PDFs */}
-      <section>
+      <section className="fade-up fade-up-3">
         <Eyebrow>Relatórios disponíveis</Eyebrow>
         <h3
           style={{
@@ -127,6 +131,7 @@ export default function RelatoriosPage() {
 
       {/* Info card */}
       <section
+        className="fade-up fade-up-4"
         style={{
           background: COLORS.light,
           border: `1px solid ${COLORS.border}`,
