@@ -1,5 +1,8 @@
 # CLAUDE.md — Painel Clean Plataforma v2
 
+> ⚠️ **REPO ATIVO DE TRABALHO:** github.com/rafaelmecoccirosa-source/painel-clean-v2
+> Todas as implementações vão aqui. A v1 (painel-clean-plataforma) é só referência histórica — nunca editar.
+
 > Contexto completo do projeto para o Claude Code.
 > Atualizado em: 2026-04-21
 > Leia este arquivo inteiro antes de qualquer implementação.
