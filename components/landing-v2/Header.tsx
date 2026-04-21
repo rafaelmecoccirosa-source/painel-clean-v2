@@ -33,7 +33,7 @@ export default function Header() {
       style={{
         position: 'sticky',
         top: 0,
-        zIndex: 50,
+        zIndex: 100,
         background: scrolled ? 'rgba(244,248,242,0.94)' : COLORS.bg,
         backdropFilter: scrolled ? 'saturate(140%) blur(10px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'saturate(140%) blur(10px)' : 'none',
