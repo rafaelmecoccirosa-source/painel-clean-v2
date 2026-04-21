@@ -2,37 +2,78 @@
 
 > Arquivo vivo. Atualizar a cada sessão.
 > Versão: v2 — modelo assinatura (Netflix)
-> Última atualização: 2026-04-20
+> Última atualização: 2026-04-21
 
 ---
 
 ## PENDENTES (a fazer)
 
-### Landing /v2 — ajustes finais
-- [ ] Partículas — replicar estilo ascending da v1 (em andamento no Claude Code)
-- [ ] Promover /v2 → / após aprovação final (arquivar atual em /v1)
+### Dashboard cliente — ajustes visuais
+- [ ] Header — corrigir para seguir pixel-perfect o Header.jsx do handoff (fundo #EBF3E8, nav pills, avatar com plano)
+- [ ] Menu — atualizar para ordem correta: Início · Relatórios · Histórico · Solicitar Limpeza · Indicações · Perfil
+- [ ] Páginas internas — alinhar tipografia, eyebrows, cards com tokens do handoff
+- [ ] Partículas e animações fade-up nas seções dark das páginas internas
+- [ ] "Meu Plano" mover para dentro de Perfil (remover do menu)
 
-### Dashboards — próxima fase
-- [ ] Dashboard cliente — alinhar layout com landing v3 (header, footer, tipografia, espaçamentos)
-- [ ] Dashboard cliente — telas faltando: Meu Plano, Relatórios, Solicitar Avulsa, Histórico, Perfil
-- [ ] Dashboard cliente — ícones do menu melhorar
-- [ ] Dashboard cliente — implementar no Claude Code após protótipo aprovado
-- [ ] Dashboard técnico — prototipar no Claude Design (agenda assinatura vs avulso, chamados, ganhos)
-- [ ] Dashboard admin — prototipar no Claude Design (assinaturas MRR/churn, relatórios, mapa)
+### Login e cadastro — reimplementar
+- [ ] Login — refinamento visual com tokens da landing v2 (protótipo aprovado em 2026-04-21)
+- [ ] Cadastro — novo fluxo em steps:
+  - Cliente: Dados pessoais → Dados da usina (+ adicionar mais usinas) → Escolha do plano → Confirmação
+  - Técnico: Dados pessoais → Experiência/disponibilidade → Aguardando aprovação (admin aprova)
+- [ ] Protótipo aprovado — pode implementar no Claude Code
+
+### Dashboards técnico e admin
+- [ ] Dashboard técnico — briefing pro Claude Design (agenda assinatura vs avulso, chamados, ganhos)
+- [ ] Dashboard admin — briefing pro Claude Design (assinaturas MRR/churn, relatórios, mapa)
 - [ ] Implementar dashboards no Claude Code após protótipos aprovados
 
+### Landing /v2 — fechar
+- [ ] Promover /v2 → / após aprovação final (arquivar atual em /v1)
+
 ### Banco de dados
-- [ ] Testar fluxo end-to-end com dados reais (cliente → técnico → admin)
+- [ ] Testar fluxo end-to-end com dados reais (cliente → técnico → admin → repasse)
+- [ ] Criar tabela `referrals` se ainda não existir
 
 ### Pré-lançamento
-- [ ] Auditoria de acessibilidade (web-design-guidelines)
+- [ ] Auditoria de acessibilidade
 - [ ] Testar responsivo mobile em todas as páginas
 - [ ] Configurar domínio customizado no Vercel
+- [ ] Adicionar SUPABASE_SERVICE_ROLE_KEY no .env.local (2 erros de build em rotas admin)
 
 ### Pós-MVP
 - [ ] Integração API inversores (Fronius, SolarEdge, Growatt, Sungrow, Hoymiles, Deye)
 - [ ] Débito automático recorrente
 - [ ] App mobile (base responsiva sendo construída com isso em mente)
+- [ ] Certificação de técnicos (checklist admin + aprovação)
+- [ ] Geração automática de PDF de relatório com fotos antes/depois
+
+---
+
+## CONCLUÍDO — Sessão 2026-04-21
+
+### Dashboard cliente v2 — implementado via Claude Code
+- [x] Layout base com header + proteção de role
+- [x] Home — HeroCard (5 estados dinâmicos) + 3 StatCards + histórico resumido + CTA avulsa
+- [x] ReagendarModal — calendário 14 dias + seleção de turno + confirmação
+- [x] Meu Plano — hero dark, cobrança, contrato, comparativo planos, limpeza extra, cancelamento
+- [x] Relatórios — 3 métricas + gráfico de barras Chart.js + lista PDFs + card informativo
+- [x] Histórico — gráfico linha eficiência + barras antes/depois + tabela completa
+- [x] Indicações — hero 12% + progress 5 níveis + link copia-cola + tabela indicados + como funciona
+- [x] Perfil — dados pessoais + minha usina + assinatura + pagamento + toggles notificações
+- [x] Avulsa — 3-step wizard (Detalhes → Resumo → Confirmação) com cálculo 40% off
+- [x] lib/mock-cliente.ts criado com MOCK_CLIENTE, MOCK_HISTORICO, MOCK_RELATORIOS, MOCK_INDICACOES
+- [x] Chart.js 4.5.1 + react-chartjs-2 5.3.1 instalados
+- [x] Fix redirect pós-login — /api/auth/redirect usando createClient() (não service)
+
+### Documentação
+- [x] CLAUDE.md atualizado com identidade de marca, tagline, tom de voz, banco completo, fluxos
+- [x] TODO.md atualizado
+
+### Protótipos aprovados (prontos para implementar)
+- [x] Login/cadastro — protótipo interativo aprovado em 2026-04-21
+  - Login: fundo dark green + partículas + Google OAuth + email/senha
+  - Cadastro cliente: 4 steps (dados → usina → plano → confirmação)
+  - Cadastro técnico: 3 steps (dados → experiência → aguardando aprovação)
 
 ---
 
@@ -40,38 +81,24 @@
 
 ### Landing /v2 — implementação via Claude Code terminal
 - [x] Claude Code terminal instalado no WSL (Ubuntu 24) via npm install -g @anthropic-ai/claude-code
-- [x] Claude Code extensão VS Code configurada (WSL terminal)
-- [x] Workflow descoberto: cat HTML | claude "instruções" para arquivos grandes
-- [x] HTML do Claude Design extraído via standalone export + Python bundle unpacker automático
 - [x] Landing v3 implementada: 14 seções, 15+ componentes em components/landing-v2/
-- [x] Assets copiados: hero-solar-v2.png (já existia), logos landing-v2-*
-- [x] sc-municipios.ts criado com 295 municípios de SC para o mapa
-- [x] Rota /v2 adicionada às rotas públicas no middleware.ts
-- [x] Title/metadata: "Painel Clean — Sua usina solar no máximo, o ano inteiro"
-- [x] Calculadora: premissa corrigida para 130 kWh/kWp/mês (era 1,35/dia ≈ 40/mês — muito baixo)
-- [x] Calculadora: toggle padrão alterado para "Nunca" (30% perda, argumento mais forte)
-- [x] Calculadora: sinal negativo na geração corrigido (~ 446 kWh/mês)
-- [x] Calculadora: footnote premissas corrigido para "130 kWh/kWp/mês"
-- [x] Payback section: dobra "Se paga em ~4 dias" adicionada (entre StatsBar e Calculadora)
-- [x] Payback section: ícones diferenciados por plano (1, 2, 3 painéis solares SVG)
-- [x] Git workflow: commits cirúrgicos sem CRLF churn, cherry-pick quando remoto divergiu
+- [x] Partículas corrigidas: canvas-based, opacidade 0.4–0.7, velocidade 10–18s
+- [x] Calculadora: premissa 130 kWh/kWp/mês, toggle padrão "Nunca" (30% perda)
+- [x] Dobra "Se paga em ~4 dias" adicionada com ícones por plano
+- [x] sc-municipios.ts criado com 295 municípios de SC
 
 ### Banco de dados v2
 - [x] Migrations aplicadas: subscriptions, monthly_reports, service_requests_v2
-- [x] Seed executado: 4 clientes com assinatura ativa + monthly_reports + service_requests
-- [x] panel_count removido do seed (coluna não existe no banco atual)
-- [x] Clientes demo com assinatura: Fernanda Alves (Padrão), Ana Silva (Básico), Ricardo Mendes (Plus), Maria Oliveira (Padrão)
+- [x] Seed: 4 clientes com assinatura ativa + monthly_reports + service_requests
 
 ---
 
 ## CONCLUÍDO — Sessão 2026-04-18
 
-### Landing atual (/) — refinamentos mobile e visual
-- [x] Hero mobile: background-position 30% center, overlay mais escuro, título 2rem
-- [x] Trust badges: grid 2x2+1 no mobile, 5º badge centralizado
-- [x] Hover states em cards de plano, depoimentos, botões
-- [x] FAQ accordion com transição suave (max-height + opacity 300ms)
-- [x] Contador animado na prova social (IntersectionObserver)
+### Landing atual (/) — refinamentos
+- [x] Hero mobile: background-position 30% center
+- [x] FAQ accordion com transição suave
+- [x] Contador animado na prova social
 - [x] Seção "Onde atuamos" com cidades ativas + em breve
 
 ---
@@ -97,21 +124,25 @@
 - **Entrada:** 1ª limpeza 50% off + contrato mínimo 12 meses
 - **Cancelamento:** paga saldo devedor do período restante
 - **Limpeza extra:** 40% mais barata que avulso para assinantes
-- **Calculadora:** 130 kWh/kWp/mês (média SC), tarifa R$0,92/kWh, toggle padrão "Nunca" (30% perda)
+- **Calculadora:** 130 kWh/kWp/mês, tarifa R$0,92/kWh, toggle padrão "Nunca"
 - **Sem % de comissão** na landing — só no dashboard técnico pós-login
-- **Sem "sem fidelidade"** — existe contrato de 12 meses, não mencionar na landing
-- **Planos por módulos** — sem "Mais Popular", critério é tamanho da usina
-- **Landing:** /v2 nova isolada, / atual intacta até aprovação → depois /v2 vira /, antiga vira /v1
-- **Claude Code terminal** (VS Code WSL) é o ambiente principal — web tem limitações de upload
-- **Dashboard cliente:** hero dinâmico com 5 estados: tranquilo / relatório chegou / queda detectada / limpeza em 3 dias / pós-limpeza
-- **Referência visual:** landing v3 é o padrão — dashboards devem alinhar com ela (header, footer, tipografia)
+- **Sem "sem fidelidade"** — existe contrato de 12 meses
+- **Planos por módulos** — sem "Mais Popular"
+- **Programa de indicações:** +6% por indicação, máximo 30% (5 indicações), válido 12 meses
+- **Menu dashboard cliente:** Início · Relatórios · Histórico · Solicitar Limpeza · Indicações · Perfil
+- **"Meu Plano"** fica dentro de Perfil — não é item de menu separado
+- **Avulsa/Reagendar:** avulsa = página própria 3 steps | reagendar = modal na home
+- **Claude Code terminal** (VS Code WSL) é o ambiente principal
+- **Dashboard cliente:** hero dinâmico com 5 estados (healthy/post_cleaning/soon/drop/report)
+- **Referência visual:** handoff do Claude Design é fonte de verdade — não protótipos do Claude.ai
+- **Tagline oficial:** "Limpeza e Cuidado para Usinas Solares"
+- **Nomenclatura:** "módulos" (não placas), "usina" (não sistema), "limpeza" (não serviço)
 
 ---
 
 ## PRÓXIMAS SESSÕES
 
-- [ ] Fechar partículas na /v2 e fazer deploy
-- [ ] Briefing pro Claude Design: dashboards técnico + admin
-- [ ] Implementar dashboard cliente (Home já prototipado, faltam sub-páginas)
-- [ ] Definir fluxo de avulsa dentro da plataforma
-- [ ] Discussões pendentes: certificação técnicos, política cancelamento, SLA sem técnico, precificação Pro/Business
+1. Corrigir header + estilo visual páginas internas dashboard cliente (prompt pronto)
+2. Implementar login/cadastro novo (protótipo aprovado)
+3. Briefing Claude Design: dashboard técnico + admin
+4. Testar fluxo end-to-end com dados reais
