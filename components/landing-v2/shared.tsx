@@ -195,7 +195,7 @@ export function Eyebrow({
       style={{
         fontFamily: "'Open Sans',sans-serif",
         fontWeight: 700,
-        fontSize: 12,
+        fontSize: 11,
         color,
         textTransform: 'uppercase',
         letterSpacing: '.12em',
