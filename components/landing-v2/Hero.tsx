@@ -227,6 +227,7 @@ export default function Hero() {
             <Button
               variant="primary"
               size="xl"
+              onClick={() => { window.location.href = '/login'; }}
               style={{
                 fontSize: isMobile ? 16 : 18,
                 padding: isMobile ? '16px 30px' : '18px 38px',

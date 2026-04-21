@@ -631,6 +631,7 @@ export default function Calculator() {
                         variant="primary"
                         size="lg"
                         fullWidth
+                        onClick={() => { window.location.href = '/login'; }}
                         style={{ boxShadow: '0 6px 18px rgba(61,196,90,0.4)' }}
                       >
                         Garantir minha assinatura →

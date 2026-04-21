@@ -82,11 +82,11 @@ export default function Header() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {!isMobile && (
-            <Button variant="ghost" size="md">
+            <Button variant="ghost" size="md" onClick={() => { window.location.href = '/login'; }}>
               Entrar
             </Button>
           )}
-          <Button variant="primary" size={isMobile ? 'sm' : 'md'}>
+          <Button variant="primary" size={isMobile ? 'sm' : 'md'} onClick={() => { window.location.href = '/login'; }}>
             Assinar →
           </Button>
           {isMobile && (
@@ -171,7 +171,7 @@ export default function Header() {
             </a>
           ))}
           <a
-            href="#"
+            href="/login"
             onClick={() => setMobileOpen(false)}
             style={{
               padding: '14px 8px 4px',
