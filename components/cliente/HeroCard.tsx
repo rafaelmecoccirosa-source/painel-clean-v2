@@ -138,7 +138,7 @@ function HeroHealthy({ userFirst, plano, proximaLimpezaDias, proximaLimpezaData,
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-        <Donut value={eficiencia} label="EFICIÊNCIA" />
+        <Donut value={eficiencia} label="EFICIÊNCIA" pulse />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 13, color: 'rgba(255,255,255,.85)', fontWeight: 600 }}>
             {geracao} de {geracaoMeta} kWh

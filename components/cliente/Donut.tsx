@@ -8,6 +8,7 @@ export default function Donut({
   baseline,
   label,
   deltaLabel,
+  pulse = false,
 }: {
   value: number;
   size?: number;
@@ -16,6 +17,7 @@ export default function Donut({
   baseline?: number;
   label?: string;
   deltaLabel?: string;
+  pulse?: boolean;
 }) {
   const r = 42;
   const c = 2 * Math.PI * r;
@@ -31,11 +33,29 @@ export default function Donut({
         zIndex: 2,
       }}
     >
+      {pulse && (
+        <span
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: size,
+            height: size,
+            borderRadius: '50%',
+            border: `2px solid ${color}`,
+            pointerEvents: 'none',
+            zIndex: 0,
+            animation: 'donut-pulse 2.5s ease-out infinite',
+            transformOrigin: 'center',
+          }}
+        />
+      )}
       <svg
         width={size}
         height={size}
         viewBox="0 0 100 100"
-        style={{ overflow: 'visible', display: 'block' }}
+        style={{ overflow: 'visible', display: 'block', position: 'relative', zIndex: 1 }}
       >
       <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
       {baseline != null && (

@@ -89,6 +89,13 @@
 .fade-up-4 { animation-delay: .32s; }
 .fade-up-5 { animation-delay: .40s; }
 
+/* Donut pulse ring — green echo behind the hero donut. */
+@keyframes donut-pulse {
+  0%   { transform: translate(-50%, -50%) scale(1);    opacity: 0.4; }
+  70%  { transform: translate(-50%, -50%) scale(1.18); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1.18); opacity: 0; }
+}
+
 @keyframes pulse-glow {
   0%, 100% { text-shadow: 0 0 8px rgba(61,196,90,0.4), 0 0 20px rgba(61,196,90,0.2); }
   50%       { text-shadow: 0 0 18px rgba(61,196,90,0.9), 0 0 40px rgba(61,196,90,0.5); }
