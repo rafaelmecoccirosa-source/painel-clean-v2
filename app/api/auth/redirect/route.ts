@@ -1,40 +1,47 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { createServiceClient } from "@/lib/supabase/service";
 
 const ROLE_REDIRECT: Record<string, string> = {
-  cliente: "/cliente",
+  cliente: "/cliente/home",
   tecnico: "/tecnico",
   admin:   "/admin",
 };
 
 /**
  * Server-side role redirect after login.
- * Called by the login page after signInWithPassword succeeds.
- * Reads the session from cookies, fetches the role via service client
- * (bypasses RLS — always works), then returns a 302 to the correct dashboard.
+ * Reads the session + profile via the anon-key server client — RLS policy
+ * `auth.uid() = user_id` lets the logged-in user read their own row, so no
+ * service role is needed. Also falls back to user_metadata.role from the JWT
+ * if the profiles row isn't there yet (fresh signup).
  */
 export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(`${origin}/login`);
+  }
+
+  let role: string | null = null;
+
   try {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) {
-      return NextResponse.redirect(`${origin}/login`);
-    }
-
-    const serviceClient = createServiceClient();
-    const { data: profile } = await serviceClient
+    const { data: profile } = await supabase
       .from("profiles")
       .select("role")
       .eq("user_id", user.id)
-      .single();
-
-    const destination = ROLE_REDIRECT[profile?.role ?? "cliente"] ?? "/cliente";
-    return NextResponse.redirect(`${origin}${destination}`);
+      .maybeSingle();
+    role = profile?.role ?? null;
   } catch {
-    return NextResponse.redirect(`${origin}/login`);
+    /* fall through to JWT fallback */
   }
+
+  if (!role) {
+    const metaRole = (user.user_metadata?.role as string | undefined) ?? undefined;
+    role = metaRole ?? "cliente";
+  }
+
+  const destination = ROLE_REDIRECT[role] ?? "/cliente/home";
+  return NextResponse.redirect(`${origin}${destination}`);
 }
