@@ -32,3 +32,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# design handoff bundles (reference only — not for repo)
+*-handoff.zip
+/dashboards-handoff-tmp/
