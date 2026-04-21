@@ -8,13 +8,15 @@ import { COLORS } from '@/components/landing-v2/shared';
 import { createClient } from '@/lib/supabase/client';
 import { initialsOf } from '@/lib/mock-cliente';
 
-type NavItem = { href: string; label: string; emoji: string };
+type NavItem = { href: string; label: string };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: '/cliente/home', label: 'Início', emoji: '🏠' },
-  { href: '/cliente/avulsa', label: 'Solicitar Serviço', emoji: '➕' },
-  { href: '/cliente/historico', label: 'Histórico', emoji: '📋' },
-  { href: '/cliente/perfil', label: 'Perfil', emoji: '👤' },
+  { href: '/cliente/home', label: 'Início' },
+  { href: '/cliente/relatorios', label: 'Relatórios' },
+  { href: '/cliente/historico', label: 'Histórico' },
+  { href: '/cliente/avulsa', label: 'Solicitar Limpeza' },
+  { href: '/cliente/indicacoes', label: 'Indicações' },
+  { href: '/cliente/perfil', label: 'Perfil' },
 ];
 
 const NOTIFICATIONS = [
@@ -99,10 +101,11 @@ export default function Header({
             </div>
             <div
               style={{
-                fontSize: 10,
-                marginTop: 3,
+                fontSize: 12,
+                marginTop: 4,
                 color: COLORS.muted,
                 fontWeight: 500,
+                fontFamily: "'Open Sans',sans-serif",
                 letterSpacing: '.02em',
               }}
             >
@@ -146,7 +149,7 @@ export default function Header({
                     position: 'absolute',
                     top: 4,
                     right: 4,
-                    background: COLORS.green,
+                    background: '#DC2626',
                     color: 'white',
                     fontSize: 9,
                     fontWeight: 800,
@@ -199,7 +202,7 @@ export default function Header({
                   width: 34,
                   height: 34,
                   borderRadius: 9999,
-                  background: `linear-gradient(135deg, ${COLORS.green}, #2DAF4A)`,
+                  background: COLORS.dark,
                   color: 'white',
                   fontSize: 12,
                   fontWeight: 700,
@@ -215,7 +218,16 @@ export default function Header({
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15, alignItems: 'flex-start' }}>
                 <span style={{ fontSize: 13, color: COLORS.dark, fontWeight: 600 }}>{userName}</span>
-                <span style={{ fontSize: 11, color: COLORS.muted }}>Plano {plano}</span>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: COLORS.muted,
+                    fontFamily: "'Open Sans',sans-serif",
+                    marginTop: 2,
+                  }}
+                >
+                  Plano {plano}
+                </span>
               </div>
             </button>
 
@@ -240,13 +252,6 @@ export default function Header({
                   style={{ ...dropdownItemStyle, color: COLORS.dark }}
                 >
                   Meu perfil
-                </Link>
-                <Link
-                  href="/cliente/plano"
-                  onClick={() => setProfileOpen(false)}
-                  style={{ ...dropdownItemStyle, color: COLORS.dark }}
-                >
-                  Meu plano
                 </Link>
                 <div style={{ height: 1, background: COLORS.border, margin: '6px 0' }} />
                 <button
@@ -289,6 +294,8 @@ const dropdownItemStyle: React.CSSProperties = {
 
 function NavPill({ item, active }: { item: NavItem; active: boolean }) {
   const [hover, setHover] = useState(false);
+  const color = active ? COLORS.dark : hover ? COLORS.dark : COLORS.muted;
+  const background = active ? 'white' : hover ? 'rgba(255,255,255,.55)' : 'transparent';
   return (
     <Link
       href={item.href}
@@ -297,20 +304,18 @@ function NavPill({ item, active }: { item: NavItem; active: boolean }) {
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 7,
-        padding: '9px 16px',
-        borderRadius: 9,
+        padding: '9px 14px',
+        borderRadius: 10,
         textDecoration: 'none',
         fontSize: 14,
         fontWeight: 600,
-        background: active ? COLORS.green : hover ? 'rgba(255,255,255,.55)' : 'transparent',
-        color: active ? 'white' : COLORS.dark,
+        background,
+        color,
         fontFamily: "'Open Sans',sans-serif",
         transition: 'background .15s, color .15s',
-        boxShadow: active ? '0 2px 8px rgba(61,196,90,.35)' : 'none',
+        boxShadow: active ? '0 1px 3px rgba(27,58,45,.08)' : 'none',
       }}
     >
-      <span style={{ fontSize: 13 }}>{item.emoji}</span>
       {item.label}
     </Link>
   );
