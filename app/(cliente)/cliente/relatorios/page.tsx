@@ -1,214 +1,43 @@
-import { Badge, Button, Eyebrow } from '@/components/landing-v2/shared';
-import { COLORS } from '@/lib/brand-tokens';
-import GeracaoMensalChart from '@/components/cliente/charts/GeracaoMensalChart';
-import { MOCK_RELATORIOS } from '@/lib/mock-cliente';
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
+import RelatoriosView, { type RelatoriosRow } from './RelatoriosView';
 
-export default function RelatoriosPage() {
-  return (
-    <main style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 28px 72px', display: 'grid', gap: 24 }}>
-      <div>
-        <Eyebrow>Relatórios</Eyebrow>
-        <h1
-          style={{
-            fontFamily: "'Montserrat',sans-serif",
-            fontWeight: 800,
-            fontSize: 28,
-            color: COLORS.dark,
-            margin: '6px 0 0',
-            letterSpacing: '-.025em',
-          }}
-        >
-          Desempenho da sua usina
-        </h1>
-      </div>
+const MONTHS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
-      {/* 3 metric cards */}
-      <section
-        className="fade-up fade-up-1"
-        style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}
-      >
-        <MetricCard eyebrow="Eficiência média" value="91,5%" sub="últimos 12 meses" />
-        <MetricCard eyebrow="Total gerado" value="5.256 kWh" sub="últimos 12 meses" />
-        <MetricCard eyebrow="Ganho pós-limpeza" value="+10,7%" sub="média após cada limpeza" accent />
-      </section>
-
-      {/* Chart */}
-      <section
-        className="fade-up fade-up-2"
-        style={{
-          background: 'white',
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 16,
-          padding: 24,
-          boxShadow: '0 2px 12px rgba(27,58,45,.08)',
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 18 }}>
-          <div>
-            <Eyebrow>Geração mensal</Eyebrow>
-            <h3
-              style={{
-                fontFamily: "'Montserrat',sans-serif",
-                fontWeight: 700,
-                fontSize: 18,
-                color: COLORS.dark,
-                margin: '4px 0 0',
-                letterSpacing: '-.01em',
-              }}
-            >
-              kWh por mês · últimos 12 meses
-            </h3>
-          </div>
-          <Badge tone="greenSoft">Atualizado hoje</Badge>
-        </div>
-        <GeracaoMensalChart />
-      </section>
-
-      {/* Lista PDFs */}
-      <section className="fade-up fade-up-3">
-        <Eyebrow>Relatórios disponíveis</Eyebrow>
-        <h3
-          style={{
-            fontFamily: "'Montserrat',sans-serif",
-            fontWeight: 700,
-            fontSize: 18,
-            color: COLORS.dark,
-            margin: '4px 0 16px',
-            letterSpacing: '-.01em',
-          }}
-        >
-          Download em PDF
-        </h3>
-        <div
-          style={{
-            background: 'white',
-            border: `1px solid ${COLORS.border}`,
-            borderRadius: 16,
-            overflow: 'hidden',
-            boxShadow: '0 2px 12px rgba(27,58,45,.08)',
-          }}
-        >
-          {MOCK_RELATORIOS.map((r, i) => (
-            <div
-              key={r.mes}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '44px 1fr auto auto',
-                gap: 16,
-                alignItems: 'center',
-                padding: '16px 22px',
-                borderBottom: i < MOCK_RELATORIOS.length - 1 ? `1px solid ${COLORS.border}` : 'none',
-              }}
-            >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 10,
-                  background: COLORS.light,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 18,
-                }}
-              >
-                📄
-              </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: COLORS.dark }}>{r.mes}</div>
-                <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 2 }}>
-                  {r.kwh} kWh gerados · eficiência {r.eficiencia}%
-                </div>
-              </div>
-              <Badge tone={r.status === 'novo' ? 'blue' : 'greenSoft'}>{r.status === 'novo' ? 'Novo' : 'Lido'}</Badge>
-              <Button variant="secondary" size="sm">
-                ⬇ Baixar PDF
-              </Button>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Info card */}
-      <section
-        className="fade-up fade-up-4"
-        style={{
-          background: COLORS.light,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 16,
-          padding: 24,
-        }}
-      >
-        <div
-          style={{
-            fontFamily: "'Montserrat',sans-serif",
-            fontWeight: 700,
-            fontSize: 16,
-            color: COLORS.dark,
-          }}
-        >
-          O que tem no PDF de relatório?
-        </div>
-        <div
-          style={{
-            marginTop: 14,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-            gap: 10,
-            fontSize: 13,
-            color: COLORS.dark,
-          }}
-        >
-          {['Fotos antes/depois', 'Geração pré e pós-limpeza', 'Gráfico de evolução', 'Eficiência da usina', 'Assinatura do técnico'].map(
-            (t) => (
-              <div key={t} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                <span style={{ color: COLORS.green, fontWeight: 800 }}>✓</span>
-                {t}
-              </div>
-            ),
-          )}
-        </div>
-      </section>
-    </main>
-  );
+function safeEff(pct: number | null, kwh: number | null, expected: number | null): number {
+  if (pct !== null && pct > 0) return Math.round(pct);
+  if (kwh !== null && expected !== null && expected > 0) return Math.round((kwh / expected) * 100);
+  return 0;
 }
 
-function MetricCard({
-  eyebrow,
-  value,
-  sub,
-  accent,
-}: {
-  eyebrow: string;
-  value: string;
-  sub: string;
-  accent?: boolean;
-}) {
-  return (
-    <div
-      style={{
-        background: 'white',
-        border: `1px solid ${COLORS.border}`,
-        borderRadius: 16,
-        padding: 22,
-        boxShadow: '0 2px 12px rgba(27,58,45,.06)',
-      }}
-    >
-      <Eyebrow>{eyebrow}</Eyebrow>
-      <div
-        style={{
-          fontFamily: "'Montserrat',sans-serif",
-          fontWeight: 800,
-          fontSize: 36,
-          color: accent ? COLORS.green : COLORS.dark,
-          marginTop: 8,
-          letterSpacing: '-.025em',
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </div>
-      <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 6 }}>{sub}</div>
-    </div>
-  );
+export default async function RelatoriosPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { data: rawReports } = await supabase
+    .from('monthly_reports')
+    .select('*')
+    .eq('client_id', user.id)
+    .order('period_year', { ascending: false })
+    .order('period_month', { ascending: false });
+
+  const reports = rawReports ?? [];
+
+  const rows: RelatoriosRow[] = reports.map(r => ({
+    id: r.id,
+    mes: `${MONTHS[r.period_month - 1]} ${r.period_year}`,
+    kwh: Math.round(r.kwh_generated ?? 0),
+    eficiencia: safeEff(r.efficiency_pct, r.kwh_generated, r.kwh_expected),
+    status: r.read_at === null ? 'novo' : 'lido',
+    pdfUrl: r.report_pdf_url ?? null,
+  }));
+
+  const eficienciaMedia = rows.length > 0
+    ? (rows.reduce((s, r) => s + r.eficiencia, 0) / rows.length).toFixed(1)
+    : null;
+  const totalGerado = rows.reduce((s, r) => s + r.kwh, 0);
+
+  return <RelatoriosView rows={rows} eficienciaMedia={eficienciaMedia} totalGerado={totalGerado} />;
 }

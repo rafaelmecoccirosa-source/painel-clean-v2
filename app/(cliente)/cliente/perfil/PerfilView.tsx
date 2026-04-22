@@ -3,12 +3,42 @@
 import { useState } from 'react';
 import { Badge, Button, Eyebrow } from '@/components/landing-v2/shared';
 import { COLORS } from '@/lib/brand-tokens';
-import { MOCK_CLIENTE, initialsOf } from '@/lib/mock-cliente';
+import { initialsOf } from '@/lib/mock-cliente';
 
 type NotifKey = 'lembrete' | 'relatorio' | 'alerta' | 'promocoes';
 
-export default function PerfilView() {
-  const c = MOCK_CLIENTE;
+export type PerfilProps = {
+  nome: string;
+  email: string;
+  cidade: string;
+  phone: string;
+  plano: string;
+  mensalidade: number;
+  modulosCount: number;
+  potenciaKWp: number;
+  inversor: string;
+  clienteDesde: string;
+  tecnico: string;
+  descontoIndicacao: number;
+  indicacoesAtivas: number;
+  isDemo: boolean;
+};
+
+export default function PerfilView({
+  nome,
+  email,
+  cidade,
+  phone,
+  plano,
+  mensalidade,
+  modulosCount,
+  potenciaKWp,
+  inversor,
+  clienteDesde,
+  tecnico,
+  descontoIndicacao,
+  isDemo,
+}: PerfilProps) {
   const [notif, setNotif] = useState<Record<NotifKey, boolean>>({
     lembrete: true,
     relatorio: true,
@@ -18,6 +48,12 @@ export default function PerfilView() {
 
   return (
     <main style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 28px 72px', display: 'grid', gap: 24 }}>
+      {isDemo && (
+        <div style={{ background: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 12, padding: '12px 18px', fontSize: 13, color: '#92400E', fontWeight: 600 }}>
+          Dados demo — assine um plano para ver seus dados reais
+        </div>
+      )}
+
       <div>
         <Eyebrow>Seu perfil</Eyebrow>
         <h1
@@ -65,7 +101,7 @@ export default function PerfilView() {
                 letterSpacing: '.02em',
               }}
             >
-              {initialsOf(c.nome)}
+              {initialsOf(nome)}
             </div>
             <div>
               <div
@@ -77,21 +113,21 @@ export default function PerfilView() {
                   letterSpacing: '-.02em',
                 }}
               >
-                {c.nome}
+                {nome}
               </div>
               <div style={{ marginTop: 6 }}>
-                <Badge tone="green">Assinante {c.plano}</Badge>
+                <Badge tone="green">Assinante {plano}</Badge>
               </div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gap: 12 }}>
-            <FieldRow label="Email" value={c.email} />
-            <FieldRow label="Telefone" value="(47) 99812-3456" />
+            <FieldRow label="Email" value={email} />
+            <FieldRow label="Telefone" value={phone || '—'} />
             <FieldRow label="CPF" value="•••.•••.123-45" />
             <FieldRow
               label="Endereço"
-              value={`R. das Araucárias, 520 — ${c.cidade}, SC`}
+              value={cidade ? `${cidade}, SC` : '—'}
               action={<Button variant="ghost" size="sm">Editar</Button>}
             />
           </div>
@@ -116,9 +152,9 @@ export default function PerfilView() {
           >
             <Eyebrow>Minha usina</Eyebrow>
             <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
-              <KV label="Módulos" value={`${c.modulos} placas · 550W cada`} />
-              <KV label="Potência" value={`${c.potencia} kWp`} />
-              <KV label="Inversor" value={c.inversor} />
+              <KV label="Módulos" value={modulosCount > 0 ? `${modulosCount} módulos · 550W cada` : '—'} />
+              <KV label="Potência" value={potenciaKWp > 0 ? `${potenciaKWp} kWp` : '—'} />
+              <KV label="Inversor" value={inversor || '—'} />
               <KV label="Instalação" value="Telhado inclinado" />
               <KV label="API inversor" value={<Badge tone="amber">Em breve</Badge>} />
             </div>
@@ -135,15 +171,17 @@ export default function PerfilView() {
           >
             <Eyebrow>Assinatura</Eyebrow>
             <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
-              <KV label="Plano" value={`${c.plano} · R$ ${c.mensalidade}/mês`} />
-              <KV label="Cliente desde" value="Abril 2026" />
-              <KV label="Técnico fixo" value={c.tecnico} />
+              <KV label="Plano" value={plano !== '—' ? `${plano} · R$ ${mensalidade}/mês` : '—'} />
+              <KV label="Cliente desde" value={clienteDesde} />
+              <KV label="Técnico fixo" value={tecnico} />
               <KV
                 label="Desconto indicação"
                 value={
-                  <span style={{ color: COLORS.green, fontWeight: 700 }}>
-                    {c.descontoIndicacao}% ativo
-                  </span>
+                  descontoIndicacao > 0 ? (
+                    <span style={{ color: COLORS.green, fontWeight: 700 }}>
+                      {descontoIndicacao}% ativo
+                    </span>
+                  ) : '—'
                 }
               />
             </div>
