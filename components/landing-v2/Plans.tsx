@@ -232,7 +232,7 @@ export default function Plans() {
                     ))}
                   </ul>
 
-                  <Button variant={dark ? 'primary' : 'dark'} size="lg" fullWidth onClick={() => { window.location.href = '/login'; }}>
+                  <Button variant={dark ? 'primary' : 'dark'} size="lg" fullWidth onClick={() => { window.location.href = '/cadastro'; }}>
                     Assinar {p.name} →
                   </Button>
                 </div>
