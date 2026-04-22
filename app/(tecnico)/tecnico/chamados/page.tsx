@@ -61,13 +61,25 @@ export default function ChamadosPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
 
+      // Fetch tech city first so available chamados are filtered
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("city")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      const techCity = profileData?.city ?? null;
+
+      let availQuery = supabase
+        .from("service_requests")
+        .select("*")
+        .eq("status", "pending")
+        .is("technician_id", null)
+        .order("preferred_date", { ascending: true });
+
+      if (techCity) availQuery = availQuery.eq("city", techCity);
+
       const [availRes, mineRes, doneRes] = await Promise.all([
-        supabase
-          .from("service_requests")
-          .select("*")
-          .eq("status", "pending")
-          .is("technician_id", null)   // sem técnico atribuído
-          .order("preferred_date", { ascending: true }),
+        availQuery,
         supabase
           .from("service_requests")
           .select("*")
@@ -79,7 +91,7 @@ export default function ChamadosPage() {
           .select("*")
           .eq("technician_id", user.id)
           .eq("status", "completed")
-          .order("completed_at", { ascending: false })
+          .order("preferred_date", { ascending: false })
           .limit(20),
       ]);
 
