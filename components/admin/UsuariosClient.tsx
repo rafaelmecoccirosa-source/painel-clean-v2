@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { MOCK_USUARIOS } from "@/lib/mock-data";
@@ -63,7 +63,38 @@ interface RealProfile {
   phone?: string;
   email?: string;
   created_at?: string;
+  approved_at?: string | null;
   [key: string]: unknown;
+}
+
+function ApproveTechButton({ userId, onApproved }: { userId: string; onApproved: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function handleApprove() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/approve-technician", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tecnicoUserId: userId }),
+      });
+      if (res.ok) { setDone(true); onApproved(); }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (done) return <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">✓ Aprovado</span>;
+  return (
+    <button
+      onClick={handleApprove}
+      disabled={loading}
+      className="text-[10px] font-bold text-white bg-brand-green px-3 py-1.5 rounded-full hover:bg-brand-green/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+    >
+      {loading ? "Aprovando…" : "Aprovar técnico"}
+    </button>
+  );
 }
 
 function normalizeProfile(p: RealProfile, idx: number) {
@@ -87,6 +118,11 @@ export default function UsuariosClient({ profiles, hasError }: Props) {
   const [filtro, setFiltro] = useState<Filtro>("todos");
   const [busca, setBusca] = useState("");
   const [cidade, setCidade] = useState("Todas");
+  const [approvedIds, setApprovedIds] = useState<Set<string>>(new Set());
+
+  const onApproved = useCallback((uid: string) => {
+    setApprovedIds((prev) => new Set(Array.from(prev).concat(uid)));
+  }, []);
 
   // Use mock ONLY on query error; empty real data stays empty
   const usuarios = useMemo(() => {
@@ -95,6 +131,14 @@ export default function UsuariosClient({ profiles, hasError }: Props) {
     }
     return profiles.map(normalizeProfile);
   }, [profiles, hasError]);
+
+  // Técnicos pendentes de aprovação (role=tecnico, approved_at null, not yet approved optimistically)
+  const tecnicosPendentes = useMemo(() => {
+    if (hasError) return [];
+    return profiles.filter(
+      (p) => p.role === "tecnico" && !p.approved_at && p.user_id && !approvedIds.has(p.user_id!),
+    );
+  }, [profiles, hasError, approvedIds]);
 
   const inicioMes = new Date("2026-03-01");
 
@@ -143,6 +187,32 @@ export default function UsuariosClient({ profiles, hasError }: Props) {
           <p className="text-brand-muted text-sm mt-0.5">Clientes, técnicos e admins cadastrados na plataforma</p>
         </div>
       </div>
+
+      {/* ── Técnicos pendentes de aprovação ── */}
+      {tecnicosPendentes.length > 0 && (
+        <div className="rounded-2xl border border-amber-300 bg-amber-50 px-5 py-4 space-y-3">
+          <p className="text-xs font-bold text-amber-700 uppercase tracking-widest">
+            🔔 {tecnicosPendentes.length} técnico{tecnicosPendentes.length > 1 ? "s" : ""} aguardando aprovação
+          </p>
+          <div className="space-y-2">
+            {tecnicosPendentes.map((p) => (
+              <div
+                key={p.user_id}
+                className="flex items-center justify-between gap-4 bg-white border border-amber-200 rounded-xl px-4 py-3"
+              >
+                <div>
+                  <p className="font-semibold text-brand-dark text-sm">{p.full_name ?? "—"}</p>
+                  <p className="text-xs text-brand-muted mt-0.5">
+                    📍 {p.city ?? "—"}
+                    {p.created_at && <> · cadastro {new Date(p.created_at).toLocaleDateString("pt-BR")}</>}
+                  </p>
+                </div>
+                <ApproveTechButton userId={p.user_id!} onApproved={() => onApproved(p.user_id!)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Counters */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -216,6 +286,8 @@ export default function UsuariosClient({ profiles, hasError }: Props) {
             <tbody className="divide-y divide-brand-border">
               {filtered.map((u) => {
                 const isNew = u.cadastro ? new Date(u.cadastro) >= inicioMes : false;
+                const rawProfile = !hasError ? profiles.find((p) => p.user_id === u.email || normalizeProfile(p, 0).nome === u.nome) : null;
+                const isPendingTech = u.tipo === "tecnico" && rawProfile && !rawProfile.approved_at;
                 return (
                   <tr
                     key={u.id}
@@ -235,9 +307,15 @@ export default function UsuariosClient({ profiles, hasError }: Props) {
                     <td className="px-4 py-3 text-brand-dark whitespace-nowrap">📍 {u.cidade}</td>
                     <td className="px-4 py-3 text-brand-muted whitespace-nowrap">{fmtData(u.cadastro)}</td>
                     <td className="px-4 py-3">
+                      {isPendingTech ? (
+                        <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-amber-100 text-amber-700">
+                          ⏳ Pendente
+                        </span>
+                      ) : (
                       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700`}>
                         Ativo
                       </span>
+                      )}
                     </td>
                   </tr>
                 );
