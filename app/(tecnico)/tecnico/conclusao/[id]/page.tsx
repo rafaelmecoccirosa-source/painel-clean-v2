@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import ConclusaoCliente, { type PrevistoData } from "@/components/tecnico/ConclusaoCliente";
+import { createServiceClient } from "@/lib/supabase/service";
 import { createClient } from "@/lib/supabase/server";
 import type { ServiceRequestDB } from "@/lib/types";
 
@@ -14,23 +15,38 @@ export default async function ConclusaoPage({
 }) {
   const { id } = await params;
 
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const admin = createServiceClient();
   let service: ServiceRequestDB | null = null;
+  let clienteNome = "Cliente";
+
   try {
-    const supabase = await createClient();
-    const { data } = await supabase
+    const { data } = await admin
       .from("service_requests")
       .select("*")
       .eq("id", id)
+      .eq("technician_id", user.id)
       .single();
     service = data as ServiceRequestDB | null;
+
+    if (service?.client_id) {
+      const { data: prof } = await admin
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", service.client_id)
+        .maybeSingle();
+      clienteNome = prof?.full_name ?? "Cliente";
+    }
   } catch {
-    // table may not exist yet — use fallback values
+    // table may not exist yet
   }
 
-  const modulos      = service?.module_count  ?? 24;
-  const endereco     = service
-    ? `${service.address} — ${service.city}`
-    : "Endereço não disponível";
+  const modulos      = service?.module_count ?? 24;
+  const endereco     = service ? `${service.address} — ${service.city}` : "Endereço não disponível";
+  const dataServico  = service?.preferred_date ?? null;
   const valorServico = service?.price_estimate ?? 300;
   const repasse      = valorServico * 0.75;
 
@@ -63,6 +79,8 @@ export default async function ConclusaoPage({
         modulos={modulos}
         endereco={endereco}
         previsto={previsto}
+        clienteNome={clienteNome}
+        dataServico={dataServico}
       />
     </div>
   );
