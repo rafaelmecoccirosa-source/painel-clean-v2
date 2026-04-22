@@ -6,7 +6,7 @@ import AdminDonut from "@/components/admin/AdminDonut";
 import AdminTecnicosAba from "@/components/admin/AdminTecnicosAba";
 import ServicosEscalationAlert from "@/components/admin/ServicosEscalationAlert";
 import { MOCK_ADMIN } from "@/lib/mock-data";
-import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
 import type { ServiceRequestDB } from "@/lib/types";
 
 export const metadata: Metadata = { title: "Painel Admin | Painel Clean" };
@@ -55,100 +55,119 @@ export default async function AdminDashboardPage() {
   const mesAtual = new Date().toLocaleString("pt-BR", { month: "long" });
   const anoAtual = new Date().getFullYear();
 
-  // ── Try real Supabase data; fall back to mock if table not ready ──────
-  let realServices: ServiceRequestDB[] = [];
-  let awaitingPaymentCount = 0;
-  try {
-    const supabase = await createClient();
-    const { data } = await supabase
-      .from("service_requests")
-      .select("*")
+  const admin = createServiceClient();
+  const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+
+  // ── Parallel admin queries ────────────────────────────────────────────────
+  const [
+    subAtivas,
+    subMRR,
+    pendentesRes,
+    andamentoRes,
+    tecnicosOnlineRes,
+    ultimosRes,
+  ] = await Promise.all([
+    admin.from("subscriptions").select("id", { count: "exact", head: true }).eq("status", "active"),
+    admin.from("subscriptions").select("price_monthly").eq("status", "active"),
+    admin.from("service_requests").select("id", { count: "exact", head: true })
+      .eq("status", "pending").is("technician_id", null),
+    admin.from("service_requests").select("id", { count: "exact", head: true })
+      .in("status", ["accepted", "in_progress"]),
+    admin.from("profiles").select("user_id", { count: "exact", head: true })
+      .eq("role", "tecnico").gte("last_seen", fiveMinAgo),
+    admin.from("service_requests")
+      .select("id, status, city, module_count, price_estimate, preferred_date, created_at, client_id, technician_id")
       .order("created_at", { ascending: false })
-      .limit(50);
-    if (data && data.length > 0) {
-      realServices = data as ServiceRequestDB[];
-      awaitingPaymentCount = realServices.filter(
-        (s) => s.payment_status === "awaiting_confirmation"
-      ).length;
-    }
-  } catch { /* table not yet created — use mock */ }
+      .limit(5),
+  ]);
 
-  // Serviços confirmados mas sem técnico aceito (para escalonamento manual)
-  const unacceptedConfirmed = realServices.filter(
-    (s) => s.payment_status === "confirmed" && !s.technician_id && s.status === "pending"
-  );
+  const assinaturasAtivas = subAtivas.count ?? 0;
+  const mrr = (subMRR.data ?? []).reduce((s, r) => s + (r.price_monthly ?? 0), 0);
+  const pendentesCount = pendentesRes.count ?? 0;
+  const andamentoCount = andamentoRes.count ?? 0;
+  const tecnicosOnline = tecnicosOnlineRes.count ?? 0;
+  const recentRaw = ultimosRes.data ?? [];
 
-  const hasReal = realServices.length > 0;
+  // Batch-fetch client and technician names for recent services
+  const clientIds = Array.from(new Set(recentRaw.map((s: any) => s.client_id).filter(Boolean))) as string[];
+  const techIds   = Array.from(new Set(recentRaw.map((s: any) => s.technician_id).filter(Boolean))) as string[];
+  const allIds    = Array.from(new Set([...clientIds, ...techIds]));
+  const nameMap: Record<string, string> = {};
+  if (allIds.length > 0) {
+    const { data: profiles } = await admin.from("profiles").select("user_id, full_name").in("user_id", allIds);
+    (profiles ?? []).forEach((p: any) => { nameMap[p.user_id] = p.full_name ?? "—"; });
+  }
 
-  // Derived real metrics
-  const realCompleted  = realServices.filter((s) => s.status === "completed");
-  const realReceita    = realCompleted.reduce((a, s) => a + s.price_estimate * 0.25, 0);
-  const realTotal      = realServices.length;
-  const realCities     = Array.from(new Set(realServices.map((s) => s.city)));
+  // Serviços pendentes sem técnico para escalonamento
+  const unacceptedConfirmedRaw = await admin
+    .from("service_requests")
+    .select("*")
+    .eq("status", "pending")
+    .is("technician_id", null)
+    .limit(10);
+  const unacceptedConfirmed = (unacceptedConfirmedRaw.data ?? []) as ServiceRequestDB[];
 
-  // KPIs: prefer real data, fall back to mock
   const kpis = [
     {
-      emoji: "💰",
-      label: "Receita do mês",
-      value: fmt(hasReal ? realReceita : MOCK_ADMIN.receitaMes),
-      trend: `+${MOCK_ADMIN.tendencia.receita}%`,
+      emoji: "📅",
+      label: "Assinaturas ativas",
+      value: String(assinaturasAtivas),
+      trend: null,
       up: true,
-      sub: hasReal ? "dados reais · comissão 25%" : "vs mês anterior · comissão 25%",
+      sub: "subscriptions status=active",
     },
     {
-      emoji: "📋",
-      label: "Serviços concluídos",
-      value: String(hasReal ? realCompleted.length : MOCK_ADMIN.totalServicos),
-      trend: `+${MOCK_ADMIN.tendencia.servicos}`,
+      emoji: "💰",
+      label: "MRR",
+      value: fmt(mrr),
+      trend: null,
       up: true,
-      sub: hasReal ? "dados reais" : "vs mês anterior",
+      sub: "receita recorrente mensal",
+    },
+    {
+      emoji: "⏳",
+      label: "Pendentes",
+      value: String(pendentesCount),
+      trend: null,
+      up: false,
+      sub: "sem técnico designado",
+    },
+    {
+      emoji: "🔄",
+      label: "Em andamento",
+      value: String(andamentoCount),
+      trend: null,
+      up: true,
+      sub: "aceitos + in_progress",
     },
     {
       emoji: "👥",
-      label: "Técnicos ativos",
-      value: String(MOCK_ADMIN.tecnicosAtivos),
+      label: "Técnicos online",
+      value: String(tecnicosOnline),
       trend: null,
       up: true,
-      sub: "≥1 serviço em 30 dias",
-    },
-    {
-      emoji: "👤",
-      label: "Clientes cadastrados",
-      value: String(MOCK_ADMIN.clientesCadastrados),
-      trend: `+${MOCK_ADMIN.clientesNovosMes}`,
-      up: true,
-      sub: "novos este mês",
-    },
-    {
-      emoji: "⭐",
-      label: "Satisfação média",
-      value: MOCK_ADMIN.satisfacaoMedia.toFixed(2),
-      trend: null,
-      up: true,
-      sub: "últimos 30 dias",
+      sub: "last_seen ≤ 5 min",
     },
   ];
 
-  // Recent services table: prefer real, fall back to mock shape
-  const ultimosServicos = hasReal
-    ? realServices.slice(0, 10).map((s) => ({
-        id:       s.id,
-        data:     new Date(s.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
-        cidade:   s.city,
-        cliente:  s.client_id.slice(0, 8),
-        tecnico:  s.technician_id ? s.technician_id.slice(0, 8) : "—",
-        modulos:  s.module_count ?? s.panel_count ?? 0,
-        valor:    s.status === "completed" ? s.price_estimate : 0,
-        comissao: s.status === "completed" ? s.price_estimate * 0.25 : 0,
-        status:   s.status === "completed" ? "concluido"
-                : s.status === "in_progress" ? "andamento"
-                : s.status === "accepted"    ? "agendado"
-                : s.status === "cancelled"   ? "cancelado"
-                : "agendado",
-        nota:     null as number | null,
-      }))
-    : MOCK_ADMIN.ultimosServicos;
+  const ultimosServicos = recentRaw.map((s: any) => ({
+    id:       s.id,
+    data:     s.preferred_date
+              ? new Date(s.preferred_date + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+              : new Date(s.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
+    cidade:   s.city ?? "—",
+    cliente:  nameMap[s.client_id] ?? s.client_id?.slice(0, 8) ?? "—",
+    tecnico:  s.technician_id ? (nameMap[s.technician_id] ?? s.technician_id.slice(0, 8)) : "—",
+    modulos:  s.module_count ?? 0,
+    valor:    s.status === "completed" ? (s.price_estimate ?? 0) : 0,
+    comissao: s.status === "completed" ? (s.price_estimate ?? 0) * 0.25 : 0,
+    status:   s.status === "completed"   ? "concluido"
+            : s.status === "in_progress" ? "andamento"
+            : s.status === "accepted"    ? "agendado"
+            : s.status === "cancelled"   ? "cancelado"
+            : "agendado",
+    nota:     null as number | null,
+  }));
 
   const cidades    = MOCK_ADMIN.porCidade;
   const maxServicos = Math.max(...cidades.map((c) => c.servicos));
@@ -164,15 +183,9 @@ export default async function AdminDashboardPage() {
         <p className="text-brand-muted text-sm mt-1">
           Painel Clean · visão geral da plataforma — {mesAtual} {anoAtual}
         </p>
-        {hasReal ? (
-          <span className="inline-block mt-1 text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-            ✅ Dados reais ({realTotal} serviços no banco)
-          </span>
-        ) : (
-          <span className="inline-block mt-1 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-            📊 Dados demonstrativos (tabela ainda não criada)
-          </span>
-        )}
+        <span className="inline-block mt-1 text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+          ✅ Dados reais · service role
+        </span>
       </div>
 
       {/* ── Seção 7: Alertas ── */}
@@ -184,16 +197,13 @@ export default async function AdminDashboardPage() {
           🔔 Alertas
         </p>
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-wrap">
-          {/* Dynamic payment alert */}
-          {awaitingPaymentCount > 0 && (
+          {pendentesCount > 0 && (
             <Link
-              href="/admin/pagamentos"
-              className="flex items-center gap-2 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
+              href="/admin/servicos"
+              className="flex items-center gap-2 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 hover:shadow-sm transition-shadow"
             >
-              <span>💰</span>
-              <span>
-                {awaitingPaymentCount} pagamento{awaitingPaymentCount > 1 ? "s" : ""} aguardando confirmação — clientes esperando
-              </span>
+              <span>⏳</span>
+              <span>{pendentesCount} serviço{pendentesCount > 1 ? "s" : ""} pendente{pendentesCount > 1 ? "s" : ""} sem técnico</span>
               <ArrowRight size={12} className="opacity-50 ml-auto" />
             </Link>
           )}
