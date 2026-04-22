@@ -20,7 +20,6 @@ type Servico = {
   city: string | null
   address: string | null
   module_count: number | null
-  panel_count: number | null
   status: string
   payment_status: string
   preferred_date: string | null
@@ -84,7 +83,7 @@ function agruparPorCliente(servicos: Servico[]): ClienteAgrupado[] {
     }
     const entry = map.get(s.client_id)!
     entry.servicos.push(s)
-    entry.totalPlacas += s.module_count ?? s.panel_count ?? 0
+    entry.totalPlacas += s.module_count ?? 0
   })
   return Array.from(map.values()).sort((a, b) =>
     b.servicos.length - a.servicos.length
@@ -199,7 +198,7 @@ export function AdminMapaView({
 
     Object.values(porCoordenada).forEach(grupo => {
       const s          = grupo[0]
-      const totalPlacas = grupo.reduce((sum, g) => sum + (g.module_count ?? g.panel_count ?? 0), 0)
+      const totalPlacas = grupo.reduce((sum, g) => sum + (g.module_count ?? 0), 0)
 
       const icon = _L.divIcon({
         className: '',
@@ -217,7 +216,7 @@ export function AdminMapaView({
         <div style="border-top:1px solid #eee;padding-top:6px;margin-top:6px;font-size:11px;color:#555;">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
             <span>
-              ${g.module_count ?? g.panel_count ?? '?'} placas ·
+              ${g.module_count ?? '?'} módulos ·
               <span style="color:${g.status === 'completed' ? '#3DC45A' : g.status === 'cancelled' ? '#ef4444' : '#f59e0b'}">
                 ${STATUS_LABEL[g.status] ?? g.status}
               </span>
@@ -238,7 +237,7 @@ export function AdminMapaView({
               ${s.address ?? s.city ?? '—'}
             </div>
             <div style="font-size:12px;color:#666;margin-bottom:4px;">
-              ${grupo.length} serviço${grupo.length > 1 ? 's' : ''} · ${totalPlacas} placas total
+              ${grupo.length} serviço${grupo.length > 1 ? 's' : ''} · ${totalPlacas} módulos total
             </div>
             ${servicosHtml}
           </div>
@@ -390,7 +389,7 @@ export function AdminMapaView({
                         )}
                       </div>
                       <p className="text-xs text-brand-muted truncate">
-                        {c.client_city ?? '—'} · {c.totalPlacas} placas
+                        {c.client_city ?? '—'} · {c.totalPlacas} módulos
                       </p>
                     </div>
                   </button>
@@ -414,7 +413,7 @@ export function AdminMapaView({
                         {s.client_name ?? s.city ?? 'Cidade não informada'}
                       </p>
                       <p className="text-xs text-brand-muted truncate">
-                        {s.module_count ?? s.panel_count ?? '?'} placas · {STATUS_LABEL[s.status] ?? s.status}
+                        {s.module_count ?? '?'} módulos · {STATUS_LABEL[s.status] ?? s.status}
                       </p>
                     </div>
                   </a>
@@ -470,7 +469,7 @@ export function AdminMapaView({
                         {s.client_name ?? s.city ?? 'Cidade não informada'}
                       </p>
                       <p className="text-xs text-brand-muted truncate">
-                        {s.module_count ?? s.panel_count ?? '?'} placas · {STATUS_LABEL[s.status] ?? s.status}
+                        {s.module_count ?? '?'} módulos · {STATUS_LABEL[s.status] ?? s.status}
                       </p>
                     </div>
                   </a>

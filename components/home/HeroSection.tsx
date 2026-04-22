@@ -32,7 +32,7 @@ export default function HeroSection() {
     { icon: "⚡", label: "Relatório mensal"          },
     { icon: "✅", label: "Checkup técnico"           },
     { icon: "🛡️", label: "Seguro na limpeza"         },
-    { icon: "💳", label: "Sem fidelidade no 1º mês"  },
+    { icon: "💳", label: "1ª limpeza com 50% off"     },
   ];
 
   return (

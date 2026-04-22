@@ -134,7 +134,7 @@ export default function Calculator() {
                   }}
                 >
                   {modulos}{' '}
-                  <span style={{ fontSize: 13, color: COLORS.muted, fontWeight: 600 }}>placas</span>
+                  <span style={{ fontSize: 13, color: COLORS.muted, fontWeight: 600 }}>módulos</span>
                 </span>
               </div>
               <input
@@ -391,7 +391,7 @@ export default function Calculator() {
                     lineHeight: 1.45,
                   }}
                 >
-                  Suas <strong style={{ fontWeight: 800 }}>{modulos} placas</strong> geram{' '}
+                  Suas <strong style={{ fontWeight: 800 }}>{modulos} módulos</strong> geram{' '}
                   <strong style={{ fontWeight: 800 }}>
                     {'~\u00A0'}{Math.round(geracaoMes).toLocaleString('pt-BR')} kWh/mês
                   </strong>

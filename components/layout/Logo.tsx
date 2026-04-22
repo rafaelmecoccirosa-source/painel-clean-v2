@@ -39,7 +39,7 @@ export default function Logo({ inverted = false, size = "md" }: LogoProps) {
             inverted ? "text-white/60" : "text-brand-muted"
           }`}
         >
-          Limpeza e cuidado para usinas solares
+          Limpeza e Cuidado para Usinas Solares
         </span>
       </div>
     </Link>

@@ -14,7 +14,7 @@ export default async function AdminMapaPage() {
       .order('full_name'),
     supabase
       .from('service_requests')
-      .select('id, client_id, city, address, module_count, panel_count, status, payment_status, preferred_date, latitude, longitude')
+      .select('id, client_id, city, address, module_count, status, payment_status, preferred_date, latitude, longitude')
       .not('latitude', 'is', null)
       .not('longitude', 'is', null)
       .order('created_at', { ascending: false }),
@@ -112,7 +112,6 @@ export type ServicosItem = {
   city: string | null
   address: string | null
   module_count: number | null
-  panel_count: number | null
   status: string
   payment_status: string
   preferred_date: string | null

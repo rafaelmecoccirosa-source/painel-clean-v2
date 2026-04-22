@@ -3,9 +3,10 @@ import { MVP_PRICING_ACTIVE } from "@/lib/config";
 // === FAIXAS DE PREÇO POR PLACA — v2 (tabela oficial Painel Clean) ===
 
 export function getValorPorPlaca(placas: number): number {
-  if (placas <= 30)  return 30.00; // R$ 30,00/placa
-  if (placas <= 50)  return 25.00; // R$ 25,00/placa
-  if (placas <= 100) return 20.00; // R$ 20,00/placa
+  if (placas <= 15)  return 35.00; // R$ 35,00/módulo
+  if (placas <= 30)  return 30.00; // R$ 30,00/módulo
+  if (placas <= 50)  return 25.00; // R$ 25,00/módulo
+  if (placas <= 100) return 20.00; // R$ 20,00/módulo
   return 0; // 100+ módulos: sob consulta
 }
 

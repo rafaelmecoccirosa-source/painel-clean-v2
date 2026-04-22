@@ -417,7 +417,7 @@ export function LogoLockup({
               whiteSpace: 'nowrap',
             }}
           >
-            Limpeza e cuidado para usinas solares
+            Limpeza e Cuidado para Usinas Solares
           </div>
         )}
       </div>

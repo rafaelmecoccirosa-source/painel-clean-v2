@@ -391,7 +391,7 @@ function PaymentRow({
         <div className="flex items-start justify-between gap-3 flex-wrap">
           <div>
             <p className="text-xs text-brand-muted font-mono mb-1">#{s.id.slice(0, 8).toUpperCase()}</p>
-            <p className="font-semibold text-brand-dark">{s.city} — {s.module_count ?? s.panel_count ?? "?"} placas</p>
+            <p className="font-semibold text-brand-dark">{s.city} — {s.module_count ?? "?"} módulos</p>
             <p className="text-xs text-brand-muted mt-0.5">{s.address}</p>
           </div>
           <PaymentStatusBadge status={s.payment_status} />

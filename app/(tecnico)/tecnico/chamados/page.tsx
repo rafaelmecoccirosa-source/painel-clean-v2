@@ -138,7 +138,7 @@ export default function ChamadosPage() {
 
   function renderCard(c: ServiceRequestDB, isAvailable: boolean) {
     const repasse = c.price_estimate * 0.75;
-    const horas = estimateHours(c.module_count ?? c.panel_count ?? 0);
+    const horas = estimateHours(c.module_count ?? 0);
     const displayAddress = isAvailable
       ? c.address.split(",")[0] + " (endereço completo após aceitar)"
       : c.address;
@@ -161,7 +161,7 @@ export default function ChamadosPage() {
                 <MapPin size={13} /> {displayAddress} — {c.city}
               </span>
               <span className="flex items-center gap-1.5">
-                <Sun size={13} /> {c.module_count ?? c.panel_count ?? "?"} placas
+                <Sun size={13} /> {c.module_count ?? "?"} módulos
               </span>
               <span className="flex items-center gap-1.5">
                 <Clock size={13} /> {fmtDate(c.preferred_date)}, {c.preferred_time}

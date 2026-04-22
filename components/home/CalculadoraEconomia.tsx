@@ -173,7 +173,7 @@ export default function CalculadoraEconomia() {
                   ⚡ O que você pode estar perdendo
                 </h3>
                 <p className="text-sm text-brand-muted">
-                  Suas <span className="font-bold text-brand-dark">{modulos} placas</span> geram{" "}
+                  Suas <span className="font-bold text-brand-dark">{modulos} módulos</span> geram{" "}
                   <span className="font-bold text-brand-dark">~{fmtKwh(geracaoTotal)}/mês</span>
                 </p>
                 <p className="text-sm text-brand-muted">Com sujeira acumulada, você pode perder até:</p>
