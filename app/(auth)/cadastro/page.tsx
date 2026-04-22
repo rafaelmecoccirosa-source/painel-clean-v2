@@ -15,19 +15,6 @@ import { AlertCircle, CheckCircle2, Plus, Trash2, Clock } from "lucide-react";
 
 const CIDADES = SC_MUNICIPIOS.map((m) => m.name).sort();
 
-const MODULE_OPTIONS = [
-  { value: "10", label: "10 módulos" },
-  { value: "12", label: "12 módulos" },
-  { value: "15", label: "15 módulos" },
-  { value: "20", label: "20 módulos" },
-  { value: "25", label: "25 módulos" },
-  { value: "30", label: "30 módulos" },
-  { value: "40", label: "40 módulos" },
-  { value: "50", label: "50 módulos" },
-  { value: "60", label: "60 módulos" },
-  { value: "61", label: "Mais de 60 módulos" },
-];
-
 const INVERTER_BRANDS = [
   "Fronius", "SolarEdge", "Growatt", "Sungrow", "Hoymiles", "Deye", "Outro",
 ];
@@ -186,6 +173,7 @@ function CadastroInner() {
 
   // Step 4 — plano (cliente)
   const [planId, setPlanId] = useState<PlanId | null>(null);
+  const [suggestedPlanId, setSuggestedPlanId] = useState<PlanId | null>(null);
 
   // Step 3 — técnico
   const [experiencia,    setExperiencia]    = useState("");
@@ -275,6 +263,7 @@ function CadastroInner() {
       const suggested = sugerirPlano(total);
       if (suggested === "basic" || suggested === "standard" || suggested === "plus") {
         setPlanId(suggested);
+        setSuggestedPlanId(suggested);
       }
     }
     setStep(4);
@@ -285,7 +274,8 @@ function CadastroInner() {
   async function handleSubmitCliente(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    if (!planId) return setError("Selecione um plano para continuar.");
+    const isLargeUsina = totalModulos() > 60;
+    if (!isLargeUsina && !planId) return setError("Selecione um plano para continuar.");
 
     setLoading(true);
     const supabase = createClient();
@@ -322,24 +312,24 @@ function CadastroInner() {
 
     if (profileError) console.warn("[cadastro] profile upsert:", profileError.message);
 
-    // Create subscription
-    const plan  = PLANS.find((p) => p.id === planId)!;
+    // Create subscription (skip for large usinaas — admin contact flow)
     const total = totalModulos();
-    const now   = new Date();
-
-    const { error: subError } = await supabase.from("subscriptions").insert({
-      client_id:      user.id,
-      plan_type:      planId,
-      status:         "active",
-      price_monthly:  plan.price,
-      modules_count:  total,
-      inverter_brand: usinas[0]?.inversor || null,
-      started_at:     now.toISOString(),
-      next_billing_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      next_service_at: new Date(now.getTime() + 7  * 24 * 60 * 60 * 1000).toISOString(),
-    });
-
-    if (subError) console.warn("[cadastro] subscription insert:", subError.message);
+    if (planId) {
+      const plan = PLANS.find((p) => p.id === planId)!;
+      const now  = new Date();
+      const { error: subError } = await supabase.from("subscriptions").insert({
+        client_id:       user.id,
+        plan_type:       planId,
+        status:          "active",
+        price_monthly:   plan.price,
+        modules_count:   total,
+        inverter_brand:  usinas[0]?.inversor || null,
+        started_at:      now.toISOString(),
+        next_billing_at: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        next_service_at: new Date(now.getTime() + 7  * 24 * 60 * 60 * 1000).toISOString(),
+      });
+      if (subError) console.warn("[cadastro] subscription insert:", subError.message);
+    }
 
     setLoading(false);
     setDone(true);
@@ -618,11 +608,16 @@ function CadastroInner() {
 
                   <div>
                     <label className="label-base">Quantidade de módulos</label>
-                    <select className="input-base" value={usina.modulos}
-                      onChange={(e) => updateUsina(idx, "modulos", e.target.value)} required>
-                      <option value="">Selecione</option>
-                      {MODULE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                    </select>
+                    <input
+                      type="number"
+                      min={1}
+                      max={500}
+                      placeholder="Ex: 20"
+                      className="input-base"
+                      value={usina.modulos}
+                      onChange={(e) => updateUsina(idx, "modulos", e.target.value)}
+                      required
+                    />
                   </div>
                   <div>
                     <label className="label-base">Marca do inversor</label>
@@ -668,53 +663,76 @@ function CadastroInner() {
               Selecione o plano que cobre sua usina.
             </p>
 
-            {error && <ErrorBanner msg={error} />}
-
-            {totalModulos() > 60 && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl px-4 py-3 mb-4">
-                Sua usina tem mais de 60 módulos. Os planos Pro e Business estão disponíveis — nossa equipe entrará em contato após o cadastro.
+            {totalModulos() > 60 ? (
+              <div className="space-y-4">
+                <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-xl px-4 py-4">
+                  <p className="font-semibold mb-1">Usina grande detectada</p>
+                  <p className="text-xs leading-relaxed">
+                    Sua usina de <strong>{totalModulos()} módulos</strong> se encaixa nos planos <strong>Pro</strong> ou <strong>Business</strong>, que são customizados. Nossa equipe entrará em contato em até 24h para criar o melhor plano para você.
+                  </p>
+                </div>
+                <form onSubmit={handleSubmitCliente}>
+                  {error && <ErrorBanner msg={error} />}
+                  <Button type="submit" size="lg" className="w-full" loading={loading}>
+                    Criar conta e aguardar contato
+                  </Button>
+                </form>
               </div>
-            )}
-
-            <form onSubmit={handleSubmitCliente} className="space-y-3">
-              {PLANS.map((plan) => {
-                const isSelected = planId === plan.id;
-                return (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => setPlanId(plan.id)}
-                    className={`w-full text-left rounded-xl p-4 border-2 transition-all ${
-                      isSelected
-                        ? "border-brand-green bg-brand-light"
-                        : "border-brand-border hover:border-brand-green/50 hover:bg-brand-light/50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-bold text-brand-dark text-sm">{plan.name}</span>
-                      <div className="flex items-baseline gap-0.5">
-                        <span className="font-bold text-brand-dark text-lg">R${plan.price}</span>
-                        <span className="text-brand-muted text-xs">/mês</span>
+            ) : (
+              <form onSubmit={handleSubmitCliente} className="space-y-3">
+                {error && <ErrorBanner msg={error} />}
+                {PLANS.map((plan) => {
+                  const isSelected = planId === plan.id;
+                  const isRecommended = suggestedPlanId === plan.id;
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      onClick={() => setPlanId(plan.id)}
+                      className={`w-full text-left rounded-xl p-4 border-2 transition-all ${
+                        isSelected
+                          ? "border-brand-green bg-brand-light"
+                          : "border-brand-border hover:border-brand-green/50 hover:bg-brand-light/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-brand-dark text-sm">{plan.name}</span>
+                          {isRecommended && (
+                            <span className="text-[10px] font-semibold uppercase tracking-wide text-brand-green bg-brand-light px-2 py-0.5 rounded-full border border-brand-green/20">
+                              Recomendado
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-baseline gap-0.5">
+                          <span className="font-bold text-brand-dark text-lg">R${plan.price}</span>
+                          <span className="text-brand-muted text-xs">/mês</span>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-brand-muted">
-                      <span>{plan.range}</span>
-                      <span>·</span>
-                      <span>{plan.limpezas} limpezas/ano incluídas</span>
-                    </div>
-                  </button>
-                );
-              })}
+                      {isRecommended && totalModulos() > 0 && (
+                        <p className="text-xs text-brand-green mb-1">
+                          Seu sistema de {totalModulos()} módulos se encaixa neste plano
+                        </p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-brand-muted">
+                        <span>{plan.range}</span>
+                        <span>·</span>
+                        <span>{plan.limpezas} limpezas/ano incluídas</span>
+                      </div>
+                    </button>
+                  );
+                })}
 
-              <div className="bg-brand-light border border-brand-border rounded-xl px-4 py-3 text-xs text-brand-muted">
-                1ª limpeza com <span className="font-semibold text-brand-dark">50% off</span> · contrato mínimo de 12 meses
-              </div>
+                <div className="bg-brand-light border border-brand-border rounded-xl px-4 py-3 text-xs text-brand-muted">
+                  1ª limpeza com <span className="font-semibold text-brand-dark">50% off</span> · contrato mínimo de 12 meses
+                </div>
 
-              <Button type="submit" size="lg" className="w-full mt-2" loading={loading}
-                disabled={!planId}>
-                Confirmar plano e criar conta
-              </Button>
-            </form>
+                <Button type="submit" size="lg" className="w-full mt-2" loading={loading}
+                  disabled={!planId}>
+                  Confirmar plano e criar conta
+                </Button>
+              </form>
+            )}
           </div>
         )}
 
