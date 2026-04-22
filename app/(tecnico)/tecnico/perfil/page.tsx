@@ -1,9 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { User, MapPin, Phone, Mail, Star, CheckCircle2, Edit2, Save, X } from 'lucide-react'
+import { User, MapPin, Phone, Mail, Star, CheckCircle2, Edit2, Save, X, Clock, Briefcase } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { MOCK_TECNICO } from '@/lib/mock-data'
 
 type Profile = {
   full_name: string | null
@@ -13,22 +12,23 @@ type Profile = {
   cep: string | null
   lat: number | null
   lng: number | null
+  approved_at: string | null
 }
 
 export default function TecnicoPerfilPage() {
-  const [profile, setProfile]     = useState<Profile>({ full_name: null, email: null, phone: null, city: null, cep: null, lat: null, lng: null })
-  const [editing, setEditing]     = useState(false)
-  const [saving, setSaving]       = useState(false)
-  const [saveMsg, setSaveMsg]     = useState<{ msg: string; ok: boolean } | null>(null)
-  const [userId, setUserId]       = useState<string | null>(null)
+  const [profile, setProfile]       = useState<Profile>({ full_name: null, email: null, phone: null, city: null, cep: null, lat: null, lng: null, approved_at: null })
+  const [totalServicos, setTotalServicos] = useState<number | null>(null)
+  const [editing, setEditing]       = useState(false)
+  const [saving, setSaving]         = useState(false)
+  const [saveMsg, setSaveMsg]       = useState<{ msg: string; ok: boolean } | null>(null)
+  const [userId, setUserId]         = useState<string | null>(null)
 
-  // Edit fields
-  const [fullName, setFullName]   = useState('')
-  const [phone, setPhone]         = useState('')
-  const [city, setCity]           = useState('')
-  const [cep, setCep]             = useState('')
-  const [lat, setLat]             = useState<number | null>(null)
-  const [lng, setLng]             = useState<number | null>(null)
+  const [fullName, setFullName]     = useState('')
+  const [phone, setPhone]           = useState('')
+  const [city, setCity]             = useState('')
+  const [cep, setCep]               = useState('')
+  const [lat, setLat]               = useState<number | null>(null)
+  const [lng, setLng]               = useState<number | null>(null)
 
   const load = useCallback(async () => {
     const supabase = createClient()
@@ -36,20 +36,29 @@ export default function TecnicoPerfilPage() {
     if (!user) return
     setUserId(user.id)
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('full_name, phone, city, cep, lat, lng')
-      .eq('user_id', user.id)
-      .single()
+    const [profileRes, countRes] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('full_name, phone, city, cep, lat, lng, approved_at')
+        .eq('user_id', user.id)
+        .single(),
+      supabase
+        .from('service_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('technician_id', user.id)
+        .eq('status', 'completed'),
+    ])
 
+    const data = profileRes.data
     const p: Profile = {
-      full_name: data?.full_name ?? null,
-      email:     user.email ?? null,
-      phone:     data?.phone ?? null,
-      city:      data?.city ?? null,
-      cep:       data?.cep ?? null,
-      lat:       data?.lat ?? null,
-      lng:       data?.lng ?? null,
+      full_name:   data?.full_name   ?? null,
+      email:       user.email        ?? null,
+      phone:       data?.phone       ?? null,
+      city:        data?.city        ?? null,
+      cep:         data?.cep         ?? null,
+      lat:         data?.lat         ?? null,
+      lng:         data?.lng         ?? null,
+      approved_at: data?.approved_at ?? null,
     }
     setProfile(p)
     setFullName(p.full_name ?? '')
@@ -58,6 +67,7 @@ export default function TecnicoPerfilPage() {
     setCep(p.cep ?? '')
     setLat(p.lat)
     setLng(p.lng)
+    setTotalServicos(countRes.count ?? 0)
   }, [])
 
   useEffect(() => { load() }, [load])
@@ -65,12 +75,10 @@ export default function TecnicoPerfilPage() {
   const handleCEPBlur = async () => {
     const clean = cep.replace(/\D/g, '')
     if (clean.length !== 8) return
-
     try {
       const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`)
       const data = await res.json()
       if (!data.erro) setCity(data.localidade)
-
       const { geocodeCEP } = await import('@/lib/geocode')
       const coords = await geocodeCEP(cep)
       if (coords) { setLat(coords.lat); setLng(coords.lng) }
@@ -91,7 +99,6 @@ export default function TecnicoPerfilPage() {
         .from('profiles')
         .update({ full_name: fullName, phone, city, cep, lat, lng })
         .eq('user_id', userId)
-
       if (error) throw error
       setProfile(prev => ({ ...prev, full_name: fullName, phone, city, cep, lat, lng }))
       setEditing(false)
@@ -117,12 +124,14 @@ export default function TecnicoPerfilPage() {
     ? profile.full_name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase()
     : 'T'
 
+  const isApproved = !!profile.approved_at
+
   return (
     <div className="page-container max-w-xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-heading text-2xl font-bold text-brand-dark">Meu perfil</h1>
-          <p className="text-brand-muted text-sm mt-1">Seu desempenho e dados cadastrais</p>
+          <p className="text-brand-muted text-sm mt-1">Seus dados cadastrais e desempenho</p>
         </div>
         {!editing ? (
           <button
@@ -133,17 +142,10 @@ export default function TecnicoPerfilPage() {
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleCancel}
-              className="flex items-center gap-1.5 text-sm font-medium text-brand-muted border border-brand-border rounded-xl px-3 py-2 hover:bg-brand-light transition-colors"
-            >
+            <button onClick={handleCancel} className="flex items-center gap-1.5 text-sm font-medium text-brand-muted border border-brand-border rounded-xl px-3 py-2 hover:bg-brand-light transition-colors">
               <X size={14} /> Cancelar
             </button>
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className="flex items-center gap-1.5 text-sm font-medium text-white bg-brand-green rounded-xl px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-60"
-            >
+            <button onClick={handleSave} disabled={saving} className="flex items-center gap-1.5 text-sm font-medium text-white bg-brand-green rounded-xl px-4 py-2 hover:opacity-90 transition-opacity disabled:opacity-60">
               <Save size={14} /> {saving ? 'Salvando…' : 'Salvar'}
             </button>
           </div>
@@ -151,14 +153,31 @@ export default function TecnicoPerfilPage() {
       </div>
 
       {saveMsg && (
-        <div className={`text-sm px-4 py-3 rounded-xl font-medium ${
-          saveMsg.ok
-            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-            : 'bg-red-50 text-red-700 border border-red-200'
-        }`}>
+        <div className={`text-sm px-4 py-3 rounded-xl font-medium ${saveMsg.ok ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
           {saveMsg.msg}
         </div>
       )}
+
+      {/* Status de aprovação */}
+      <div className={`flex items-center gap-3 rounded-2xl px-5 py-4 border ${
+        isApproved
+          ? 'bg-brand-green/10 border-brand-green/30'
+          : 'bg-amber-50 border-amber-300'
+      }`}>
+        {isApproved
+          ? <CheckCircle2 size={20} className="text-brand-green flex-shrink-0" />
+          : <Clock size={20} className="text-amber-600 flex-shrink-0" />}
+        <div>
+          <p className={`font-semibold text-sm ${isApproved ? 'text-brand-dark' : 'text-amber-800'}`}>
+            {isApproved ? 'Técnico aprovado' : 'Aprovação pendente'}
+          </p>
+          <p className={`text-xs mt-0.5 ${isApproved ? 'text-brand-muted' : 'text-amber-700'}`}>
+            {isApproved
+              ? `Aprovado em ${new Date(profile.approved_at!).toLocaleDateString('pt-BR')}`
+              : 'Aguardando revisão do administrador'}
+          </p>
+        </div>
+      </div>
 
       {/* Avatar + stats */}
       <div className="card flex flex-col items-center gap-4 py-8">
@@ -166,19 +185,13 @@ export default function TecnicoPerfilPage() {
           {initials}
         </div>
         <div className="text-center">
-          <p className="font-heading font-bold text-brand-dark text-lg">
-            {profile.full_name ?? '—'}
-          </p>
-          <span className="text-xs bg-brand-light text-brand-dark px-3 py-1 rounded-full font-medium">
-            Técnico Certificado ✅
-          </span>
+          <p className="font-heading font-bold text-brand-dark text-lg">{profile.full_name ?? '—'}</p>
+          <p className="text-xs text-brand-muted mt-0.5">{profile.city ?? 'Cidade não informada'}</p>
         </div>
 
         <div className="flex items-center gap-6 mt-2">
           <div className="text-center">
-            <p className="font-heading font-bold text-brand-dark text-xl">
-              {MOCK_TECNICO.avaliacaoMedia.toFixed(1)}
-            </p>
+            <p className="font-heading font-bold text-brand-dark text-xl">4.8</p>
             <p className="text-[11px] text-brand-muted flex items-center gap-0.5 justify-center">
               <Star size={10} className="text-amber-400 fill-amber-400" /> Avaliação
             </p>
@@ -186,15 +199,15 @@ export default function TecnicoPerfilPage() {
           <div className="w-px h-8 bg-brand-border" />
           <div className="text-center">
             <p className="font-heading font-bold text-brand-dark text-xl">
-              {MOCK_TECNICO.servicosMes}
+              {totalServicos ?? '—'}
             </p>
-            <p className="text-[11px] text-brand-muted">Serviços/mês</p>
+            <p className="text-[11px] text-brand-muted flex items-center gap-0.5 justify-center">
+              <Briefcase size={10} /> Total concluídos
+            </p>
           </div>
           <div className="w-px h-8 bg-brand-border" />
           <div className="text-center">
-            <p className="font-heading font-bold text-brand-green text-xl">
-              {MOCK_TECNICO.tempoMedio}h
-            </p>
+            <p className="font-heading font-bold text-brand-green text-xl">2.5h</p>
             <p className="text-[11px] text-brand-muted">Tempo médio</p>
           </div>
         </div>
@@ -207,14 +220,11 @@ export default function TecnicoPerfilPage() {
         {!editing ? (
           <div className="space-y-3">
             {[
-              { icon: User,   label: 'Nome completo',      value: profile.full_name ?? '—'         },
-              { icon: Mail,   label: 'E-mail',              value: profile.email ?? '—'             },
-              { icon: Phone,  label: 'Telefone',            value: profile.phone ?? 'Não informado' },
-              { icon: MapPin, label: 'Cidade de atuação',  value: profile.city ?? 'Não informada'  },
-              { icon: MapPin, label: 'CEP',                value: profile.cep
-                  ? `${profile.cep}${profile.lat ? ' · ✓ Localizado' : ''}`
-                  : 'Não informado'
-              },
+              { icon: User,   label: 'Nome completo',     value: profile.full_name ?? '—' },
+              { icon: Mail,   label: 'E-mail',             value: profile.email ?? '—' },
+              { icon: Phone,  label: 'Telefone',           value: profile.phone ?? 'Não informado' },
+              { icon: MapPin, label: 'Cidade de atuação', value: profile.city ?? 'Não informada' },
+              { icon: MapPin, label: 'CEP',               value: profile.cep ? `${profile.cep}${profile.lat ? ' · ✓ Localizado' : ''}` : 'Não informado' },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-start gap-3 py-2.5 border-b border-brand-border last:border-0">
                 <div className="h-8 w-8 rounded-lg bg-brand-light flex items-center justify-center flex-shrink-0">
@@ -229,67 +239,33 @@ export default function TecnicoPerfilPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {/* Nome */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1">Nome completo</label>
-              <input
-                type="text"
-                value={fullName}
-                onChange={e => setFullName(e.target.value)}
-                placeholder="Seu nome completo"
-                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-              />
+              <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Seu nome completo"
+                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green" />
             </div>
-
-            {/* E-mail (read-only) */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1">E-mail</label>
-              <input
-                type="email"
-                value={profile.email ?? ''}
-                disabled
-                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm bg-brand-bg text-brand-muted cursor-not-allowed"
-              />
+              <input type="email" value={profile.email ?? ''} disabled
+                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm bg-brand-bg text-brand-muted cursor-not-allowed" />
             </div>
-
-            {/* Telefone */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1">Telefone</label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={e => setPhone(e.target.value)}
-                placeholder="(47) 99999-0000"
-                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-              />
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="(47) 99999-0000"
+                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green" />
             </div>
-
-            {/* Cidade */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1">Cidade de atuação</label>
-              <input
-                type="text"
-                value={city}
-                onChange={e => setCity(e.target.value)}
-                placeholder="Jaraguá do Sul"
-                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-              />
+              <input type="text" value={city} onChange={e => setCity(e.target.value)} placeholder="Jaraguá do Sul"
+                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green" />
             </div>
-
-            {/* CEP */}
             <div>
               <label className="block text-sm font-medium text-brand-dark mb-1">CEP</label>
-              <input
-                type="text"
-                value={cep}
-                onChange={e => setCep(e.target.value.replace(/(\d{5})(\d)/, '$1-$2'))}
-                onBlur={handleCEPBlur}
-                placeholder="00000-000"
-                maxLength={9}
-                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green"
-              />
+              <input type="text" value={cep} onChange={e => setCep(e.target.value.replace(/(\d{5})(\d)/, '$1-$2'))}
+                onBlur={handleCEPBlur} placeholder="00000-000" maxLength={9}
+                className="w-full border border-brand-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green" />
               {lat && lng ? (
-                <p className="text-xs text-brand-green mt-1">✓ Localização encontrada — você aparecerá no mapa de cobertura</p>
+                <p className="text-xs text-brand-green mt-1">✓ Localização encontrada</p>
               ) : cep.replace(/\D/g, '').length === 8 ? (
                 <p className="text-xs text-brand-muted mt-1">Saindo do campo para geocodificar…</p>
               ) : null}
