@@ -40,7 +40,7 @@ export default async function ClienteLayout({ children }: { children: React.Reac
 
   return (
     <div style={{ background: COLORS.bg, minHeight: '100vh' }}>
-      <Header userName={userName} plano={MOCK_CLIENTE.plano} notifCount={3} />
+      <Header userName={userName} plano={MOCK_CLIENTE.plano} />
       {children}
     </div>
   );
