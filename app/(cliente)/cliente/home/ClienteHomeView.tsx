@@ -2,20 +2,51 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Button, Eyebrow } from '@/components/landing-v2/shared';
+import { Button } from '@/components/landing-v2/shared';
 import { COLORS } from '@/lib/brand-tokens';
 import HeroCard from '@/components/cliente/HeroCard';
 import { NextCleaningCard, PlanoAtivoCard, EconomiaCard } from '@/components/cliente/StatCards';
 import ReagendarModal from '@/components/cliente/ReagendarModal';
-import { MOCK_CLIENTE, MOCK_HISTORICO, daysUntil, formatDateBR } from '@/lib/mock-cliente';
+import { formatDateBR } from '@/lib/mock-cliente';
+import type { HeroState, HistoricoRow } from '@/lib/mock-cliente';
 
-export default function ClienteHomeView() {
+export type ClienteHomeProps = {
+  userFirst: string;
+  cidade: string;
+  plano: string;
+  mensalidade: number;
+  mensalidadeOriginal: number;
+  modulosCount: number;
+  limpezasUsadas: number;
+  limpezasTotal: number;
+  descontoPct: number;
+  indicacoesAtivas: number;
+  economiaAcumulada: number;
+  economiaLastMonth: number;
+  heroState: HeroState;
+  proximaLimpezaDias: number;
+  proximaLimpezaData: string;
+  proximaLimpezaTurno: string;
+  tecnico: string;
+  eficiencia: number;
+  geracao: number;
+  geracaoMeta: number;
+  mesRelatorio: string;
+  quedaPct?: number;
+  historico: HistoricoRow[];
+  isDemo: boolean;
+};
+
+export default function ClienteHomeView(props: ClienteHomeProps) {
   const [reagendarOpen, setReagendarOpen] = useState(false);
 
-  const c = MOCK_CLIENTE;
-  const userFirst = c.nome.split(' ')[0];
-  const proximaLimpezaDias = daysUntil(c.proximaLimpeza);
-  const proximaLimpezaData = formatDateBR(c.proximaLimpeza);
+  const {
+    userFirst, plano, mensalidade, mensalidadeOriginal, descontoPct, indicacoesAtivas,
+    limpezasUsadas, limpezasTotal, economiaAcumulada, economiaLastMonth,
+    heroState, proximaLimpezaDias, proximaLimpezaData, proximaLimpezaTurno,
+    cidade, tecnico, eficiencia, geracao, geracaoMeta, mesRelatorio, quedaPct,
+    historico, isDemo,
+  } = props;
 
   return (
     <>
@@ -28,18 +59,43 @@ export default function ClienteHomeView() {
           gap: 24,
         }}
       >
+        {isDemo && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              background: '#FFFBEB',
+              border: '1px solid #FDE68A',
+              borderRadius: 10,
+              padding: '10px 16px',
+              fontSize: 13,
+              color: '#92400E',
+              fontFamily: "'Open Sans', sans-serif",
+              fontWeight: 600,
+            }}
+          >
+            <span>⚠️</span>
+            <span>
+              <b>Dados demo</b> — nenhuma assinatura ativa encontrada. Estes são dados de
+              demonstração.
+            </span>
+          </div>
+        )}
+
         <div className="fade-up">
           <HeroCard
-            state={c.heroState}
+            state={heroState}
             userFirst={userFirst}
-            plano={c.plano}
+            plano={plano}
             proximaLimpezaDias={proximaLimpezaDias}
             proximaLimpezaData={proximaLimpezaData}
-            tecnico={c.tecnico}
-            eficiencia={c.eficienciaAtual}
-            geracao={c.geracao}
-            geracaoMeta={c.geracaoMeta}
-            mesRelatorio="março"
+            tecnico={tecnico}
+            eficiencia={eficiencia}
+            geracao={geracao}
+            geracaoMeta={geracaoMeta}
+            mesRelatorio={mesRelatorio}
+            quedaPct={quedaPct}
             onReagendar={() => setReagendarOpen(true)}
           />
         </div>
@@ -51,24 +107,24 @@ export default function ClienteHomeView() {
           <NextCleaningCard
             dias={proximaLimpezaDias}
             data={proximaLimpezaData}
-            turno={c.proximaLimpezaTurno}
-            cidade={c.cidade}
+            turno={proximaLimpezaTurno}
+            cidade={cidade}
             onReagendar={() => setReagendarOpen(true)}
           />
           <PlanoAtivoCard
-            plano={c.plano}
-            valor={c.mensalidade}
-            valorOriginal={c.mensalidadeOriginal}
-            descontoPct={c.descontoIndicacao}
-            indicacoesAtivas={c.indicacoesAtivas}
-            usadas={c.limpezasUsadas}
-            total={c.limpezasTotal}
+            plano={plano}
+            valor={mensalidade}
+            valorOriginal={descontoPct > 0 ? mensalidadeOriginal : undefined}
+            descontoPct={descontoPct > 0 ? descontoPct : undefined}
+            indicacoesAtivas={indicacoesAtivas > 0 ? indicacoesAtivas : undefined}
+            usadas={limpezasUsadas}
+            total={limpezasTotal}
           />
-          <EconomiaCard total={c.economiaAcumulada} delta={95} />
+          <EconomiaCard total={economiaAcumulada} delta={economiaLastMonth} />
         </section>
 
         <div className="fade-up fade-up-2">
-          <HistorySection />
+          <HistorySection historico={historico} />
         </div>
 
         <div className="fade-up fade-up-3">
@@ -80,18 +136,20 @@ export default function ClienteHomeView() {
         open={reagendarOpen}
         onClose={() => setReagendarOpen(false)}
         atualData={proximaLimpezaData}
-        atualTurno={c.proximaLimpezaTurno}
-        tecnico={c.tecnico}
+        atualTurno={proximaLimpezaTurno}
+        tecnico={tecnico}
       />
     </>
   );
 }
 
-function HistorySection() {
-  const rows = MOCK_HISTORICO.slice(0, 2);
+function HistorySection({ historico }: { historico: HistoricoRow[] }) {
+  const rows = historico.slice(0, 2);
   return (
     <section>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+      <div
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}
+      >
         <div>
           <h3
             style={{
@@ -106,7 +164,8 @@ function HistorySection() {
             Histórico de serviços
           </h3>
           <p style={{ fontSize: 13, color: COLORS.muted, margin: '3px 0 0' }}>
-            {MOCK_HISTORICO.length} limpezas realizadas desde o início da assinatura
+            {historico.length} limpeza{historico.length !== 1 ? 's' : ''} realizada
+            {historico.length !== 1 ? 's' : ''} desde o início da assinatura
           </p>
         </div>
         <Link href="/cliente/historico" style={{ textDecoration: 'none' }}>
@@ -115,29 +174,47 @@ function HistorySection() {
           </Button>
         </Link>
       </div>
-      <div
-        style={{
-          background: 'white',
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 16,
-          overflow: 'hidden',
-          boxShadow: '0 2px 12px rgba(27,58,45,.08)',
-        }}
-      >
-        {rows.map((row, i) => (
-          <HistoryRow key={row.id} row={row} last={i === rows.length - 1} />
-        ))}
-      </div>
+
+      {rows.length === 0 ? (
+        <div
+          style={{
+            background: 'white',
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 16,
+            padding: '32px 22px',
+            textAlign: 'center',
+            color: COLORS.muted,
+            fontSize: 14,
+          }}
+        >
+          Nenhum serviço realizado ainda.
+        </div>
+      ) : (
+        <div
+          style={{
+            background: 'white',
+            border: `1px solid ${COLORS.border}`,
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: '0 2px 12px rgba(27,58,45,.08)',
+          }}
+        >
+          {rows.map((row, i) => (
+            <HistoryRow key={row.id} row={row} last={i === rows.length - 1} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }
 
-function HistoryRow({ row, last }: { row: (typeof MOCK_HISTORICO)[number]; last: boolean }) {
+function HistoryRow({ row, last }: { row: HistoricoRow; last: boolean }) {
+  const hasGanho = row.ganho && row.ganho !== '—';
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '44px 1fr auto auto auto',
+        gridTemplateColumns: `44px 1fr${hasGanho ? ' auto' : ''} auto auto`,
         gap: 18,
         alignItems: 'center',
         padding: '16px 22px',
@@ -163,21 +240,23 @@ function HistoryRow({ row, last }: { row: (typeof MOCK_HISTORICO)[number]; last:
       <div>
         <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.dark }}>{row.titulo}</div>
         <div style={{ fontSize: 12, color: COLORS.muted, marginTop: 3 }}>
-          {formatDateBR(row.data)} · {row.tecnico}
+          {row.data ? formatDateBR(row.data) : '—'} · {row.tecnico}
         </div>
       </div>
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 700,
-          color: COLORS.green,
-          background: COLORS.light,
-          padding: '4px 10px',
-          borderRadius: 9999,
-        }}
-      >
-        {row.ganho} geração
-      </div>
+      {hasGanho && (
+        <div
+          style={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: COLORS.green,
+            background: COLORS.light,
+            padding: '4px 10px',
+            borderRadius: 9999,
+          }}
+        >
+          {row.ganho} geração
+        </div>
+      )}
       <span
         style={{
           display: 'inline-flex',
