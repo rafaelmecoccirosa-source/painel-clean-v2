@@ -4,7 +4,7 @@
 > Todas as implementações vão aqui. A v1 (painel-clean-plataforma) é só referência histórica — nunca editar.
 
 > Contexto completo do projeto para o Claude Code.
-> Atualizado em: 2026-04-21
+> Atualizado em: 2026-04-22
 > Leia este arquivo inteiro antes de qualquer implementação.
 > **Esta é a v2 — modelo assinatura (Netflix). A v1 está em github.com/rafaelmecoccirosa-source/painel-clean-plataforma**
 
@@ -215,6 +215,7 @@ cep          text
 lat          float
 lng          float
 last_seen    timestamp  -- presença técnico (atualizado a cada 4min)
+approved_at  timestamptz  -- nullable — quando admin aprovou o técnico
 created_at   timestamp
 ```
 ⚠️ **SEMPRE** usar `.eq('user_id', user.id)` — nunca `.eq('id', user.id)`
@@ -278,6 +279,19 @@ read_at          timestamp  -- nullable — usado para estado 'report' no hero  
 created_at       timestamp
 ```
 
+### Tabela `service_reports` ✓ existe (migration 20260422)
+```sql
+id                 uuid PRIMARY KEY
+service_request_id uuid REFERENCES service_requests(id)
+technician_id      uuid REFERENCES auth.users(id)
+photos_before      text[]
+photos_after       text[]
+checklist          jsonb  -- {fixacao, cabos, inversor, sombra, corrosao}: boolean
+condition_found    text
+notes              text
+created_at         timestamptz
+```
+
 ### Tabela `referrals` (programa de indicações) ✓ existe (migration 20260421)
 ```sql
 id            uuid PRIMARY KEY
@@ -288,6 +302,18 @@ discount_pct  decimal(5,2) DEFAULT 6.00
 expires_at    timestamptz
 created_at    timestamptz DEFAULT now()
 ```
+
+### Tabela `notifications` ✓ existe (migration 20260422)
+```sql
+id         uuid PRIMARY KEY
+user_id    uuid REFERENCES auth.users(id)
+title      text NOT NULL
+body       text
+type       varchar(30)  -- 'service_update'|'report_ready'|'billing'|'system'
+read_at    timestamptz
+created_at timestamptz DEFAULT now()
+```
+RLS: usuário vê e altera apenas as próprias notificações (`auth.uid() = user_id`).
 
 ### RLS crítico
 - Admin: usar `auth.jwt() -> 'user_metadata' ->> 'role'` — nunca subquery em profiles (erro 42P17)
@@ -412,6 +438,14 @@ Senha padrão: `Demo@2026!`
 | maria.oliveira@demo.painelclean.com.br | Padrão | 20 |
 
 **Admin:** `admin@painelclean.com.br`
+
+**Cenários hero por cliente (dados demo configurados no banco):**
+| Cliente | Hero state | Motivo |
+|---------|------------|--------|
+| Fernanda Alves | healthy | próxima limpeza em 45 dias |
+| Ana Silva | soon | limpeza em 2 dias |
+| Ricardo Mendes | post_cleaning | limpeza há 3 dias |
+| Maria Oliveira | drop | efficiency_pct 69.9% + alert_message ativo |
 
 ---
 
