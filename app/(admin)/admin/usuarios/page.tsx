@@ -10,7 +10,7 @@ export default async function UsuariosPage() {
 
   const { data, error } = await supabase
     .from("profiles")
-    .select("id, user_id, full_name, role, city, phone, created_at")
+    .select("id, user_id, full_name, role, city, phone, created_at, approved_at")
     .order("created_at", { ascending: false });
 
   const hasError = !!error;
