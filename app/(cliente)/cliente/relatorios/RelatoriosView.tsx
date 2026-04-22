@@ -3,6 +3,7 @@
 import { Badge, Button, Eyebrow } from '@/components/landing-v2/shared';
 import { COLORS } from '@/lib/brand-tokens';
 import GeracaoMensalChart from '@/components/cliente/charts/GeracaoMensalChart';
+import { createClient } from '@/lib/supabase/client';
 
 export type RelatoriosRow = {
   id: string;
@@ -90,7 +91,16 @@ export default function RelatoriosView({ rows, eficienciaMedia, totalGerado }: P
                 <Button
                   variant="secondary"
                   size="sm"
-                  onClick={() => { if (r.pdfUrl) window.open(r.pdfUrl, '_blank'); }}
+                  onClick={async () => {
+                    if (r.pdfUrl) window.open(r.pdfUrl, '_blank');
+                    if (r.status === 'novo') {
+                      const supabase = createClient();
+                      await supabase
+                        .from('monthly_reports')
+                        .update({ read_at: new Date().toISOString() })
+                        .eq('id', r.id);
+                    }
+                  }}
                 >
                   ⬇ Baixar PDF
                 </Button>
