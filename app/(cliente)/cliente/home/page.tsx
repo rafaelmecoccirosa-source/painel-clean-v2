@@ -51,7 +51,7 @@ function resolveHeroState(
   if (lastReport) {
     // 3. drop: efficiency < 85 OU alert_message presente
     if (
-      (lastReport.efficiency_pct !== null && lastReport.efficiency_pct < 85) ||
+      (lastReport.efficiency_pct !== null && lastReport.efficiency_pct > 0 && lastReport.efficiency_pct < 85) ||
       lastReport.alert_message !== null
     ) return 'drop';
 
@@ -196,11 +196,11 @@ export default async function ClienteHomePage() {
   const geracaoMeta = lastReport?.kwh_expected
     ?? Math.round((sub.modules_count * 550) / 1000 * 130);
   const geracao = Math.round(lastReport?.kwh_generated ?? 0);
-  const eficiencia = lastReport?.efficiency_pct != null
-    ? Math.round(lastReport.efficiency_pct)
-    : (geracaoMeta > 0 ? Math.round((geracao / geracaoMeta) * 100) : 94);
-  const quedaPct = lastReport?.efficiency_pct != null
-    ? Math.max(0, 100 - Math.round(lastReport.efficiency_pct))
+  const effPct = lastReport?.efficiency_pct;
+  const computedEff = geracaoMeta > 0 ? Math.round((geracao / geracaoMeta) * 100) : 94;
+  const eficiencia = effPct != null && effPct > 0 ? Math.round(effPct) : computedEff;
+  const quedaPct = effPct != null && effPct > 0
+    ? Math.max(0, 100 - Math.round(effPct))
     : undefined;
 
   const economiaAcumulada = Math.round(
