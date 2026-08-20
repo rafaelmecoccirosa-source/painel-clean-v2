@@ -120,7 +120,8 @@ Plataforma de limpeza de usinas solares no modelo **assinatura recorrente (Netfl
 - **`CLAUDE.md`** — arquitetura completa, schema do banco, fluxos e regras
 - **`TODO.md`** — estado atual e próximos passos
 - **`MOBILE_BRIEFING.md`** — briefing para desenvolvimento do app mobile
-- **`supabase/migrations/`** — todas as migrations aplicadas
+- **`SUPABASE_RUNBOOK.md`** — projeto pausado/congelado, backup e reconstrução do banco
+- **`supabase/migrations/`** — todas as migrations aplicadas (ordem correta no runbook)
 
 ## App mobile
 

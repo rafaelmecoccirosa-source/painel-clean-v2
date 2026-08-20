@@ -1,5 +1,15 @@
 -- PainelClean — Schema MVP
 -- Run this in Supabase SQL Editor
+--
+-- ⚠️ ATENÇÃO — ARQUIVO PARCIALMENTE DESATUALIZADO (v1).
+-- Em um projeto novo, execute daqui APENAS: extensão uuid-ossp, enum user_role,
+-- tabela profiles, função handle_new_user() e o trigger on_auth_user_created.
+-- As definições de service_requests, quotes e reviews abaixo são da v1
+-- (panel_count, tecnico_id, FK para profiles(id)) e foram substituídas pelas
+-- migrations de supabase/migrations/. Como as migrations usam
+-- CREATE TABLE IF NOT EXISTS, rodar este arquivo inteiro cria as tabelas no
+-- formato errado em silêncio e quebra o app em runtime.
+-- Ordem correta de reconstrução: ver SUPABASE_RUNBOOK.md (seção 5).
 
 -- Enable UUID extension
 create extension if not exists "uuid-ossp";
